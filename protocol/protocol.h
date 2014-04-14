@@ -1,8 +1,8 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-#include <stdint.h>
-#include <time.h>
+#include <stdint.h> /* cstdint tylko w C++11 */
+#include <ctime>
 
 namespace monitoring_hal {
 
