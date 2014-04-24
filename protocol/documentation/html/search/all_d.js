@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['sconfiguration',['SConfiguration',['../struct_n_protocol_1_1_s_configuration.html',1,'NProtocol']]],
+  ['sconfigurationresponse',['SConfigurationResponse',['../struct_n_protocol_1_1_s_configuration_response.html',1,'NProtocol']]],
+  ['sconfigurationvalue',['SConfigurationValue',['../struct_n_protocol_1_1_s_configuration_value.html',1,'NProtocol']]],
+  ['sdata',['SData',['../struct_n_protocol_1_1_s_data.html',1,'NProtocol']]],
+  ['sending_5ffrequency',['SENDING_FREQUENCY',['../namespace_n_protocol.html#a91583aea07460245d221f649113c91cfa57512c77fe9e658cea4f1623ac4dfe54',1,'NProtocol']]],
+  ['sendtime',['sendTime',['../struct_n_protocol_1_1_s_monitor_data.html#a7f6f2a54425f8da9733c8946ddc600b5',1,'NProtocol::SMonitorData']]],
+  ['sensor_5fturn_5fon',['SENSOR_TURN_ON',['../namespace_n_protocol.html#a91583aea07460245d221f649113c91cfa363b14993a7a0230875ba0fc4f724f8d',1,'NProtocol']]],
+  ['sensorsamount',['sensorsAmount',['../struct_n_protocol_1_1_s_monitor_data.html#aae7d7c4eb97b3cd22a9300cb2020ce0e',1,'NProtocol::SMonitorData']]],
+  ['sensorsdata',['sensorsData',['../struct_n_protocol_1_1_s_monitor_data.html#a6f7123fc0f0ffcac3fa74f14f82e536d',1,'NProtocol::SMonitorData']]],
+  ['sensorsdatasize',['sensorsDataSize',['../struct_n_protocol_1_1_s_monitor_data.html#a3ddf2bd6cdb9b4244ff749cbfd16871d',1,'NProtocol::SMonitorData']]],
+  ['sensorstate',['sensorState',['../struct_n_protocol_1_1_s_sensor_data.html#ae99467d7ccf38b46ae5c141f6123bfc0',1,'NProtocol::SSensorData']]],
+  ['server_5fmonitor_5fresponse',['SERVER_MONITOR_RESPONSE',['../namespace_n_protocol.html#a2622ccfce41076fa12fc21e78a8895f6ab173b2f9e4970001a1231e4cff841ab8',1,'NProtocol']]],
+  ['server_5frequest',['SERVER_REQUEST',['../namespace_n_protocol.html#a2622ccfce41076fa12fc21e78a8895f6a13c11f97bc40efa68822d6abcc5a981a',1,'NProtocol']]],
+  ['servermonitorresponse',['serverMonitorResponse',['../union_n_protocol_1_1_u_message.html#a1f2fa0bde164caf9f0a65877c1530b4d',1,'NProtocol::UMessage']]],
+  ['serverresponse',['serverResponse',['../union_n_protocol_1_1_u_message.html#a753986ea8da35d7123e09ef47bce103a',1,'NProtocol::UMessage']]],
+  ['size',['size',['../struct_n_protocol_1_1_s_protocol.html#afa4d5227fcdc02441d1a4a9be49f7673',1,'NProtocol::SProtocol']]],
+  ['smonitordata',['SMonitorData',['../struct_n_protocol_1_1_s_monitor_data.html',1,'NProtocol']]],
+  ['sprotocol',['SProtocol',['../struct_n_protocol_1_1_s_protocol.html',1,'NProtocol']]],
+  ['srequest',['SRequest',['../struct_n_protocol_1_1_s_request.html',1,'NProtocol']]],
+  ['ssensordata',['SSensorData',['../struct_n_protocol_1_1_s_sensor_data.html',1,'NProtocol']]],
+  ['sserverrequest',['SServerRequest',['../struct_n_protocol_1_1_s_server_request.html',1,'NProtocol']]],
+  ['sserverresponse',['SServerResponse',['../struct_n_protocol_1_1_s_server_response.html',1,'NProtocol']]],
+  ['status',['status',['../struct_n_protocol_1_1_s_configuration_response.html#a67b9d552993b503f40d50b99414d39e9',1,'NProtocol::SConfigurationResponse::status()'],['../struct_n_protocol_1_1_s_server_response.html#a2e9106d4b8af02e7a25453c80165f950',1,'NProtocol::SServerResponse::status()']]]
+];
