@@ -10,13 +10,12 @@ var indexSectionsWithContent =
   0: "abcdefikmnoprstuv",
   1: "su",
   2: "n",
-  3: "mp",
-  4: "m",
-  5: "cdimrstv",
-  6: "dfu",
-  7: "e",
-  8: "abcdfikmnorstuv",
-  9: "p"
+  3: "p",
+  4: "cdimrstv",
+  5: "dfu",
+  6: "e",
+  7: "abcdfikmnorstuv",
+  8: "p"
 };
 
 var indexSectionNames =
@@ -25,12 +24,11 @@ var indexSectionNames =
   1: "classes",
   2: "namespaces",
   3: "files",
-  4: "functions",
-  5: "variables",
-  6: "typedefs",
-  7: "enums",
-  8: "enumvalues",
-  9: "defines"
+  4: "variables",
+  5: "typedefs",
+  6: "enums",
+  7: "enumvalues",
+  8: "defines"
 };
 
 function convertToId(search)
