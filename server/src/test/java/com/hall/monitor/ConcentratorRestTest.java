@@ -1,13 +1,13 @@
 package com.hall.monitor;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
+import org.junit.Test;
+
 
 public class ConcentratorRestTest {
 
-	public static void main(String[] args) {
-/*
+	@Test
+	public void test(){
+		/*
 		try {
 
 			Client client = Client.create();
@@ -36,5 +36,6 @@ public class ConcentratorRestTest {
 		}
 */
 	}
+
 
 }
