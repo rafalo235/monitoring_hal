@@ -1,6 +1,6 @@
 <project-modules id="moduleCoreId" project-version="2.0">
-  <wb-module deploy-name="RESTfulExample">
-    <property name="context-root" value="RESTfulExample"/>
+  <wb-module deploy-name="HallMonitorServer">
+    <property name="context-root" value="HallMonitorServer"/>
     <wb-resource deploy-path="/" source-path="src/main/webapp"/>
     <property name="java-output-path" value="/target/classes"/>
     <dependent-module archiveName="activation-1.1.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/var/M2_REPO/javax/activation/activation/1.1/activation-1.1.jar">

@@ -6,18 +6,18 @@ public class SSensorData
   private char         idSensor;   // !< id czujnika
   private long         timeStamp;  // !< czas pomiaru
   private ESensorState sensorState; // !< stan czujnika
-  private EDangerLevel dataState;  // !< stopien niebezpieczenstwa
+  private EDangerLevel dangerLevel;  // !< stopien niebezpieczenstwa
   private SData        data;
   
   public SSensorData(long idData, char idSensor, long timeStamp,
-      ESensorState sensorState, EDangerLevel dataState, SData data)
+      ESensorState sensorState, EDangerLevel dangerLevel, SData data)
   {
     super();
     this.idData = idData;
     this.idSensor = idSensor;
     this.timeStamp = timeStamp;
     this.sensorState = sensorState;
-    this.dataState = dataState;
+    this.dangerLevel = dangerLevel;
     this.data = data;
   }
   
@@ -37,8 +37,8 @@ public class SSensorData
     return sensorState;
   }
   
-  public EDangerLevel getDataState() {
-    return dataState;
+  public EDangerLevel getDangerLevel() {
+    return dangerLevel;
   }
   
   public SData getData() {

@@ -44,6 +44,19 @@ public class DataByteStream
     return (char) (buffer.getInt() & 0xFFFFFFFFL);
   }
   
+  public long readInt64() {
+    return buffer.getLong();
+  }
+  
+  public float readFloat32(){
+    return buffer.getFloat();
+  }
+  
+  public double readDouble64(){
+    return buffer.getDouble();
+  }
+
+  
   public void setPosition(int newPosition) {
     buffer.position(newPosition);
   }

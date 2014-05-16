@@ -5,10 +5,10 @@ import java.util.ArrayList;
 public class SMonitorData implements UMessage
 {
   private long                   sendTime;
-  private short                  sensorsAmount;
+  private char                  sensorsAmount;
   private ArrayList<SSensorData> sensorsData;
   
-  public SMonitorData(long sendTime, short sensorsAmount, 
+  public SMonitorData(long sendTime, char sensorsAmount, 
       ArrayList<SSensorData> sensorsData)
   {
     super();
@@ -21,7 +21,7 @@ public class SMonitorData implements UMessage
     return sendTime;
   }
   
-  public short getSensorsAmount() {
+  public char getSensorsAmount() {
     return sensorsAmount;
   }
   

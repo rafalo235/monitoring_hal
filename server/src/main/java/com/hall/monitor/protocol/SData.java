@@ -1,9 +1,12 @@
 package com.hall.monitor.protocol;
 
-public abstract class SData
+public class SData
 {
-  private EValueType type;
-  private Object     value;
+  public static final Short VOID_VALUE = 0xFF;
+  public static final SData VOID = new SData(EValueType.VOID, VOID_VALUE);
+  
+  private EValueType        type;
+  private Object            value;
   
   public SData(EValueType type, Object value)
   {

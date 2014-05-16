@@ -11,7 +11,7 @@ QT       -= gui
 TARGET = Concentrator
 CONFIG   += console
 CONFIG   -= app_bundle
-
+QT += network
 TEMPLATE = app
 
 
@@ -23,3 +23,5 @@ HEADERS += \
     communication/protocol.h \
     communication/Communication.h \
     communication/HttpThread.h
+
+QMAKE_CXXFLAGS += -std=c++11
