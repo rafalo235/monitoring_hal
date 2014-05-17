@@ -3,14 +3,14 @@ package com.hall.monitor.protocol;
 public enum EDangerLevel
 {
   NONE(0), DANGER(1), ALARM(2);
-  private int cppValue;
+  private byte cppValue;
   
   private EDangerLevel(int cppValue)
   {
-    this.cppValue = cppValue;
+    this.cppValue = (byte) cppValue;
   }
   
-  public int getCppValue() {
+  public byte getCppValue() {
     return cppValue;
   }
   
@@ -21,5 +21,9 @@ public enum EDangerLevel
       }
     }
     return null;
+  }
+  
+  public static int getSizeBits() {
+    return 8;
   }
 }

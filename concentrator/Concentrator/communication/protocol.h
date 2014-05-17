@@ -146,7 +146,7 @@ namespace NProtocol
     //! \brief Koncentrator prosi o przeslanie konfiguracji. UMessage przechowuje SServerRequest.
     SERVER_REQUEST = 2,
     //! \brief Serwer potwierdza odebrane dane z czujnik z koncentrator
-    //!        i ewentualnie przesyla konfiguracje do koncentratora na �adanie koncentratora lub serwera. UMessage przechowuje SServerMonitorResponse.
+    //!        i ewentualnie przesyla konfiguracje do koncentratora na zadanie koncentratora lub serwera. UMessage przechowuje SServerMonitorResponse.
     SERVER_MONITOR_RESPONSE = 3,
   };
 

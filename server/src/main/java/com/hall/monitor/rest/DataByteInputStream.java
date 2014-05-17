@@ -9,12 +9,12 @@ import java.nio.ByteOrder;
  * @author iblis
  * 
  */
-public class DataByteStream
+public class DataByteInputStream
 {
   
   private ByteBuffer buffer;
   
-  public DataByteStream(byte bytes[])
+  public DataByteInputStream(byte bytes[])
   {
     buffer = ByteBuffer.wrap(bytes);
     buffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -28,12 +28,12 @@ public class DataByteStream
     return (char) (buffer.get() & 0xFF);
   }
   
-  public char readInt16() {
-    return buffer.getChar();
+  public short readInt16() {
+    return buffer.getShort();
   }
   
-  public int readUInt16() {
-    return (char) (buffer.getChar() & 0xFFFF);
+  public char readUInt16() {
+    return buffer.getChar();
   }
   
   public int readInt32() {
@@ -48,14 +48,13 @@ public class DataByteStream
     return buffer.getLong();
   }
   
-  public float readFloat32(){
+  public float readFloat32() {
     return buffer.getFloat();
   }
   
-  public double readDouble64(){
+  public double readDouble64() {
     return buffer.getDouble();
   }
-
   
   public void setPosition(int newPosition) {
     buffer.position(newPosition);

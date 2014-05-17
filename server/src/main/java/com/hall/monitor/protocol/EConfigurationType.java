@@ -2,17 +2,19 @@ package com.hall.monitor.protocol;
 
 public enum EConfigurationType
 {
-  SENDING_FREQUENCY(0), SENSOR_TURN_ON(1), CARD_SAVE(2), DANGER_LEVEL(3), ALARM_LEVEL(4), RESET(5), KEY_CHANGE(6), KEY_LIFETIME(
-      7);
+  SENDING_FREQUENCY(0), 
+  SENSOR_TURN_ON(1), 
+  CARD_SAVE(2), DANGER_LEVEL(3), ALARM_LEVEL(
+      4), RESET(5), KEY_CHANGE(6), KEY_LIFETIME(7);
   
-  private int cppValue;
+  private byte cppValue;
   
   private EConfigurationType(int cppValue)
   {
-    this.cppValue = cppValue;
+    this.cppValue = (byte) cppValue;
   }
   
-  public int getCppValue() {
+  public byte getCppValue() {
     return cppValue;
   }
   
@@ -23,5 +25,9 @@ public enum EConfigurationType
       }
     }
     return null;
+  }
+  
+  public static int getSizeBits() {
+    return 8;
   }
 }

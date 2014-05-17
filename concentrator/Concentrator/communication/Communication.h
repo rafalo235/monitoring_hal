@@ -11,30 +11,12 @@ namespace NProtocol {
     Q_OBJECT
     QThread workerThread;
   public:
-    CCommunication() {
-      qRegisterMetaType<SProtocol>("SProtocol");
+    CCommunication();
 
-      CHttpThread *worker = new CHttpThread;
-      worker->moveToThread(&workerThread);
-
-      connect(&workerThread, SIGNAL(finished()), worker, SLOT(deleteLater()));
-      connect(this, SIGNAL(sendProtocol(SProtocol)), worker, SLOT(sendData(SProtocol)));
-      connect(worker, SIGNAL(resultReady(SProtocol)), this, SLOT(handleResults(SProtocol)));
-
-      workerThread.start();
-      qDebug() <<"Controller2 thread: "<<QThread::currentThreadId();
-    }
-
-    ~CCommunication() {
-      workerThread.quit();
-      workerThread.wait();
-    }
+    ~CCommunication();
 
   public slots:
-    void handleResults(const SProtocol& res)
-    {
-      qDebug() << "handle results: "<<res.version<<" thread: "<<QThread::currentThreadId();
-    }
+    void handleResults(const EConnectionStatus error, const SProtocol& res);
 
   signals:
     void sendProtocol(const SProtocol&);

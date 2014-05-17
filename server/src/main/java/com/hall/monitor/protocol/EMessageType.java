@@ -4,14 +4,14 @@ public enum EMessageType
 {
   MONITOR_DATA(0), CONFIGURATION_RESPONSE(1), SERVER_REQUEST(2), SERVER_MONITOR_RESPONSE(
       3);
-  private int cppValue;
+  private byte cppValue;
   
   private EMessageType(int cppValue)
   {
-    this.cppValue = cppValue;
+    this.cppValue = (byte) cppValue;
   }
   
-  public int getCppValue() {
+  public byte getCppValue() {
     return cppValue;
   }
   
@@ -22,5 +22,9 @@ public enum EMessageType
       }
     }
     return null;
+  }
+  
+  public static int getSizeBits() {
+    return 8;
   }
 }

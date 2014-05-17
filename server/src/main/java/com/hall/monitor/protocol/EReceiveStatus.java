@@ -3,14 +3,14 @@ package com.hall.monitor.protocol;
 public enum EReceiveStatus
 {
   OK(0), CRC_ERROR(1), BAD_STRUCTURE(2), OPERATION_FAILED(3);
-  private int cppValue;
+  private byte cppValue;
   
   private EReceiveStatus(int cppValue)
   {
-    this.cppValue = cppValue;
+    this.cppValue = (byte) cppValue;
   }
   
-  public int getCppValue() {
+  public byte getCppValue() {
     return cppValue;
   }
   
@@ -21,5 +21,9 @@ public enum EReceiveStatus
       }
     }
     return null;
+  }
+  
+  public static int getSizeBits() {
+    return 8;
   }
 }

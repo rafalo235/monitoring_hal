@@ -2,12 +2,30 @@ package com.hall.monitor.protocol;
 
 public class SSensorData
 {
-  private long         idData;     // !< id pomiaru
-  private char         idSensor;   // !< id czujnika
-  private long         timeStamp;  // !< czas pomiaru
-  private ESensorState sensorState; // !< stan czujnika
-  private EDangerLevel dangerLevel;  // !< stopien niebezpieczenstwa
-  private SData        data;
+  // uint32_t idData;
+  private long            idData;                             // !< id pomiaru
+                                                               
+  // uint8_t idSensor;
+  private char            idSensor;                           // !< id czujnika
+                                                               
+  // uint64_t timeStamp;
+  private long            timeStamp;                          // !< czas
+                                                               // pomiaru
+                                                               
+  // ESensorState sensorState;
+  private ESensorState    sensorState;                        // !< stan
+                                                               // czujnika
+                                                               
+  // EDangerLevel dangerLevel;
+  private EDangerLevel    dangerLevel;                        // !< stopien
+                                                               // niebezpieczenstwa
+                                                               
+  // SData data;
+  private SData           data;
+  
+  public static final int HEADER_SIZE = (EValueType.UINT_32.getTypeSizeBits() + EValueType.UINT_8.getTypeSizeBits() + EValueType.UINT_64.getTypeSizeBits()
+                                          + ESensorState.getSizeBits() + EDangerLevel
+                                          .getSizeBits()) / 8;
   
   public SSensorData(long idData, char idSensor, long timeStamp,
       ESensorState sensorState, EDangerLevel dangerLevel, SData data)
@@ -45,4 +63,7 @@ public class SSensorData
     return data;
   }
   
+  public int getSize() {
+    return HEADER_SIZE + data.getSize();
+  }
 }

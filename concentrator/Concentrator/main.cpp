@@ -1,23 +1,19 @@
+#define LOGGER_ENABLE
+#define LOGGER_FILE_ENABLE
+#include "util/Logger.h"
 #include <QCoreApplication>
+#include <set>
+#include <string>
 
 #include "communication/protocol.h"
+
 #include "communication/HttpThread.h"
 #include "communication/Communication.h"
 #include <iostream>
 
 using namespace NProtocol;
-/*
-void fun2(const char* data, int size){
 
-  std::cout<<"size: "<<size;
-}
 
-template<typename T>
-void fun(const T& data){
-
-  fun2((const char*)&data, sizeof(T));
-}
-*/
 int main(int argc, char *argv[])
 {
   QCoreApplication a(argc, argv);
@@ -86,8 +82,6 @@ int main(int argc, char *argv[])
 
   uint32_t size = protocol.getSize();
   protocol.size = size;
-
-  std::cout<<size<<std::endl;
 
 
   CCommunication cont;

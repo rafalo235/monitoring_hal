@@ -3,14 +3,14 @@ package com.hall.monitor.protocol;
 public enum ESensorState
 {
   OK(0), TURN_OFF(1), BROKEN(2);
-  private int cppValue;
+  private byte cppValue;
   
   private ESensorState(int cppValue)
   {
-    this.cppValue = cppValue;
+    this.cppValue = (byte) cppValue;
   }
   
-  public int getCppValue() {
+  public byte getCppValue() {
     return cppValue;
   }
   
@@ -21,5 +21,9 @@ public enum ESensorState
       }
     }
     return null;
+  }
+  
+  public static int getSizeBits() {
+    return 8;
   }
 }

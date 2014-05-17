@@ -1,19 +1,43 @@
 package com.hall.monitor.protocol;
 
-import java.util.ArrayList;
-
 public class SServerResponse implements UMessage
 {
-  private ArrayList<SRequest> requests;
+  // EReceiveStatus status;
+  private EReceiveStatus  status;
   
-  public SServerResponse(ArrayList<SRequest> requests)
+  // uint32_t idRequestPackage;
+  private long            idRequestPackage;
+  
+  // SConfiguration configuration;
+  private SConfiguration  configuration;
+  
+  public static final int HEADER_SIZE = (EReceiveStatus.getSizeBits() + EValueType.UINT_32.getTypeSizeBits()) / 8;
+  
+  public SServerResponse(EReceiveStatus status, long idRequestPackage,
+      SConfiguration configuration)
   {
     super();
-    this.requests = requests;
+    this.status = status;
+    this.idRequestPackage = idRequestPackage;
+    this.configuration = configuration;
   }
   
-  public ArrayList<SRequest> getRequests() {
-    return requests;
+  public EReceiveStatus getStatus() {
+    return status;
+  }
+  
+  public long getIdRequestPackage() {
+    return idRequestPackage;
+  }
+  
+  public SConfiguration getConfiguration() {
+    return configuration;
+  }
+  
+  @Override
+  public int getSize() {
+    
+    return HEADER_SIZE + configuration.getSize();
   }
   
 }

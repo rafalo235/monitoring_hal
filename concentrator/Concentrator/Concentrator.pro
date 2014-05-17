@@ -17,11 +17,13 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     communication/Communication.cpp \
-    communication/HttpThread.cpp
+    communication/HttpThread.cpp \
+    util/Logger.cpp
 
 HEADERS += \
     communication/protocol.h \
     communication/Communication.h \
-    communication/HttpThread.h
+    communication/HttpThread.h \
+    util/Logger.h
 
 QMAKE_CXXFLAGS += -std=c++11

@@ -22,8 +22,9 @@ import com.hall.monitor.protocol.UMessage;
 public class ProtocolConverter
 {
   
-  private static SData converToSData(DataByteStream stream, int idConcentrator,
-      int idSensor, long idData) throws ParserException {
+  private static SData converToSData(DataByteInputStream stream,
+      int idConcentrator, int idSensor, long idData) throws ParserException {
+    
     byte valueTypeBuf = stream.readInt8();
     EValueType valueType = EValueType.convert(valueTypeBuf);
     if (valueType == null) {
@@ -70,8 +71,9 @@ public class ProtocolConverter
     
   }
   
-  private static SSensorData convertToSSensorData(DataByteStream stream,
+  private static SSensorData convertToSSensorData(DataByteInputStream stream,
       int idConcentrator) throws ParserException {
+    
     long idData = stream.readUInt32();
     char idSensor = stream.readUInt8();
     long timeStamp = stream.readInt64();
@@ -96,8 +98,9 @@ public class ProtocolConverter
         dangerLevel, data);
   }
   
-  private static SMonitorData convertToSMonitorData(DataByteStream stream,
+  private static SMonitorData convertToSMonitorData(DataByteInputStream stream,
       int idConcentrator) throws ParserException {
+    
     long sendTime = stream.readInt64();
     char sensorsAmount = stream.readUInt8();
     long sensorsDataSize = stream.readUInt32();
@@ -113,7 +116,8 @@ public class ProtocolConverter
   }
   
   private static SConfigurationValue convertToSConfigurationValue(
-      DataByteStream stream, int idConcentrator) throws ParserException {
+      DataByteInputStream stream, int idConcentrator) throws ParserException {
+    
     byte idSensor = stream.readInt8();
     byte configurationTypeBuf = stream.readInt8();
     EConfigurationType configurationType = EConfigurationType
@@ -123,8 +127,9 @@ public class ProtocolConverter
     return new SConfigurationValue(idSensor, configurationType, data);
   }
   
-  private static SConfiguration convertToSConfiguration(DataByteStream stream,
-      int idConcentrator) throws ParserException {
+  private static SConfiguration convertToSConfiguration(
+      DataByteInputStream stream, int idConcentrator) throws ParserException {
+    
     char configurationSize = stream.readUInt8();
     ArrayList<SConfigurationValue> configurations = new ArrayList<SConfigurationValue>();
     for (int i = 0; i < configurationSize; ++i) {
@@ -137,7 +142,7 @@ public class ProtocolConverter
   }
   
   private static SConfigurationResponse convertoSConfigurationResponse(
-      DataByteStream stream, int idConcentrator) throws ParserException {
+      DataByteInputStream stream, int idConcentrator) throws ParserException {
     
     byte receiveStatusBuf = stream.readInt8();
     
@@ -154,25 +159,26 @@ public class ProtocolConverter
         currentConfiguration);
   }
   
-  private static SServerRequest convertToSServerRequest(DataByteStream stream,
-      int idConcentrator) throws ParserException {
+  private static SServerRequest convertToSServerRequest(
+      DataByteInputStream stream, int idConcentrator) throws ParserException {
     
     return null;
   }
   
   private static SServerResponse convertTOSServerResponse(
-      DataByteStream stream, int idConcentrator) throws ParserException {
+      DataByteInputStream stream, int idConcentrator) throws ParserException {
     
     return null;
   }
   
   public static SProtocol convertToProtocol(byte bytes[])
       throws ParserException {
-    DataByteStream stream = new DataByteStream(bytes);
+    
+    DataByteInputStream stream = new DataByteInputStream(bytes);
     
     char version = stream.readUInt8();
     long size = stream.readUInt32();
-    int idConcentrator = stream.readUInt16();
+    char idConcentrator = stream.readUInt16();
     
     long idPackage = stream.readUInt32();
     byte messageTypeBuf = stream.readInt8();
@@ -198,9 +204,124 @@ public class ProtocolConverter
       message = convertToSServerRequest(stream, idConcentrator);
       break;
     }
-    int crc = stream.readUInt16();
+    char crc = stream.readUInt16();
     return new SProtocol(version, size, idConcentrator, crc, idPackage,
         messageType, message);
+  }
+  
+  // //////////////////////////////////////////////////////////////////
+  
+  private static void convertToBytes(DataByteOutputStream data,
+      SMonitorData monitor) {
+    
+  }
+  
+  private static void convertToBytes(DataByteOutputStream data,
+      SServerRequest request) {
+    
+  }
+  
+  private static void convertToBytes(DataByteOutputStream data,
+      SServerResponse response) {
+    
+  }
+  
+  private static void convertToBytes(DataByteOutputStream data,
+      SConfigurationResponse confResponse) {
+    
+    data.writeInt8(confResponse.getStatus().getCppValue());
+    data.writeUInt32(confResponse.getIdRequestPackage());
+    convertToBytes(data, confResponse.getCurrentConfiguration());
+  }
+  
+  private static void convertToBytes(DataByteOutputStream data,
+      SConfiguration configuration) {
+    
+    data.writeUInt8(configuration.getConfigurationSize());
+    ArrayList<SConfigurationValue> values = configuration.getConfigurations();
+    for (SConfigurationValue value : values){
+      convertToBytes(data, value);
+    }
+  }
+  
+  private static void convertToBytes(DataByteOutputStream data,
+      SConfigurationValue value) {
+    
+    data.writeInt8(value.getIdSensor());
+    data.writeInt8(value.getConfigurationType().getCppValue());
+    convertToBytes(data, value.getData());
+  }
+  
+  private static void convertToBytes(DataByteOutputStream data,
+      SData sdata) {
+    
+    data.writeInt8(sdata.getType().getCppValue());
+    Object value = sdata.getValue();
+    switch (sdata.getType())
+    {
+    case INT_8:
+      data.writeInt8((Byte) value);
+      break;
+    case UINT_8:
+      data.writeUInt8((Character) value);
+      break;
+    case INT_16:
+      data.writeInt16((Short) value);
+      break;
+    case UINT_16:
+      data.writeUInt16((Character) value);
+      break;
+    case INT_32:
+      data.writeInt32((Integer) value);
+      break;
+    case UINT_32:
+      data.writeUInt32((Long) value);
+      break;
+    case INT_64:
+      data.writeInt64((Long) value);
+      break;
+    case UINT_64:
+      data.writeUInt64((Long) value);
+      break;
+    case FLOAT_32:
+      data.writeFloat32((Float) value);
+      break;
+    case DOUBLE_64:
+      data.writeDouble64((Double) value);
+      break;
+    case VOID:
+      data.writeVoid();
+      break;
+    }
+    
+  }
+  public static byte[] convertToBytes(SProtocol protocol) {
+    DataByteOutputStream data = new DataByteOutputStream(
+        (int) protocol.getSize());
+    
+    data.writeUInt8(protocol.getVersion());
+    data.writeUInt32(protocol.getSize());
+    data.writeUInt16(protocol.getIdConcentrator());
+    data.writeUInt32(protocol.getIdPackage());
+    data.writeInt8(protocol.getType().getCppValue());
+    
+    switch (protocol.getType())
+    {
+    case CONFIGURATION_RESPONSE:
+      convertToBytes(data, (SConfigurationResponse) protocol.getMessage());
+      break;
+    case MONITOR_DATA:
+      convertToBytes(data, (SMonitorData) protocol.getMessage());
+      break;
+    case SERVER_MONITOR_RESPONSE:
+      convertToBytes(data, (SServerResponse) protocol.getMessage());
+      break;
+    case SERVER_REQUEST:
+      convertToBytes(data, (SServerRequest) protocol.getMessage());
+      break;
+    }
+    data.writeUInt16(protocol.getCrc());
+    return data.getBytes();
   }
   
   public static class ParserException extends Exception
