@@ -246,7 +246,7 @@ namespace NProtocol
   };
 
   //! \brief Status otrzymanego pakietu, ktory jest wysylany wraz z odpowiedzia
-  enum EReceiveStatus
+  enum class EReceiveStatus : int8_t
   {
     OK,               //!< Pakiet otrzymany byl poprawny
     CRC_ERROR,        //!< Pakiet otrzymany mial niepoprawna CRC

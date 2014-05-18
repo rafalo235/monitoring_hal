@@ -224,6 +224,9 @@ public class ProtocolConverter
   private static void convertToBytes(DataByteOutputStream data,
       SServerResponse response) {
     
+    data.writeInt8(response.getStatus().getCppValue());
+    data.writeUInt32(response.getIdRequestPackage());
+    convertToBytes(data, response.getConfiguration());
   }
   
   private static void convertToBytes(DataByteOutputStream data,
