@@ -1,7 +1,7 @@
 #include "Logger.h"
 
-namespace NLog{
-  CLogger* CLogger::logger = nullptr;
+namespace NUtil{
+  std::shared_ptr<CLogger> CLogger::logger;
   std::set<std::string> CUnlogFile::turnOffFiles;
 #ifdef LOGGER_ENABLE
 

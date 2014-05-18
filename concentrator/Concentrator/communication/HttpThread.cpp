@@ -2,11 +2,29 @@
 #include <QDataStream>
 #include <QByteArray>
 #include "util/Logger.h"
+#include "configuration/ConfigurationManager.h"
+#include "util/Cryptography.h"
 
 namespace NProtocol {
 
-  void CHttpThread::sendData(const SProtocol& protocol)
+
+  void CHttpThread::sendData(const uint32_t id1,
+                             const EMessageType type, const UMessage& message)
   {
+    SProtocol protocol;
+    protocol.version = VERSION;
+    protocol.idConcentrator = NEngine::CConfigurationManager::getInstance()->
+                              getConfiguration()->getIdConcentrator();
+
+    protocol.idPackage = id1;
+    protocol.crc = 0;
+    protocol.type = type;
+    protocol.message = message;
+    protocol.size = protocol.getSize();
+    const char* data = reinterpret_cast<const char*>(&protocol);
+    int dataSize = protocol.size;
+    protocol.crc = NUtil::CCryptography::crc16(data, dataSize);
+
     QByteArray postData;
     // konwertuj protokol do postaci binarnej tablicy QByteArray
     if (!convertToBinary(postData, protocol)){
@@ -54,13 +72,9 @@ namespace NProtocol {
         delete reply;
         emit resultReady(EConnectionStatus::CONNECTION_ERROR, protocol);
       }
-
-
     }
 
   }
-
-
 
   bool CHttpThread::convertToBinary(QByteArray& array, const SProtocol& protocol)
   {

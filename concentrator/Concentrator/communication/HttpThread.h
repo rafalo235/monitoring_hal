@@ -26,6 +26,8 @@ namespace NProtocol {
   class CHttpThread : public QObject
   {
     Q_OBJECT
+
+
   private:
 
     //! \brief Konwertuje obiekt protokolu do postaci tablicy binarnej i dodaje do array.
@@ -51,6 +53,8 @@ namespace NProtocol {
     template<typename T>
     static inline void convertToBinary(QByteArray& array, const T& data);
 
+
+    //! \brief Klasa pomocnicza w konwertowaniu tablicy bajtow na protokol
     class CByteWrapper{
       const char* src;
       int pointer;
@@ -58,6 +62,9 @@ namespace NProtocol {
       CByteWrapper(const QByteArray& array) : src(array.constData()), pointer(0){
 
       }
+
+      //! \brief Odczytuje obiekt typu T z tablicy bajtow
+      //! \return Odczytany obiekt typu T
       template<typename T>
       T read(){
         // dobrze by bylo zrobic konsturktory rvalue
@@ -67,15 +74,24 @@ namespace NProtocol {
         return dest;
       }
     };
+
+    //! \brief makro do ulatwienia odczytu
 #define READ_WRAPPER(obj, wrapper) obj = wrapper.read<decltype(obj)>();
+
+    //! \brief Konwertuje tablice bajtow na protokol
+    //! \param[in,out] protocol protokol odczytany
+    //! \param[in] array tablica bajtow
+    //! \return true jesli wszystko ok; false jesli byl blad formatu protokolu
     static bool convertToProtocol(SProtocol& protocol, const QByteArray& array);
+
+
     inline static bool convertToProtocol(SServerResponse& response, CByteWrapper& wrapper);
     inline static bool convertToProtocol(SConfiguration& configuration, CByteWrapper& wrapper);
     inline static bool convertToProtocol(SConfigurationValue& confValue, CByteWrapper& wrapper);
     inline static bool convertToProtocol(SData& sdata, CByteWrapper& wrapper);
 
   public slots:
-    void sendData(const SProtocol& protocol);
+     void sendData(const uint32_t id, const EMessageType type, const UMessage& message);
 
   signals:
     void resultReady(const EConnectionStatus error, const SProtocol& protocol);

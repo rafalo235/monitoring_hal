@@ -7,6 +7,7 @@
 #include <string>
 #include <algorithm>
 #include <QtCore>
+#include <memory>
 
 #define LOGGER_ENABLE
 
@@ -31,7 +32,7 @@
 
 #ifdef LOGGER_ENABLE
 
-#define LOG_DEBUG(...) NLog::CLogger::getInstance()->logDebug(__FILE_NAME__, __FUNCTION__, __LINE__, __VA_ARGS__);
+#define LOG_DEBUG(...) NUtil::CLogger::getInstance()->logDebug(__FILE_NAME__, __FUNCTION__, __LINE__, __VA_ARGS__);
 
 // wylaczenie logowania
 // unikatowe nazwy
@@ -39,10 +40,10 @@
 #define COMBINE(X,Y) COMBINE1(X,Y)
 #define UNIQUE_NAME COMBINE(x,__LINE__) (__FILE_NAME__);
 // makro wylaczajace debug log w pliku
-#define LOG_OFF NLog::CUnlogFile UNIQUE_NAME;
+#define LOG_OFF NUtil::CUnlogFile UNIQUE_NAME;
 
 // makro do logowania protokolu
-#define LOG_PROTOCOL(prot) NLog::CLogger::getInstance()->logProtocol(prot);
+#define LOG_PROTOCOL(prot) NUtil::CLogger::getInstance()->logProtocol(prot);
 
 #else // LOGGER_ENABLE
 // bez logowania debugow
@@ -50,7 +51,7 @@
 #define LOG_PROTOCOL(prot)
 #endif // LOGGER_ENABLE
 
-#define LOG_ERROR(...) NLog::CLogger::getInstance()->logError(__FILE_NAME__, __FUNCTION__, __LINE__, __VA_ARGS__);
+#define LOG_ERROR(...) NUtil::CLogger::getInstance()->logError(__FILE_NAME__, __FUNCTION__, __LINE__, __VA_ARGS__);
 
 
 //! \brief Logger do prostychy logow (do pliku tez).
@@ -65,7 +66,7 @@
 //! LOG_OFF - wylacza debugowanie logow dla danego pliku
 //! \author M. Serwach
 //!
-namespace NLog{
+namespace NUtil{
 #ifdef LOGGER_ENABLE
 
   class CUnlogFile{
@@ -92,7 +93,7 @@ namespace NLog{
     CLogger(const CLogger&) = delete;
     CLogger& operator=(const CLogger&) = delete;
 
-    static CLogger* logger;
+    static std::shared_ptr<CLogger> logger;
 
 
 #ifdef LOGGER_FILE_ENABLE
@@ -100,9 +101,9 @@ namespace NLog{
 #endif
 
   public:
-    static CLogger* getInstance(){
-      if (logger == nullptr){
-        logger = new CLogger();
+    static std::shared_ptr<CLogger> getInstance(){
+      if (logger.use_count() == 0){
+        logger.reset(new CLogger());
         // otworz plik jesli trzeba
 #ifdef LOGGER_FILE_ENABLE
         logger->file.open("log.txt", std::ios::out);
