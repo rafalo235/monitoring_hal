@@ -11,15 +11,7 @@ namespace NTest{
   }
   void CTest::createProtocol()
   {
-    /*
-    protocol.version = VERSION;
-    protocol.crc = 0;
-    protocol.size = 0;
-    protocol.idConcentrator = 1;
-    protocol.idPackage = 100;
 
-    protocol.type = EMessageType::MONITOR_DATA;
-*/
     SMonitorData monitor;
     monitor.sendTime = QDateTime ::currentDateTime().toTime_t();
     monitor.sensorsAmount = 3;
@@ -77,6 +69,23 @@ namespace NTest{
     decltype(SProtocol::idPackage) id;
     id = conf->sendProtocol(EMessageType::MONITOR_DATA, message);
 
+    SServerRequest request;
+    request.requestsSize = 2;
+    request.requests = new SRequest[request.requestsSize];
 
+    i = 0;
+    SRequest r1;
+    r1.idSensor = 0;
+    r1.configurationType = EConfigurationType::ALARM_LEVEL;
+    request.requests[i] = r1;
+
+    SRequest r2;
+    r2.idSensor = 0;
+    r2.configurationType = EConfigurationType::ALARM_LEVEL;
+    request.requests[++i] = r2;
+
+    UMessage message2;
+    message2.serverRequest = request;
+    id = conf->sendProtocol(EMessageType::SERVER_REQUEST, message2);
   }
 }

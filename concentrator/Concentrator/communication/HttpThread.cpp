@@ -96,6 +96,7 @@ namespace NProtocol {
       break;
 
     case SERVER_REQUEST:
+      convertToBinary(array, protocol.message.serverRequest);
       break;
     case SERVER_MONITOR_RESPONSE:
       // typ protokolu server -> concentrator
