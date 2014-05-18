@@ -63,11 +63,9 @@ namespace NTest{
     monitor.sensorsData[i].data.type = EValueType::INT_32;
     monitor.sensorsData[i].data.value.vInt32 = static_cast<int32_t>(32000);
   */
-    DCommunication conf = CCommunication::getInstance();
-    UMessage message;
-    message.monitorData = monitor;
+    DCommunication con = CCommunication::getInstance();
     decltype(SProtocol::idPackage) id;
-    id = conf->sendProtocol(EMessageType::MONITOR_DATA, message);
+    id = con->sendMonitorData(monitor);
 
     SServerRequest request;
     request.requestsSize = 2;
@@ -84,8 +82,36 @@ namespace NTest{
     r2.configurationType = EConfigurationType::ALARM_LEVEL;
     request.requests[++i] = r2;
 
-    UMessage message2;
-    message2.serverRequest = request;
-    id = conf->sendProtocol(EMessageType::SERVER_REQUEST, message2);
+    id = con->sendServerRequest(request);
+
+
+    i = 0;
+    SConfigurationResponse confRes;
+    confRes.status = EReceiveStatus::OK;
+    confRes.idRequestPackage = 10u;
+    SConfiguration conf;
+    conf.configurationSize = 2;
+    conf.configurations = new SConfigurationValue[conf.configurationSize];
+
+    SConfigurationValue v1;
+    v1.idSensor = 0;
+    v1.configurationType = EConfigurationType::ALARM_LEVEL;
+    SData s1;
+    s1.type = EValueType::INT_8;
+    s1.value.vInt8 = 1;
+    v1.data = s1;
+    conf.configurations[i] = v1;
+
+    SConfigurationValue v2;
+    v2.idSensor = 1;
+    v2.configurationType = EConfigurationType::DANGER_LEVEL;
+    SData s2;
+    s2.type = EValueType::INT_32;
+    s2.value.vInt32 = 1234;
+    v2.data = s2;
+    conf.configurations[++i] = v2;
+    confRes.currentConfiguration = conf;
+
+    id = con->sendConfigurationResponse(confRes);
   }
 }

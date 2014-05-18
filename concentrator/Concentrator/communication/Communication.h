@@ -24,6 +24,8 @@ public:
     CCommunication(const CCommunication&) = delete;
     CCommunication& operator=(const CCommunication&) = delete;
 
+    decltype(SProtocol::idPackage) sendProtocol(const EMessageType type, const UMessage& message);
+
   public:
 
     static DCommunication getInstance(){
@@ -35,7 +37,21 @@ public:
 
     ~CCommunication();
 
-  decltype(SProtocol::idPackage) sendProtocol(const EMessageType type, const UMessage& message);
+    //! \brief Wysyla dane z czujnikow do serwera
+    //! \param[in] data Dane czujnikow
+    //! \return Id pakietu
+    decltype(SProtocol::idPackage) sendMonitorData(const SMonitorData& data);
+
+    //! \brief Wysyla potwierdzenie zmiany konfiguracji do serwera
+    //! \param[in] data Aktualna konfiguracja
+    //! \return Id pakietu
+    decltype(SProtocol::idPackage) sendConfigurationResponse(const SConfigurationResponse& data);
+
+    //! \brief Wysyla prosbe o wyslanie konfigruacji do serwera
+    //! \param[in] data Typy konfiguracji
+    //! \return Id pakietu
+    decltype(SProtocol::idPackage) sendServerRequest(const SServerRequest& data);
+
 
   public slots:
     void handleResults(const EConnectionStatus error, const SProtocol& res);

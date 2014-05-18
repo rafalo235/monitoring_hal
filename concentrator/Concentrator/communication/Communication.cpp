@@ -41,4 +41,25 @@ namespace NProtocol{
     return idPackageBase;
   }
 
+  decltype(SProtocol::idPackage) CCommunication::sendMonitorData(const SMonitorData& data)
+  {
+    UMessage message;
+    message.monitorData = data;
+    return sendProtocol(EMessageType::MONITOR_DATA, message);
+  }
+
+  decltype(SProtocol::idPackage) CCommunication::sendConfigurationResponse(const SConfigurationResponse& data)
+  {
+    UMessage message;
+    message.configurationResponse = data;
+    return sendProtocol(EMessageType::CONFIGURATION_RESPONSE, message);
+  }
+
+  decltype(SProtocol::idPackage) CCommunication::sendServerRequest(const SServerRequest& data)
+  {
+    UMessage message;
+    message.serverRequest = data;
+    return sendProtocol(EMessageType::SERVER_REQUEST, message);
+  }
+
 }
