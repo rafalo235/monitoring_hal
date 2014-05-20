@@ -6,12 +6,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.hall.monitor.database.DBManager;
+import com.hall.monitor.database.data.Company;
 import com.hall.monitor.protocol.EConfigurationType;
 import com.hall.monitor.protocol.EMessageType;
 import com.hall.monitor.protocol.EReceiveStatus;
@@ -72,5 +75,17 @@ public class ConcentratorRest {
     SConfiguration configuration = new SConfiguration(configurations);
     SServerResponse res = new SServerResponse(EReceiveStatus.OK, 9, configuration);
 	  return new SProtocol((char)1, 0L, (char)10, (char) 0, 2, EMessageType.SERVER_MONITOR_RESPONSE, res);
+	}
+	
+	@GET
+	@Path("/test")
+	 @Produces(MediaType.TEXT_PLAIN)
+	public Response testCreate(){
+	  
+	  DBManager db = new DBManager();
+	  Company comp = db.addCompany("Firma1", "Lodz");
+	  
+
+	   return Response.status(201).entity("ID:").build();
 	}
 }
