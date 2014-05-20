@@ -7,7 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -15,42 +16,43 @@ import javax.persistence.Table;
 public class ReceivePackage
 {
   @Id
-  @GeneratedValue(strategy=GenerationType.AUTO)
-  @Column
-  private int idPackage;
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "idPackage")
+  private int          idPackage;
   
-  @Column
-  private Date receiveDate;
+  @Column(name = "receiveDate")
+  private Date         receiveDate;
   
-  @OneToMany
-  @Column(name = "idConcentrator")
+  @ManyToOne
+  @JoinColumn(name = "idConcentrator")
   private Concentrator concentrator;
   
-  public ReceivePackage(){}
-
+  public ReceivePackage()
+  {
+  }
+  
   public int getIdPackage() {
     return idPackage;
   }
-
+  
   public void setIdPackage(int idPackage) {
     this.idPackage = idPackage;
   }
-
+  
   public Date getReceiveDate() {
     return receiveDate;
   }
-
+  
   public void setReceiveDate(Date receiveDate) {
     this.receiveDate = receiveDate;
   }
-
+  
   public Concentrator getConcentrator() {
     return concentrator;
   }
-
+  
   public void setConcentrator(Concentrator concentrator) {
     this.concentrator = concentrator;
   }
-  
   
 }

@@ -11,28 +11,26 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.ForeignKey;
-
 import com.hall.monitor.protocol.EConfigurationType;
 
 @Entity
-@Table(name = "RequestConfs")
+@Table(name = "RequestsConfs")
 public class RequestConf
 {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column
-  private int        idRequestConf;
+  @Column(name = "idRequestConf")
+  private int                idRequestConf;
+  
   
   @ManyToOne
   @JoinColumn(name = "idRequest")
-  @ForeignKey(name = "FK_request1")
-  private Request    request;
-  
-  @Column(nullable = false)
+  private Request            request;
+ 
+  @Column(nullable = false, name = "configType")
   @Enumerated(EnumType.STRING)
   private EConfigurationType configType;
-  
+   
   public RequestConf()
   {
   }
@@ -40,7 +38,7 @@ public class RequestConf
   public int getIdRequestConf() {
     return idRequestConf;
   }
-  
+  /*
   public Request getRequest() {
     return request;
   }
@@ -55,6 +53,6 @@ public class RequestConf
   
   public void setConfigType(EConfigurationType configType) {
     this.configType = configType;
-  }
+  }*/
   
 }

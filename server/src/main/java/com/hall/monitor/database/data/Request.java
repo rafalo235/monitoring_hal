@@ -12,46 +12,43 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.ForeignKey;
-
 @Entity
 @Table(name = "Requests")
 public class Request
 {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column
-  private int             idRequest;
+  @Column(name = "idRequest")
+  private int              idRequest;
   
   @ManyToOne
   @JoinColumn(name = "idConcentrator")
-  @ForeignKey(name="FK_concentrator2")
-  private Concentrator    concentrator;
+  private Concentrator     concentrator;
   
-  @OneToMany
+  @OneToMany(mappedBy = "request")
   private Set<RequestConf> requestConfs;
   
-  public Request(){}
-
+  public Request()
+  {
+  }
+  
   public Request(Concentrator concentrator, Set<RequestConf> requestConfs)
   {
     super();
     this.concentrator = concentrator;
     this.requestConfs = requestConfs;
   }
-
+  
   public int getIdRequest() {
     return idRequest;
   }
-
+  
   public Concentrator getConcentrator() {
     return concentrator;
   }
-
+  
   public Set<RequestConf> getRequestConfs() {
     return requestConfs;
   }
-  
-  
   
 }

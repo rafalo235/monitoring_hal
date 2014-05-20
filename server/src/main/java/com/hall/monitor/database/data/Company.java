@@ -16,60 +16,61 @@ import javax.persistence.Table;
 public class Company
 {
   @Id
-  @GeneratedValue(strategy=GenerationType.AUTO)
-  @Column
-  private int idCompany;
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "idCompany")
+  private int       idCompany;
   
-  @Column(nullable=false)
-  private String name;
+  @Column(nullable = false, name = "name")
+  private String    name;
   
-  @Column(nullable=false)
-  private String companyAddress;
+  @Column(nullable = false, name = "companyAddress")
+  private String    companyAddress;
   
-  @OneToMany
+  @OneToMany(mappedBy = "company")
   @OrderBy("hallName")
   private Set<Hall> halls;
   
-  public Company(){}
-
+  public Company()
+  {
+  }
+  
   public Company(String name, String companyAddress)
   {
     super();
     this.name = name;
     this.companyAddress = companyAddress;
   }
-
+  
   public void setIdCompany(int idCompany) {
     this.idCompany = idCompany;
   }
-
+  
   public String getName() {
     return name;
   }
-
+  
   public void setName(String name) {
     this.name = name;
   }
-
+  
   public String getCompanyAddress() {
     return companyAddress;
   }
-
+  
   public void setCompanyAddress(String companyAddress) {
     this.companyAddress = companyAddress;
   }
-
+  
   public Set<Hall> getHalls() {
     return halls;
   }
-
+  
   public void setHalls(Set<Hall> halls) {
     this.halls = halls;
   }
-
+  
   public int getIdCompany() {
     return idCompany;
   }
-
   
 }

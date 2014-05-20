@@ -11,8 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.ForeignKey;
-
 import com.hall.monitor.protocol.EConfigurationType;
 import com.hall.monitor.protocol.EValueType;
 
@@ -22,31 +20,34 @@ public class SensorConf
 {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column
-  private int        idSensorConf;
+  @Column(name = "idSensorConf")
+  private int                idSensorConf;
   
   @ManyToOne
   @JoinColumn(name = "idSensor")
-  @ForeignKey(name = "FK_sensor1")
-  private Sensor     sensor;
+  private Sensor             sensor;
   
-  @Column(nullable = false)
+  @Column(nullable = false, name = "configType")
   @Enumerated(EnumType.STRING)
   private EConfigurationType configType;
   
-  @Column(nullable = false)
+  @Column(nullable = false, name = "type")
   @Enumerated(EnumType.STRING)
-  private EValueType  type;
+  private EValueType         type;
   
-  @Column(nullable = false)
-  private String     dataStr;
+  @Column(nullable = false, name = "dataStr")
+  private String             dataStr;
+  
+  @ManyToOne
+  @JoinColumn(name = "idConcentratorConf")
+  private ConcentratorConf             concentratorConf;
   
   public SensorConf()
   {
   }
   
-  public SensorConf(Sensor sensor, EConfigurationType configType, EValueType type,
-      String dataStr)
+  public SensorConf(Sensor sensor, EConfigurationType configType,
+      EValueType type, String dataStr)
   {
     super();
     this.sensor = sensor;

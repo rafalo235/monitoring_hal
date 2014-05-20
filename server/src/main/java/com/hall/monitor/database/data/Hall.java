@@ -12,7 +12,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.OrderBy;
 
 @Entity
@@ -21,21 +20,20 @@ public class Hall
 {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column
+  @Column(name = "idHall")
   private int               idHall;
   
-  @Column(nullable = false)
+  @Column(nullable = false, name = "hallName")
   private String            hallName;
   
-  @Column(nullable = false)
+  @Column(nullable = false, name = "address")
   private String            address;
   
   @ManyToOne
   @JoinColumn(name = "idCompanay")
-  @ForeignKey(name = "FK_company1")
   private Company           company;
   
-  @OneToMany
+  @OneToMany(mappedBy = "hall")
   @OrderBy(clause = "idConcentator")
   private Set<Concentrator> concentrators;
   
@@ -54,7 +52,7 @@ public class Hall
   public void setIdHall(int idHall) {
     this.idHall = idHall;
   }
-
+  
   public String getHallName() {
     return hallName;
   }

@@ -140,8 +140,10 @@ CREATE TABLE IF NOT EXISTS `SensorConfs` (
   `dataStr` varchar(255) NOT NULL,
   `type` varchar(255) NOT NULL,
   `idSensor` int(11) DEFAULT NULL,
+  `idConcentratorConf` int(11) DEFAULT NULL,
   PRIMARY KEY (`idSensorConf`),
-  FOREIGN KEY (`idSensor`) REFERENCES `Sensors`(`idSensor`)
+  FOREIGN KEY (`idSensor`) REFERENCES `Sensors`(`idSensor`),
+  FOREIGN KEY (`idSensor`) REFERENCES `ConcentratorConfs`(`idConcentratorConf`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -159,7 +161,7 @@ CREATE TABLE IF NOT EXISTS `Requests` (
 --
 -- Struktura tabeli dla tabeli `RequestsConfs`
 --
-CREATE TABLE IF NOT EXISTS `RequestsConf` (
+CREATE TABLE IF NOT EXISTS `RequestsConfs` (
   `idRequestConf` int(11) NOT NULL AUTO_INCREMENT,
   `configType` varchar(255) NOT NULL,
   `idRequest` int(11) DEFAULT NULL,

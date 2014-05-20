@@ -12,7 +12,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.OrderBy;
 
 @Entity
@@ -21,18 +20,17 @@ public class Sensor
 {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column
+  @Column(name = "idSensor")
   private int             idSensor;
   
   @ManyToOne
   @JoinColumn(name = "idConcentrator")
-  @ForeignKey(name = "FK_concentrator3")
   private Concentrator    concentrator;
   
-  @Column(nullable = false)
+  @Column(nullable = false, name = "idConcentratorSensor")
   private int             idConcentratorSensor;
   
-  @OneToMany
+  @OneToMany(mappedBy = "sensor")
   @OrderBy(clause = "timeStamp")
   private Set<SensorData> sensorDatas;
   

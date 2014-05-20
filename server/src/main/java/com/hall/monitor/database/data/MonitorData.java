@@ -13,7 +13,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.OrderBy;
 
 @Entity
@@ -22,31 +21,30 @@ public class MonitorData
 {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column
+  @Column(name = "idMonitorData")
   private int             idMonitorData;
   
   // uint32_t idPackage;
-  @Column
+  @Column(name = "idPackage")
   private long            idPackage;
   
   // uint64_t sendTime;
-  @Column(nullable = false)
+  @Column(nullable = false, name = "sendTime")
   private Date            sendTime;
   
-  @Column(nullable = false)
+  @Column(nullable = false, name = "receiveTime")
   private Date            receiveTime;
   
   // uint8_t sensorsAmount;
-  @Column
+  @Column(name = "sensorsAmount")
   private int             sensorsAmount;
   
-  @OneToMany
+  @OneToMany(mappedBy = "monitorData")
   @OrderBy(clause = "timeStamp")
   private Set<SensorData> sensorDatas;
   
   @ManyToOne
   @JoinColumn(name = "idConcentrator")
-  @ForeignKey(name = "FK_concentrator4")
   private Concentrator    concentrator;
   
   public MonitorData()
@@ -67,7 +65,7 @@ public class MonitorData
   public void setIdMonitorData(int idMonitorData) {
     this.idMonitorData = idMonitorData;
   }
-
+  
   public long getIdPackage() {
     return idPackage;
   }
