@@ -30,7 +30,7 @@ public class Hall
   private String            address;
   
   @ManyToOne
-  @JoinColumn(name = "idCompanay")
+  @JoinColumn(name = "idCompany")
   private Company           company;
   
   @OneToMany(mappedBy = "hall")

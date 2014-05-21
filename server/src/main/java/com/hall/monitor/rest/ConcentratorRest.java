@@ -1,6 +1,7 @@
 package com.hall.monitor.rest;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -9,12 +10,14 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import com.hall.monitor.database.DBManager;
 import com.hall.monitor.database.data.Company;
+import com.hall.monitor.database.data.Hall;
 import com.hall.monitor.protocol.EConfigurationType;
 import com.hall.monitor.protocol.EMessageType;
 import com.hall.monitor.protocol.EReceiveStatus;
@@ -55,6 +58,13 @@ public class ConcentratorRest
     
   }
   
+  // ////////////////////////////////////////////////////////////////////////////////////////////////////
+  private Response sendError(){
+    ResponseBuilder builder = Response.status(201);
+    builder.entity("Blad");
+    Response res = builder.build();
+    return res;
+  }
   private SProtocol getTest() {
     
     ArrayList<SConfigurationValue> configurations = new ArrayList<SConfigurationValue>();
@@ -81,9 +91,9 @@ public class ConcentratorRest
   }
   
   @GET
-  @Path("/test")
+  @Path("/test/add_company")
   @Produces(MediaType.TEXT_PLAIN)
-  public Response testCreate() {
+  public Response testAddCompany() {
     try {
       DBManager db = new DBManager();
       Company comp = db.addCompany("Firma1", "Lodz");
@@ -94,11 +104,115 @@ public class ConcentratorRest
       return res;
     }
     catch (Throwable e) {
+      return sendError();
+    }
+    
+  }
+  
+  private String companiesToStr(List<Company> companies) {
+    StringBuilder str = new StringBuilder();
+    
+    for (int i = 0; i < companies.size(); ++i) {
+      Object obj = companies.get(i);
+      Company c = (Company) obj;
+      str.append(i);
+      str.append(": ");
+      str.append(c.getName());
+      str.append(": ");
+      str.append(c.getCompanyAddress());
+      str.append("\n");
+    }
+    return str.toString();
+  }
+  
+  @GET
+  @Path("/test/get_companies2")
+  @Produces(MediaType.TEXT_PLAIN)
+  public Response testGetCompanies2(@QueryParam("name") String companyName,
+      @QueryParam("address") String address) {
+    try {
+      DBManager db = new DBManager();
+      Company company = db.getCompany(companyName, address);
+      String str = company.getIdCompany() + " : " + company.getName() + " : "
+          + company.getCompanyAddress();
+      
       ResponseBuilder builder = Response.status(201);
-      builder.entity("ID:");
+      builder.entity(str.toString());
       Response res = builder.build();
       return res;
     }
-    
+    catch (Throwable e) {
+      return sendError();
+    }
+  }
+  
+  @GET
+  @Path("/test/get_companies")
+  @Produces(MediaType.TEXT_PLAIN)
+  public Response testGetCompanies() {
+    try {
+      DBManager db = new DBManager();
+      List<Company> companies = db.getCompanies();
+      String str = companiesToStr(companies);
+      
+      ResponseBuilder builder = Response.status(201);
+      builder.entity(str.toString());
+      Response res = builder.build();
+      return res;
+    }
+    catch (Throwable e) {
+      return sendError();
+    }
+  }
+  
+  // /////////////////////// hall
+  @GET
+  @Path("/test/add_hall")
+  @Produces(MediaType.TEXT_PLAIN)
+  public Response testAddHall() {
+    try {
+      DBManager db = new DBManager();
+      Company company = db.getCompany("Firma1", "Lodz");
+      Hall hall = db.addHall(company.getIdCompany(), "HallName1",
+          "HallAddresss1");
+      
+      ResponseBuilder builder = Response.status(201);
+      builder.entity("ID HALL:" + hall.getIdHall());
+      Response res = builder.build();
+      return res;
+    }
+    catch (Throwable e) {
+      return sendError();
+    }
+  }
+  
+  @GET
+  @Path("/test/get_halls")
+  @Produces(MediaType.TEXT_PLAIN)
+  public Response testGetHalls() {
+    try {
+      DBManager db = new DBManager();
+      List<Hall> halls = db.getHalls();
+      StringBuilder str = new StringBuilder();
+      
+      for (int i = 0; i < halls.size(); ++i) {
+        Object obj = halls.get(i);
+        Hall h = (Hall) obj;
+        str.append(i);
+        str.append(": ");
+        str.append(h.getHallName());
+        str.append(": ");
+        str.append(h.getAddress());
+        str.append("\n");
+      }
+      
+      ResponseBuilder builder = Response.status(201);
+      builder.entity(str.toString());
+      Response res = builder.build();
+      return res;
+    }
+    catch (Throwable e) {
+      return sendError();
+    }
   }
 }
