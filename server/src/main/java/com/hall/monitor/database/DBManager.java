@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.hibernate.SQLQuery;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -54,8 +54,7 @@ public class DBManager implements IDBManager
           receiveTime, sensorsAmount, concentrator);
       
       session.save(monitorData);
-      BigInteger a = ((BigInteger) session.createSQLQuery(
-          "SELECT LAST_INSERT_ID()").uniqueResult());
+
       int idMonitorData = ((BigInteger) session.createSQLQuery(
           "SELECT LAST_INSERT_ID()").uniqueResult()).intValue();
       monitorData.setIdMonitorData(idMonitorData);
@@ -99,22 +98,21 @@ public class DBManager implements IDBManager
   
   @SuppressWarnings("unchecked")
   private List<Sensor> getSensors(Session session, int idConcentrator){
-    SQLQuery query = session.createSQLQuery("SELECT * FROM Sensors WHERE idConcentrator = ?");
-    query.setInteger(1, idConcentrator);
+    Query query = session.createQuery("FROM Sensor WHERE idConcentrator = :id");
+    query.setParameter("id", idConcentrator);
     return query.list();
   }
   @SuppressWarnings("unchecked")
   private List<Company> getCompanies(Session session) {
-    SQLQuery query = session.createSQLQuery("SELECT * FROM Companies");
-    
+    Query query = session.createQuery("FROM Company");
     return query.list();
   }
   
   private Company getCompany(Session session, String name, String address) {
-    SQLQuery query = session
-        .createSQLQuery("SELECT * FROM Companies WHERE name = ? AND companyAddress = ?");
-    query.setString(1, name);
-    query.setString(2, address);
+    Query query = session.createQuery("FROM Company WHERE name = :h1 AND companyAddress = :add");
+    query.setParameter("h1", name);
+    query.setParameter("add", address);
+    
     @SuppressWarnings("unchecked")
     Iterator<Company> it = query.list().iterator();
     if (it.hasNext()) {
@@ -126,9 +124,9 @@ public class DBManager implements IDBManager
   }
   
   private Company getCompany(Session session, int idCompany) {
-    SQLQuery query = session
-        .createSQLQuery("SELECT * FROM Companies WHERE idCompany = ?");
-    query.setInteger(1, idCompany);
+    Query query = session.createQuery("FROM Company WHERE idCompany = :id");
+    query.setParameter("id", idCompany);
+    
     @SuppressWarnings("unchecked")
     Iterator<Company> it = query.list().iterator();
     if (it.hasNext()) {
@@ -151,27 +149,24 @@ public class DBManager implements IDBManager
   
   @SuppressWarnings("unchecked")
   private List<Hall> getHalls(Session session, int idCompany) {
-    SQLQuery query = session
-        .createSQLQuery("SELECT * FROM Halls WHERE idCompany =?");
-    query.setInteger(1, idCompany);
+    Query query = session.createQuery("FROM Hall WHERE idCompany = :id");
+    query.setParameter("id", idCompany);
     return query.list();
   }
   
   @SuppressWarnings("unchecked")
   private List<Hall> getHalls(Session session) {
-    SQLQuery query = session.createSQLQuery("SELECT * FROM Halls");
-    
+    Query query = session.createQuery("FROM Hall");
     return query.list();
   }
   
   private Hall getHall(Session session, int idCompany, String hallName,
       String address) {
-    SQLQuery query = session
-        .createSQLQuery("SELECT * FROM Halls WHERE idCompany = ? AND hallName = ? AND address =?");
-    query.setInteger(1, idCompany);
-    query.setString(2, hallName);
-    query.setString(3, address);
-    
+    Query query = session.createQuery("FROM Company WHERE idCompany =:id AND hallName = :h1 AND address = :add");
+    query.setParameter("id", idCompany);
+    query.setParameter("h1", hallName);
+    query.setParameter("add", address);
+        
     @SuppressWarnings("rawtypes")
     List list = query.list();
     if (list.size() == 0) {
@@ -183,9 +178,8 @@ public class DBManager implements IDBManager
   }
   
   private Hall getHall(Session session, int idHall) {
-    SQLQuery query = session
-        .createSQLQuery("SELECT * FROM Halls WHERE idHall = ? ");
-    query.setInteger(1, idHall);
+    Query query = session.createQuery("FROM Hall WHERE idHall = :id");
+    query.setParameter("id", idHall);
     
     @SuppressWarnings("rawtypes")
     List list = query.list();
@@ -231,9 +225,8 @@ public class DBManager implements IDBManager
   }
   
   private Concentrator getConcentrator(Session session, int idConcentrator) {
-    SQLQuery query = session
-        .createSQLQuery("SELECT * FROM Concentrators WHERE idConcentrator = ? ");
-    query.setInteger(1, idConcentrator);
+    Query query = session.createQuery("FROM Concentrator WHERE idConcentrator = :id");
+    query.setParameter("id", idConcentrator);
     
     @SuppressWarnings("rawtypes")
     List list = query.list();

@@ -53,9 +53,9 @@ CREATE TABLE IF NOT EXISTS `Halls` (
   `idHall` int(11) NOT NULL AUTO_INCREMENT,
   `address` varchar(255) NOT NULL,
   `hallName` varchar(255) NOT NULL,
-  `idCompanay` int(11) DEFAULT NULL,
+  `idCompany` int(11) DEFAULT NULL,
   PRIMARY KEY (`idHall`),
-  FOREIGN KEY (`idCompanay`) REFERENCES `Companies`(`idCompany`)
+  FOREIGN KEY (`idCompany`) REFERENCES `Companies`(`idCompany`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
