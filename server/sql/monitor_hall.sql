@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS `Requests` (
   `idConcentrator` int(11) DEFAULT NULL,
   PRIMARY KEY (`idRequest`),
   FOREIGN KEY (`idConcentrator`) REFERENCES `Concentrators`(`idConcentrator`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 --
@@ -167,7 +167,7 @@ CREATE TABLE IF NOT EXISTS `RequestsConfs` (
   `idRequest` int(11) DEFAULT NULL,
   PRIMARY KEY (`idRequestConf`),
   FOREIGN KEY (`idRequest`) REFERENCES `Requests`(`idRequest`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

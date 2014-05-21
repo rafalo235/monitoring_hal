@@ -4,7 +4,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+import org.hibernate.service.ServiceRegistryBuilder;
 
 import com.hall.monitor.database.data.Company;
 import com.hall.monitor.database.data.Concentrator;
@@ -28,39 +32,28 @@ public class HibernateUtil
 {
   
   private static SessionFactory factory = buildSessionFactory();
-  private static final Logger   log = Logger.getLogger(HibernateUtil.class
-                                        .getSimpleName());
+  private static final Logger   log     = Logger.getLogger(HibernateUtil.class
+                                            .getSimpleName());
   
-  public static SessionFactory getFactory(){
+  public static SessionFactory getFactory() {
     return factory;
   }
+  
   private static SessionFactory buildSessionFactory() {
     try {
       // Create the SessionFactory from hibernate.cfg.xml
+      Configuration configuration = new Configuration().configure();
+      StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder()
+          .applySettings(configuration.getProperties());
+      SessionFactory factory = configuration.buildSessionFactory(builder
+          .build());
       
-      AnnotationConfiguration conf = new AnnotationConfiguration();
-      conf.addAnnotatedClass(Company.class);
-      conf.addAnnotatedClass(Concentrator.class);
-      conf.addAnnotatedClass(ConcentratorConf.class);
-      conf.addAnnotatedClass(Hall.class);
-      conf.addAnnotatedClass(MonitorData.class);
-      conf.addAnnotatedClass(Sensor.class);
-      conf.addAnnotatedClass(SensorData.class);
-      conf.addAnnotatedClass(Request.class);
-      conf.addAnnotatedClass(RequestConf.class);
-      conf.addAnnotatedClass(SensorConf.class);
-      conf.addAnnotatedClass(User.class);
-      
-      conf.configure();
-      
-      return conf.buildSessionFactory();
+      return factory;
     }
     catch (Throwable ex) {
       log.log(Level.SEVERE, "Initial SessionFactory creation failed." + ex);
       throw new ExceptionInInitializerError(ex);
     }
   }
-  
-  
   
 }

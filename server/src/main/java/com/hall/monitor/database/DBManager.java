@@ -56,8 +56,8 @@ public class DBManager implements IDBManager
       session.save(monitorData);
       BigInteger a = ((BigInteger) session.createSQLQuery(
           "SELECT LAST_INSERT_ID()").uniqueResult());
-      int idMonitorData = (BigInteger) session.createSQLQuery(
-          "SELECT LAST_INSERT_ID()").uniqueResult();
+      int idMonitorData = ((BigInteger) session.createSQLQuery(
+          "SELECT LAST_INSERT_ID()").uniqueResult()).intValue();
       monitorData.setIdMonitorData(idMonitorData);
       
       List<Sensor> sensors = getSensors(session, concentratorId);
@@ -142,8 +142,8 @@ public class DBManager implements IDBManager
   private Company addCompany(Session session, String name, String address) {
     Company comp = new Company(name, address);
     session.save(comp);
-    int idCompany = (Integer) session.createSQLQuery(
-        "SELECT LAST_INSERT_ID()").uniqueResult();
+    int idCompany = ((BigInteger) session.createSQLQuery(
+        "SELECT LAST_INSERT_ID()").uniqueResult()).intValue();
     comp.setIdCompany(idCompany);
     return comp;
   }
@@ -205,8 +205,8 @@ public class DBManager implements IDBManager
     }
     Hall hall = new Hall(hallName, address, company);
     session.save(hall);
-    int idHall = (Integer) session.createSQLQuery(
-        "SELECT LAST_INSERT_ID()").uniqueResult();
+    int idHall = ((BigInteger) session.createSQLQuery(
+        "SELECT LAST_INSERT_ID()").uniqueResult()).intValue();
     hall.setIdHall(idHall);
     return hall;
   }
@@ -219,8 +219,8 @@ public class DBManager implements IDBManager
     }
     Concentrator concentrator = new Concentrator(hall);
     session.save(concentrator);
-    int idConcentrator = (Integer) session.createSQLQuery(
-        "SELECT LAST_INSERT_ID()").uniqueResult();
+    int idConcentrator = ((BigInteger) session.createSQLQuery(
+        "SELECT LAST_INSERT_ID()").uniqueResult()).intValue();
     concentrator.setIdConcentrator(idConcentrator);
     
     for (Integer idConcentratorSensor : idCSensors) {
