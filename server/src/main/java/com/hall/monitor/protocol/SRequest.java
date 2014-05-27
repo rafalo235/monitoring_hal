@@ -2,6 +2,7 @@ package com.hall.monitor.protocol;
 
 public class SRequest
 {
+  public static final byte CONCENTRATOR_ID = (byte)0xFF;
   // int8_t idSensor;
   private byte               idSensor;
   

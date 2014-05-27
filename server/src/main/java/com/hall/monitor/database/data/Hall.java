@@ -27,7 +27,7 @@ public class Hall
   private String            hallName;
   
   @Column(nullable = false, name = "address")
-  private String            address;
+  private String            hallAddress;
   
   @ManyToOne
   @JoinColumn(name = "idCompany")
@@ -41,11 +41,11 @@ public class Hall
   {
   }
   
-  public Hall(String hallName, String address, Company company)
+  public Hall(String hallName, String hallAddress, Company company)
   {
     super();
     this.hallName = hallName;
-    this.address = address;
+    this.hallAddress = hallAddress;
     this.company = company;
   }
   
@@ -61,12 +61,12 @@ public class Hall
     this.hallName = hallName;
   }
   
-  public String getAddress() {
-    return address;
+  public String getHallAddress() {
+    return hallAddress;
   }
   
-  public void setAddress(String address) {
-    this.address = address;
+  public void setHallAddress(String hallAddress) {
+    this.hallAddress = hallAddress;
   }
   
   public Company getCompany() {

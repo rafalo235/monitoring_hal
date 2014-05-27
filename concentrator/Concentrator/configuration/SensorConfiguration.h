@@ -17,7 +17,7 @@ namespace NEngine {
     SData dangerLvl;
 
   public:
-    CSensorConfiguration(bool turnOn1, SData warningLvl1, SData dangerLvl1)
+    CSensorConfiguration(bool turnOn1, SData& warningLvl1, SData& dangerLvl1)
       : turnOn(turnOn1), warningLvl(warningLvl1), dangerLvl(dangerLvl1)
     {
     }
@@ -57,11 +57,6 @@ namespace NEngine {
     void setDangerLvl(const SData& data){
       dangerLvl = data;
     }
-
-    friend std::ifstream& operator >>(std::ifstream& stream, CSensorConfiguration& obj);
-    friend std::ofstream& operator <<(std::ofstream& stream, const CSensorConfiguration& obj);
-
-    friend std::ofstream& operator <<(std::ofstream& stream, const CConfiguration& obj);
 
   };
 

@@ -22,6 +22,9 @@ public class ConcentratorConf
   @Column(name = "idConcentratorConf")
   private int             idConcentratorConf;
   
+  @Column(name = "idPackage")
+  private long idPackage;
+  
   @ManyToOne
   @JoinColumn(name = "idConcentrator")
   private Concentrator    concentrator;
@@ -63,6 +66,14 @@ public class ConcentratorConf
     this.concentrator = concentrator;
   }
   
+  public long getIdPackage() {
+    return idPackage;
+  }
+
+  public void setIdPackage(long idPackage) {
+    this.idPackage = idPackage;
+  }
+
   public Set<SensorConf> getSensorConf() {
     return sensorConf;
   }

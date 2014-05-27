@@ -17,7 +17,9 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import com.hall.monitor.database.DBManager;
 import com.hall.monitor.database.data.Company;
+import com.hall.monitor.database.data.Concentrator;
 import com.hall.monitor.database.data.Hall;
+import com.hall.monitor.engine.Engine;
 import com.hall.monitor.protocol.EConfigurationType;
 import com.hall.monitor.protocol.EMessageType;
 import com.hall.monitor.protocol.EReceiveStatus;
@@ -46,6 +48,8 @@ public class ConcentratorRest
       SProtocol protocol = ProtocolConverter.convertToProtocol(bytes);
       log.log(Level.INFO,
           "Protocol data received: id=" + protocol.getIdPackage());
+      
+      Engine.getInstance().receiveProtocol(protocol);
       SProtocol test = getTest();
       b2 = ProtocolConverter.convertToBytes(test);
     }
@@ -117,7 +121,7 @@ public class ConcentratorRest
       Company c = (Company) obj;
       str.append(i);
       str.append(": ");
-      str.append(c.getName());
+      str.append(c.getCompanyName());
       str.append(": ");
       str.append(c.getCompanyAddress());
       str.append("\n");
@@ -133,7 +137,7 @@ public class ConcentratorRest
     try {
       DBManager db = new DBManager();
       Company company = db.getCompany(companyName, address);
-      String str = company.getIdCompany() + " : " + company.getName() + " : "
+      String str = company.getIdCompany() + " : " + company.getCompanyName() + " : "
           + company.getCompanyAddress();
       
       ResponseBuilder builder = Response.status(201);
@@ -202,7 +206,7 @@ public class ConcentratorRest
         str.append(": ");
         str.append(h.getHallName());
         str.append(": ");
-        str.append(h.getAddress());
+        str.append(h.getHallAddress());
         str.append("\n");
       }
       
@@ -215,4 +219,38 @@ public class ConcentratorRest
       return sendError();
     }
   }
+  
+  /////////////////////////// concentrator
+  @GET
+  @Path("/test/add_concentrator")
+  @Produces(MediaType.TEXT_PLAIN)
+  public Response testAddConcentrator() {
+    try {
+      DBManager db = new DBManager();
+      Company company = db.getCompany("Firma1", "Lodz");
+      Hall hall = db.getHall(company.getIdCompany(), "HallName1", "HallAddresss1");
+      List<Integer> idSensors = new ArrayList<Integer>();
+      idSensors.add(1);
+      Concentrator concentrator = db.addConcentrator(hall.getIdHall(), idSensors);
+      
+      ResponseBuilder builder = Response.status(201);
+      builder.entity("ID CONCENTRATOR:" + concentrator.getIdConcentrator());
+      Response res = builder.build();
+      return res;
+    }
+    catch (Throwable e) {
+      return sendError();
+    }
+  }
+  @GET
+  @Path("/test/add_test")
+  @Produces(MediaType.TEXT_PLAIN)
+  public Response testAddTest() {
+    testAddCompany();
+    testAddHall();
+    testAddConcentrator();
+    testAddConcentrator();
+    return testAddConcentrator();
+  }
+  
 }

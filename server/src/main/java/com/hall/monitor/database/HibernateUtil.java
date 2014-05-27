@@ -5,22 +5,7 @@ import java.util.logging.Logger;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.service.ServiceRegistry;
-import org.hibernate.service.ServiceRegistryBuilder;
-
-import com.hall.monitor.database.data.Company;
-import com.hall.monitor.database.data.Concentrator;
-import com.hall.monitor.database.data.ConcentratorConf;
-import com.hall.monitor.database.data.Hall;
-import com.hall.monitor.database.data.MonitorData;
-import com.hall.monitor.database.data.Request;
-import com.hall.monitor.database.data.RequestConf;
-import com.hall.monitor.database.data.Sensor;
-import com.hall.monitor.database.data.SensorConf;
-import com.hall.monitor.database.data.SensorData;
-import com.hall.monitor.database.data.User;
 
 /**
  * http://viralpatel.net/blogs/hibernate-one-to-many-annotation-tutorial/

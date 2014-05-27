@@ -1,107 +1,251 @@
 package com.hall.monitor.database;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 
 import com.hall.monitor.database.data.Company;
 import com.hall.monitor.database.data.Concentrator;
+import com.hall.monitor.database.data.ConcentratorConf;
 import com.hall.monitor.database.data.Hall;
 import com.hall.monitor.database.data.MonitorData;
+import com.hall.monitor.database.data.Request;
+import com.hall.monitor.database.data.RequestConf;
 import com.hall.monitor.database.data.Sensor;
 import com.hall.monitor.database.data.SensorData;
 import com.hall.monitor.database.interfaces.IDBManager;
+import com.hall.monitor.protocol.SConfigurationResponse;
 import com.hall.monitor.protocol.SData;
 import com.hall.monitor.protocol.SMonitorData;
 import com.hall.monitor.protocol.SProtocol;
+import com.hall.monitor.protocol.SRequest;
 import com.hall.monitor.protocol.SSensorData;
+import com.hall.monitor.protocol.SServerRequest;
+import com.hall.monitor.protocol.SServerResponse;
 import com.hall.monitor.protocol.UMessage;
 
 public class DBManager implements IDBManager
 {
+  private Logger log = Logger.getLogger(DBManager.class.getSimpleName());
   
-  public boolean store(SProtocol protocol) {
-    UMessage umessage = protocol.getMessage();
-    if (!(umessage instanceof SMonitorData)) {
-      return false;
-    }
+  /**
+   * Zapisuje dane z czujnikow otrzymane od koncentratora
+   * @param idPackage
+   * @param concentratorId
+   * @param monitor
+   * @return
+   */
+  private boolean storeMonitorData(long idPackage, int concentratorId,
+      SMonitorData monitor) {
     
     SessionFactory factory = HibernateUtil.getFactory();
     Session session = factory.openSession();
-    Transaction transation = session.beginTransaction();
-    
-    SMonitorData monitor = (SMonitorData) umessage;
-
+    session.beginTransaction();
+    // zapisz date pierwszej proby wyslania
     Date sendTime = new Date(monitor.getSendTime());
-    long idPackage = protocol.getIdPackage();
     
+    // zapisz date otrzymania pakietu
     Date receiveTime = new Date();
     
+    // pobierz ilosc czujnikow
     int sensorsAmount = monitor.getSensorsAmount();
-    
-    int concentratorId = protocol.getIdConcentrator();
+    // znajdz w bazie koncentrator o danym id.
     Concentrator concentrator = getConcentrator(concentratorId);
     
-    if (concentrator != null) {
-      
+    if (concentrator == null) {
+      log.log(Level.SEVERE, "Concentrator wasn't found");
+      session.getTransaction().rollback();
+      session.close();
+      return false;
+    }
+    else {
+      // najpierw zapis naglowkow
       MonitorData monitorData = new MonitorData(idPackage, sendTime,
           receiveTime, sensorsAmount, concentrator);
       
       session.save(monitorData);
-
+      // pobranie id dodanego naglowka
       int idMonitorData = ((BigInteger) session.createSQLQuery(
           "SELECT LAST_INSERT_ID()").uniqueResult()).intValue();
       monitorData.setIdMonitorData(idMonitorData);
       
+      // pobranie czujnikow
       List<Sensor> sensors = getSensors(session, concentratorId);
-      
-      for (SSensorData sensorData : monitor.getSensorsData()){
+      // dodanie otrzymanych danych
+      for (SSensorData sensorData : monitor.getSensorsData()) {
         long idData = sensorData.getIdData();
         int sensorId = sensorData.getIdSensor();
         
+        // poszukiwanie sensora
         Sensor sensor = null;
-        for (Sensor sensorBuf : sensors){
-          if (sensorBuf.getIdSensor() == sensorId){
+        for (Sensor sensorBuf : sensors) {
+          if (sensorBuf.getIdSensor() == sensorId) {
             sensor = sensorBuf;
             break;
           }
         }
-        if (sensor == null){
+        if (sensor == null) {
+          // czujnik nie znaleziony
+          session.getTransaction().rollback();
           session.close();
           return false;
         }
         
+        // dodanie danych
         Date timeStamp = new Date(sensorData.getTimeStamp());
         SData data = sensorData.getData();
-        SensorData sdata = new SensorData(
-            idData, sensor, timeStamp, 
-            data.getType(), String.valueOf(data.getValue()), 
-            sensorData.getSensorState(), sensorData.getDangerLevel(), monitorData);
+        SensorData sdata = new SensorData(idData, sensor, timeStamp,
+            data.getType(), String.valueOf(data.getValue()),
+            sensorData.getSensorState(), sensorData.getDangerLevel(),
+            monitorData);
         session.save(sdata);
-
+        
       }
-
-      transation.commit();
+      // wszystko ok, wiec potwierdz transakcje
+      session.getTransaction().commit();
       
     }
     session.close();
+    return true;
+  }
+  
+  /**
+   * Zapisuje flage informujaca ze koncentrator zmienil konfiguracje.
+   * @param confResponse
+   * @return
+   */
+  private boolean storeConfigurationResponse(SConfigurationResponse confResponse) {
+    SessionFactory factory = HibernateUtil.getFactory();
+    Session session = factory.openSession();
+    session.beginTransaction();
     
+    // pobierz id pakietu z konfiguracja, na ktory koncentratora odpowiada
+    long idRequestPackage = confResponse.getIdRequestPackage();
+    
+    // zmien flage informujaca ze konfiguracja zostala poprawnie zmieniona
+    
+    ConcentratorConf conf = getConcentratorConfiguration(session,
+        idRequestPackage);
+    if (conf == null) {
+      log.log(Level.SEVERE, "Configuration of concentrator wasn't found");
+      return false;
+    }
+    
+    conf.setChanged(true);
+    session.update(conf);
+    session.getTransaction().commit();
     return true;
     
   }
   
+  private boolean storeServerRequest(long idPackage, int concentratorId, SServerRequest configRequest) {
+    SessionFactory factory = HibernateUtil.getFactory();
+    Session session = factory.openSession();
+    session.beginTransaction();
+    // zapisz date otrzymania pakietu
+    Date receiveTime = new Date();
+    
+
+    // znajdz w bazie koncentrator o danym id.
+    Concentrator concentrator = getConcentrator(concentratorId);
+    
+    if (concentrator == null) {
+      log.log(Level.SEVERE, "Concentrator wasn't found");
+      session.getTransaction().rollback();
+      session.close();
+      return false;
+    }
+    
+    
+
+    Request req = addRequest(session, idPackage, receiveTime, concentrator);
+    if (addRequest(session, req, configRequest.getRequests()) == null){
+      session.getTransaction().rollback();
+      session.close();
+      return false;
+    }
+    session.getTransaction().commit();
+    session.close();
+    return true;
+  }
+
+
+  /**
+   * Zapisuje dane z protokolu w bazie
+   * 
+   * @return true, jesli wszystko ok, false, jesli nie
+   */
+  public boolean store(SProtocol protocol) {
+    long idPackage = protocol.getIdPackage();
+    int concentratorId = protocol.getIdConcentrator();
+    UMessage umessage = protocol.getMessage();
+    
+    if (umessage instanceof SMonitorData) {
+      // dane z czujnikow
+      SMonitorData monitor = (SMonitorData) umessage;
+      return storeMonitorData(idPackage, concentratorId, monitor);
+    }
+    else if (umessage instanceof SConfigurationResponse) {
+      // potwierdzenie konfiguracji
+      SConfigurationResponse configurationResponse = (SConfigurationResponse) umessage;
+      return storeConfigurationResponse(configurationResponse);
+    }
+    else if (umessage instanceof SServerRequest) {
+      // prosba o przeslanie konfiguracji
+      SServerRequest configRequest = (SServerRequest) umessage;
+      return storeServerRequest(idPackage, concentratorId, configRequest);
+    }else if (umessage instanceof SServerResponse){
+      // wyslane potwierdzenie odebrania pakietow
+      
+    }
+    
+    return false;
+    
+  }
+  
+  private List<RequestConf> addRequest(Session session, Request req, List<SRequest> reqs) {
+    ArrayList<RequestConf> results = new ArrayList<RequestConf>();
+    for (SRequest buf : reqs){
+
+      RequestConf reqConfSensor = new RequestConf(req, buf.getConfigurationType());
+      session.save(reqConfSensor);
+      int idReq = ((BigInteger) session.createSQLQuery(
+          "SELECT LAST_INSERT_ID()").uniqueResult()).intValue();
+      reqConfSensor.setIdRequestConf(idReq);
+      results.add(reqConfSensor);
+    }
+    
+
+    return results;
+  }
+  
+  private Request addRequest(Session session, long idPackage, Date receiveTime,
+      Concentrator concentrator) {
+    
+    Request req = new Request(idPackage, receiveTime, concentrator, null);
+    session.save(req);
+    int idReq = ((BigInteger) session.createSQLQuery(
+        "SELECT LAST_INSERT_ID()").uniqueResult()).intValue();
+    req.setIdRequest(idReq);
+    return req;
+  }
+
+  
   @SuppressWarnings("unchecked")
-  private List<Sensor> getSensors(Session session, int idConcentrator){
+  private List<Sensor> getSensors(Session session, int idConcentrator) {
     Query query = session.createQuery("FROM Sensor WHERE idConcentrator = :id");
     query.setParameter("id", idConcentrator);
     return query.list();
   }
+  
   @SuppressWarnings("unchecked")
   private List<Company> getCompanies(Session session) {
     Query query = session.createQuery("FROM Company");
@@ -109,7 +253,8 @@ public class DBManager implements IDBManager
   }
   
   private Company getCompany(Session session, String name, String address) {
-    Query query = session.createQuery("FROM Company WHERE name = :h1 AND companyAddress = :add");
+    Query query = session
+        .createQuery("FROM Company WHERE companyName = :h1 AND companyAddress = :add");
     query.setParameter("h1", name);
     query.setParameter("add", address);
     
@@ -145,7 +290,6 @@ public class DBManager implements IDBManager
     comp.setIdCompany(idCompany);
     return comp;
   }
-
   
   @SuppressWarnings("unchecked")
   private List<Hall> getHalls(Session session, int idCompany) {
@@ -162,11 +306,12 @@ public class DBManager implements IDBManager
   
   private Hall getHall(Session session, int idCompany, String hallName,
       String address) {
-    Query query = session.createQuery("FROM Company WHERE idCompany =:id AND hallName = :h1 AND address = :add");
+    Query query = session
+        .createQuery("FROM Hall WHERE idCompany =:id AND hallName = :h1 AND hallAddress = :add");
     query.setParameter("id", idCompany);
     query.setParameter("h1", hallName);
     query.setParameter("add", address);
-        
+    
     @SuppressWarnings("rawtypes")
     List list = query.list();
     if (list.size() == 0) {
@@ -199,8 +344,8 @@ public class DBManager implements IDBManager
     }
     Hall hall = new Hall(hallName, address, company);
     session.save(hall);
-    int idHall = ((BigInteger) session.createSQLQuery(
-        "SELECT LAST_INSERT_ID()").uniqueResult()).intValue();
+    int idHall = ((BigInteger) session
+        .createSQLQuery("SELECT LAST_INSERT_ID()").uniqueResult()).intValue();
     hall.setIdHall(idHall);
     return hall;
   }
@@ -225,7 +370,8 @@ public class DBManager implements IDBManager
   }
   
   private Concentrator getConcentrator(Session session, int idConcentrator) {
-    Query query = session.createQuery("FROM Concentrator WHERE idConcentrator = :id");
+    Query query = session
+        .createQuery("FROM Concentrator WHERE idConcentrator = :id");
     query.setParameter("id", idConcentrator);
     
     @SuppressWarnings("rawtypes")
@@ -239,6 +385,23 @@ public class DBManager implements IDBManager
     
   }
   
+  private ConcentratorConf getConcentratorConfiguration(Session session,
+      long idConcentratorConf) {
+    Query query = session
+        .createQuery("FROM Concentrator WHERE idConcentrator = :id");
+    query.setParameter("id", idConcentratorConf);
+    
+    @SuppressWarnings("rawtypes")
+    List list = query.list();
+    if (list.size() == 0) {
+      return null;
+    }
+    else {
+      return (ConcentratorConf) list.iterator().next();
+    }
+  }
+  
+  // //////////////////////////////////////////////////////////
   @Override
   public Company addCompany(String name, String address) {
     

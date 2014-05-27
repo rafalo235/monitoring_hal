@@ -35,24 +35,36 @@ public class RequestConf
   {
   }
   
+  public RequestConf(Request request, EConfigurationType configType)
+  {
+    super();
+    this.request = request;
+    this.configType = configType;
+  }
+
   public int getIdRequestConf() {
     return idRequestConf;
   }
-  /*
+
   public Request getRequest() {
     return request;
   }
-  
+
   public void setRequest(Request request) {
     this.request = request;
   }
-  
+
   public EConfigurationType getConfigType() {
     return configType;
   }
-  
+
   public void setConfigType(EConfigurationType configType) {
     this.configType = configType;
-  }*/
+  }
+
+  public void setIdRequestConf(int idRequestConf) {
+    this.idRequestConf = idRequestConf;
+  }
+
   
 }

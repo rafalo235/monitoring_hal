@@ -24,6 +24,7 @@ USE `monitor_hall`;
 -- --------------------------------------------------------
 --
 -- Struktura tabeli dla tabeli `Users`
+-- Uzytkownicy systemu - administratorzy
 --
 CREATE TABLE IF NOT EXISTS `Users` (
   `idUser` int(11) NOT NULL AUTO_INCREMENT,
@@ -37,21 +38,23 @@ CREATE TABLE IF NOT EXISTS `Users` (
 -- --------------------------------------------------------
 --
 -- Struktura tabeli dla tabeli `Companies`
+-- Firmy, ktore sa wlascicielami hal. Jedna firma moze miec kilka hal.
 --
 CREATE TABLE IF NOT EXISTS `Companies` (
   `idCompany` int(11) NOT NULL AUTO_INCREMENT,
   `companyAddress` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
+  `companyName` varchar(255) NOT NULL,
   PRIMARY KEY (`idCompany`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 --
 -- Struktura tabeli dla tabeli `Halls`
+-- Dane hal. Kazda hala moze miec kilka koncentratorow
 --
 CREATE TABLE IF NOT EXISTS `Halls` (
   `idHall` int(11) NOT NULL AUTO_INCREMENT,
-  `address` varchar(255) NOT NULL,
+  `hallAddress` varchar(255) NOT NULL,
   `hallName` varchar(255) NOT NULL,
   `idCompany` int(11) DEFAULT NULL,
   PRIMARY KEY (`idHall`),
@@ -61,6 +64,7 @@ CREATE TABLE IF NOT EXISTS `Halls` (
 -- --------------------------------------------------------
 --
 -- Struktura tabeli dla tabeli `Concentrators`
+-- Jedna hala moze miec kilka koncentratorow. Kazdy koncentrator kilka czujnikow
 --
 CREATE TABLE IF NOT EXISTS `Concentrators` (
   `idConcentrator` int(11) NOT NULL AUTO_INCREMENT,
@@ -72,10 +76,11 @@ CREATE TABLE IF NOT EXISTS `Concentrators` (
 -- --------------------------------------------------------
 --
 -- Struktura tabeli dla tabeli `Sensors`
+-- Koncentrator moze miec kilka czujnikow.
 --
 CREATE TABLE IF NOT EXISTS `Sensors` (
   `idSensor` int(11) NOT NULL AUTO_INCREMENT,
-  `idConcentratorSensor` int(11) NOT NULL,
+  `idConcentratorSensor` int(11) NOT NULL, -- id czujnika dla danego koncentratora. Id czujnikow nie jest globalne.
   `idConcentrator` int(11) DEFAULT NULL,
   PRIMARY KEY (`idSensor`),
   FOREIGN KEY (`idConcentrator`) REFERENCES `Concentrators`(`idConcentrator`)
@@ -84,6 +89,7 @@ CREATE TABLE IF NOT EXISTS `Sensors` (
 -- --------------------------------------------------------
 --
 -- Struktura tabeli dla tabeli `MonitorDatas`
+-- Dane z czujnikow otrzymane z koncentratora - same naglowki. Dane z czujnikow sa w tabeli SensorDatas
 --
 CREATE TABLE IF NOT EXISTS `MonitorDatas` (
   `idMonitorData` int(11) NOT NULL AUTO_INCREMENT,
@@ -99,6 +105,7 @@ CREATE TABLE IF NOT EXISTS `MonitorDatas` (
 -- --------------------------------------------------------
 --
 -- Struktura tabeli dla tabeli `SensorDatas`
+-- Dane z czujnikow
 --
 CREATE TABLE IF NOT EXISTS `SensorDatas` (
   `idSensorData` int(11) NOT NULL AUTO_INCREMENT,
@@ -118,10 +125,12 @@ CREATE TABLE IF NOT EXISTS `SensorDatas` (
 -- --------------------------------------------------------
 --
 -- Struktura tabeli dla tabeli `ConcentratorConfs`
+-- Konfiguracja koncentratora.
 --
 CREATE TABLE IF NOT EXISTS `ConcentratorConfs` (
   `idConcentratorConf` int(11) NOT NULL AUTO_INCREMENT,
-  `changed` bit(1) DEFAULT NULL,
+  `changed` bit(1) DEFAULT NULL, -- jesli 0 to czeka na wyslanie do koncentatora, 1 juz zmieniono konfiguracje
+  `idPackage` bigint(20) DEFAULT NULL, -- id pakietu wysylajacego konfiguracje
   `timeStamp` datetime DEFAULT NULL,
   `idConcentrator` int(11) DEFAULT NULL,
   `idUser` int(11) DEFAULT NULL,
@@ -133,6 +142,7 @@ CREATE TABLE IF NOT EXISTS `ConcentratorConfs` (
 -- --------------------------------------------------------
 --
 -- Struktura tabeli dla tabeli `SensorConfs`
+-- Konfiguracja poszczegolnych sensorow.
 --
 CREATE TABLE IF NOT EXISTS `SensorConfs` (
   `idSensorConf` int(11) NOT NULL AUTO_INCREMENT,
@@ -149,10 +159,13 @@ CREATE TABLE IF NOT EXISTS `SensorConfs` (
 -- --------------------------------------------------------
 --
 -- Struktura tabeli dla tabeli `Requests`
+-- Tabela z request konfiguracjia z koncentratora
 --
 CREATE TABLE IF NOT EXISTS `Requests` (
   `idRequest` int(11) NOT NULL AUTO_INCREMENT,
   `idConcentrator` int(11) DEFAULT NULL,
+  `receiveTime` datetime NOT NULL,
+  `idPackage` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`idRequest`),
   FOREIGN KEY (`idConcentrator`) REFERENCES `Concentrators`(`idConcentrator`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
@@ -160,6 +173,7 @@ CREATE TABLE IF NOT EXISTS `Requests` (
 -- --------------------------------------------------------
 --
 -- Struktura tabeli dla tabeli `RequestsConfs`
+-- Tabela ktora zawiera informacje co koncentrator chcialby aby mu przeslac - naglowek w Requests
 --
 CREATE TABLE IF NOT EXISTS `RequestsConfs` (
   `idRequestConf` int(11) NOT NULL AUTO_INCREMENT,

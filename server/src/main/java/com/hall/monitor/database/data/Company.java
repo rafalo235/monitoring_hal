@@ -20,8 +20,8 @@ public class Company
   @Column(name = "idCompany")
   private int       idCompany;
   
-  @Column(nullable = false, name = "name")
-  private String    name;
+  @Column(nullable = false, name = "companyName")
+  private String    companyName;
   
   @Column(nullable = false, name = "companyAddress")
   private String    companyAddress;
@@ -34,23 +34,23 @@ public class Company
   {
   }
   
-  public Company(String name, String companyAddress)
+  public Company(String companyName, String companyAddress)
   {
     super();
-    this.name = name;
+    this.companyName = companyName;
     this.companyAddress = companyAddress;
+  }
+  
+  public String getCompanyName() {
+    return companyName;
+  }
+  
+  public void setCompanyName(String companyName) {
+    this.companyName = companyName;
   }
   
   public void setIdCompany(int idCompany) {
     this.idCompany = idCompany;
-  }
-  
-  public String getName() {
-    return name;
-  }
-  
-  public void setName(String name) {
-    this.name = name;
   }
   
   public String getCompanyAddress() {

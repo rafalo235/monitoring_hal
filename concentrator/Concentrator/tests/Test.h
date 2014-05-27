@@ -19,6 +19,8 @@ namespace NTest{
     CTest();
 
     void createProtocol();
+
+    void saveConfigurationFile();
   };
 }
 #endif // TEST_H

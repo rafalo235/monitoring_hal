@@ -13,12 +13,17 @@ namespace NEngine {
   using namespace NProtocol;
   class CConfiguration
   {
+
     //! \brief ID koncentratora do wysylania
     decltype(SProtocol::idConcentrator) idConcentrator;
 
     //! \brief Przerwa pomiedzy wysylanymi danymi
     uint16_t sendingPeriod;
 
+    //! \brief Przerwa pomiedzy sprawdzaniem danych z czujnikow
+    uint16_t checkingSensorPeriod;
+
+    //! \brief Konfiguracja dla poszczegolnych sensorow
     std::vector<CSensorConfiguration> sensors;
 
 
@@ -27,10 +32,16 @@ namespace NEngine {
 
     CConfiguration(const decltype(SProtocol::idConcentrator) idConcentrator1,
                    const uint16_t sendingPeriod1,
-                   const std::vector<CSensorConfiguration> sensors1):
-      idConcentrator(idConcentrator1), sendingPeriod(sendingPeriod1), sensors(sensors1)
+                   const std::vector<CSensorConfiguration> sensors1,
+                   const uint16_t checkingSensorPeriod1):
+      idConcentrator(idConcentrator1), sendingPeriod(sendingPeriod1), checkingSensorPeriod(checkingSensorPeriod1), sensors(sensors1)
     {
 
+    }
+
+    //! \return Zwraca przerwe pomiedzy sprawdzaniem danych z czujnikow
+    uint16_t getCheckingSensorPeriod() const{
+      return checkingSensorPeriod;
     }
 
     //! \return Zwraca id koncentratora odczytane z pliku konfiguracyjnego
@@ -44,12 +55,10 @@ namespace NEngine {
     }
 
     //! \return Zwraca konfiguracje czujnikow
-    const std::vector<CSensorConfiguration>* getSensorConfiguration(){
+    const std::vector<CSensorConfiguration>* getSensorConfiguration()const{
       return &sensors;
     }
 
-    friend std::ifstream& operator >>(std::ifstream& stream, CConfiguration& obj);
-    friend std::ofstream& operator <<(std::ofstream& stream, const CConfiguration& obj);
 
   };
 }

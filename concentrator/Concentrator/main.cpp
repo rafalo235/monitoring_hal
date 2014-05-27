@@ -6,16 +6,20 @@
 #include "communication/HttpThread.h"
 #include "communication/Communication.h"
 #include "tests/Test.h"
+#include "configuration/ConfigurationManager.h"
 
 using namespace NProtocol;
 using namespace NTest;
+using namespace NEngine;
 
 int main(int argc, char *argv[])
 {
   QCoreApplication a(argc, argv);
 
-  CTest test;
 
+  CTest test;
+  test.saveConfigurationFile();
+  CConfigurationManager::getInstance()->readConfiguration();
   test.createProtocol();
 
   return a.exec();
