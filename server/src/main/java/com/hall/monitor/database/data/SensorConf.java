@@ -56,6 +56,34 @@ public class SensorConf
     this.dataStr = dataStr;
   }
   
+  public ConcentratorConf getConcentratorConf() {
+    return concentratorConf;
+  }
+
+  public void setConcentratorConf(ConcentratorConf concentratorConf) {
+    this.concentratorConf = concentratorConf;
+  }
+
+  public void setIdSensorConf(int idSensorConf) {
+    this.idSensorConf = idSensorConf;
+  }
+
+  public void setSensor(Sensor sensor) {
+    this.sensor = sensor;
+  }
+
+  public void setConfigType(EConfigurationType configType) {
+    this.configType = configType;
+  }
+
+  public void setType(EValueType type) {
+    this.type = type;
+  }
+
+  public void setDataStr(String dataStr) {
+    this.dataStr = dataStr;
+  }
+
   public int getIdSensorConf() {
     return idSensorConf;
   }

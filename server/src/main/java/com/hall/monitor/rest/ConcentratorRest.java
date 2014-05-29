@@ -20,6 +20,8 @@ import com.hall.monitor.database.data.Company;
 import com.hall.monitor.database.data.Concentrator;
 import com.hall.monitor.database.data.Hall;
 import com.hall.monitor.engine.Engine;
+import com.hall.monitor.engine.converter.ProtocolConverter;
+import com.hall.monitor.engine.converter.ProtocolConverter.ParserException;
 import com.hall.monitor.protocol.EConfigurationType;
 import com.hall.monitor.protocol.EMessageType;
 import com.hall.monitor.protocol.EReceiveStatus;
@@ -29,36 +31,25 @@ import com.hall.monitor.protocol.SConfigurationValue;
 import com.hall.monitor.protocol.SData;
 import com.hall.monitor.protocol.SProtocol;
 import com.hall.monitor.protocol.SServerResponse;
-import com.hall.monitor.rest.ProtocolConverter.ParserException;
 
 @Path("/concentrator")
 public class ConcentratorRest
 {
   
   Logger log = Logger.getLogger(ConcentratorRest.class.getSimpleName());
-  
+  private Engine engine = new Engine();
   @POST
   @Path("/post")
   @Consumes(MediaType.APPLICATION_OCTET_STREAM)
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
   public Response receiveData(byte bytes[]) {
-    
-    byte b2[] = null;
-    try {
-      SProtocol protocol = ProtocolConverter.convertToProtocol(bytes);
-      log.log(Level.INFO,
-          "Protocol data received: id=" + protocol.getIdPackage());
-      
-      Engine.getInstance().receiveProtocol(protocol);
-      SProtocol test = getTest();
-      b2 = ProtocolConverter.convertToBytes(test);
+
+    byte response[] = engine.onReceiveData(bytes);
+    if (response == null){
+      // odpowiedz na potwierdzeni konfiguracja 
+      return Response.status(201).build();
     }
-    catch (ParserException e) {
-      
-      e.printStackTrace();
-    }
-    
-    return Response.status(201).entity(b2).build();
+    return Response.status(201).entity(response).build();
     
   }
   
@@ -90,7 +81,7 @@ public class ConcentratorRest
     SConfiguration configuration = new SConfiguration(configurations);
     SServerResponse res = new SServerResponse(EReceiveStatus.OK, 9,
         configuration);
-    return new SProtocol((char) 1, 0L, (char) 10, (char) 0, 2,
+    return new SProtocol(0L, (char) 10, (char) 0, 2,
         EMessageType.SERVER_MONITOR_RESPONSE, res);
   }
   

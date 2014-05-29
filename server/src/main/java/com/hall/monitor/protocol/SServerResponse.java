@@ -1,5 +1,7 @@
 package com.hall.monitor.protocol;
 
+import java.util.ArrayList;
+
 public class SServerResponse implements UMessage
 {
   // EReceiveStatus status;
@@ -21,7 +23,14 @@ public class SServerResponse implements UMessage
     this.idRequestPackage = idRequestPackage;
     this.configuration = configuration;
   }
-  
+  public SServerResponse(EReceiveStatus status, long idRequestPackage)
+  {
+    super();
+    this.status = status;
+    this.idRequestPackage = idRequestPackage;
+    ArrayList<SConfigurationValue> configurations = new ArrayList<SConfigurationValue>();
+    this.configuration = new SConfiguration(configurations);
+  }
   public EReceiveStatus getStatus() {
     return status;
   }

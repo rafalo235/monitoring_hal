@@ -58,6 +58,10 @@ public class ConcentratorConf
     this.timeStamp = timeStamp;
   }
   
+  public void setIdConcentratorConf(int idConcentratorConf) {
+    this.idConcentratorConf = idConcentratorConf;
+  }
+
   public Concentrator getConcentrator() {
     return concentrator;
   }

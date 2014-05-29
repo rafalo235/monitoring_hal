@@ -5,12 +5,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 
 import com.hall.monitor.database.data.Company;
 import com.hall.monitor.database.data.Concentrator;
@@ -20,9 +24,14 @@ import com.hall.monitor.database.data.MonitorData;
 import com.hall.monitor.database.data.Request;
 import com.hall.monitor.database.data.RequestConf;
 import com.hall.monitor.database.data.Sensor;
+import com.hall.monitor.database.data.SensorConf;
 import com.hall.monitor.database.data.SensorData;
 import com.hall.monitor.database.interfaces.IDBManager;
+import com.hall.monitor.protocol.EConfigurationType;
+import com.hall.monitor.protocol.EValueType;
+import com.hall.monitor.protocol.SConfiguration;
 import com.hall.monitor.protocol.SConfigurationResponse;
+import com.hall.monitor.protocol.SConfigurationValue;
 import com.hall.monitor.protocol.SData;
 import com.hall.monitor.protocol.SMonitorData;
 import com.hall.monitor.protocol.SProtocol;
@@ -36,8 +45,36 @@ public class DBManager implements IDBManager
 {
   private Logger log = Logger.getLogger(DBManager.class.getSimpleName());
   
+  public SConfiguration loadConcentratorConfiguration(int idConcentrator, List<SRequest> requests){
+    SessionFactory factory = HibernateUtil.getFactory();
+    Session session = factory.openSession();
+    
+
+    Criteria criteria = session.createCriteria(SensorConf.class, "sens")
+    .createAlias("ConcentratorConfs", "cons")
+    .add(Restrictions.eq("cons.idConcentrator", idConcentrator));
+    
+    for(SRequest res : requests){
+      criteria = criteria.add(Restrictions.eq("sens.configType", res.getConfigurationType().toString()));
+    }
+    @SuppressWarnings("unchecked")
+    List<SensorConf> list = criteria
+        .addOrder(Order.asc("timestamp")).list();
+    
+    ArrayList<SConfigurationValue> configurations = new ArrayList<SConfigurationValue>();
+    for (SensorConf con : list){
+      EConfigurationType configurationType = con.getConfigType();
+      SData data = convert(con.getType(), con.getDataStr());
+      byte idSensor = (byte) con.getIdSensorConf();
+      SConfigurationValue value = new SConfigurationValue(idSensor, configurationType, data);
+      configurations.add(value);
+    }
+    
+    return new SConfiguration(configurations);
+  }
   /**
    * Zapisuje dane z czujnikow otrzymane od koncentratora
+   * 
    * @param idPackage
    * @param concentratorId
    * @param monitor
@@ -119,6 +156,7 @@ public class DBManager implements IDBManager
   
   /**
    * Zapisuje flage informujaca ze koncentrator zmienil konfiguracje.
+   * 
    * @param confResponse
    * @return
    */
@@ -146,14 +184,14 @@ public class DBManager implements IDBManager
     
   }
   
-  private boolean storeServerRequest(long idPackage, int concentratorId, SServerRequest configRequest) {
+  private boolean storeServerRequest(long idPackage, int concentratorId,
+      SServerRequest configRequest) {
     SessionFactory factory = HibernateUtil.getFactory();
     Session session = factory.openSession();
     session.beginTransaction();
     // zapisz date otrzymania pakietu
     Date receiveTime = new Date();
     
-
     // znajdz w bazie koncentrator o danym id.
     Concentrator concentrator = getConcentrator(concentratorId);
     
@@ -164,10 +202,10 @@ public class DBManager implements IDBManager
       return false;
     }
     
-    
-
+    // dodaj naglowek requesta
     Request req = addRequest(session, idPackage, receiveTime, concentrator);
-    if (addRequest(session, req, configRequest.getRequests()) == null){
+    // dodaj zadania
+    if (addRequest(session, req, configRequest.getRequests()) == null) {
       session.getTransaction().rollback();
       session.close();
       return false;
@@ -176,8 +214,94 @@ public class DBManager implements IDBManager
     session.close();
     return true;
   }
-
-
+  
+  private SData convert(EValueType type, String str) {
+    switch (type)
+    {
+    case DOUBLE_64:
+      return new SData(type, Double.valueOf(str));
+    case FLOAT_32:
+      return new SData(type, Float.valueOf(str));
+    case INT_16:
+      return new SData(type, Short.valueOf(str));
+    case INT_32:
+      return new SData(type, Integer.valueOf(str));
+    case INT_64:
+      return new SData(type, Long.valueOf(str));
+    case INT_8:
+      return new SData(type, str.charAt(0));
+    case UINT_64:
+      return new SData(type, Long.valueOf(str));
+    case UINT_32:
+      return new SData(type, Long.valueOf(str));
+    case UINT_16:
+      return new SData(type, Integer.valueOf(str));
+    case UINT_8:
+      return new SData(type, str.charAt(0));
+    case VOID:
+    default:
+      return SData.VOID;
+    }
+  }
+  
+  /**
+   * Funkcja odczytuje z bazy konfiguracje, ktora nalezy wyslac do koncentratora
+   * 
+   * @param idConcentrator
+   * @return
+   */
+  
+  public SConfiguration loadConcentratorConfiguration(int idConcentrator){
+    SessionFactory factory = HibernateUtil.getFactory();
+    Session session = factory.openSession();
+    @SuppressWarnings("unchecked")
+    List<ConcentratorConf> list = 
+        session.createCriteria(ConcentratorConf.class)
+        .add(Restrictions.eq("idConcentrator", idConcentrator))
+        .add(Restrictions.eq("changed", 0))
+        .addOrder(Order.asc("timestamp")).list();
+    
+    
+    ArrayList<SConfigurationValue> configurations = new ArrayList<SConfigurationValue>();
+    for (ConcentratorConf conf : list){
+     
+      for (SensorConf sensConf : conf.getSensorConf()){
+        byte idSensor = (byte) sensConf.getSensor().getIdConcentratorSensor();
+        EConfigurationType configurationType = sensConf.getConfigType();
+        SData data = convert(sensConf.getType(), sensConf.getDataStr());
+        configurations.add(new SConfigurationValue(idSensor, configurationType, data));
+      }
+    }
+    
+    return new SConfiguration(configurations);
+  }
+  
+  /**
+   * Funkcja zapisuje konfiguracje koncentratora, ktora bedzie wyslana przy
+   * odpowiedzi.
+   * 
+   * @param idConcentrator
+   * @param conf
+   * @return
+   */
+  public boolean storeConcentratorConfiguration(int concentratorId,
+      ConcentratorConf conf) {
+    SessionFactory factory = HibernateUtil.getFactory();
+    Session session = factory.openSession();
+    session.beginTransaction();
+    Concentrator concentrator = getConcentrator(concentratorId);
+    
+    if (concentrator == null) {
+      log.log(Level.SEVERE, "Concentrator wasn't found");
+      session.getTransaction().rollback();
+      session.close();
+      return false;
+    }
+    conf = addConcentratorConfiguration(session, conf);
+    addSensorConfigurations(session, conf.getSensorConf());
+    return true;
+  }
+  
   /**
    * Zapisuje dane z protokolu w bazie
    * 
@@ -202,8 +326,12 @@ public class DBManager implements IDBManager
       // prosba o przeslanie konfiguracji
       SServerRequest configRequest = (SServerRequest) umessage;
       return storeServerRequest(idPackage, concentratorId, configRequest);
-    }else if (umessage instanceof SServerResponse){
-      // wyslane potwierdzenie odebrania pakietow
+    }
+    else if (umessage instanceof SServerResponse) {
+      // wyslane potwierdzenie odebrania pakietow, ktore nie jest zapisywane w
+      // bazie.
+      // W potwierdzeniu jedynie jest wysylyna konfiguracja, ale to jest
+      // obslugiwane przez inna metode.
       
     }
     
@@ -211,11 +339,48 @@ public class DBManager implements IDBManager
     
   }
   
-  private List<RequestConf> addRequest(Session session, Request req, List<SRequest> reqs) {
+  private Set<SensorConf> addSensorConfigurations(Session session,
+      Set<SensorConf> sensorConfs) {
+    for (SensorConf conf : sensorConfs) {
+      session.save(conf);
+      int id = ((BigInteger) session.createSQLQuery("SELECT LAST_INSERT_ID()")
+          .uniqueResult()).intValue();
+      conf.setIdSensorConf(id);
+    }
+    return sensorConfs;
+  }
+  
+  /**
+   * Dodaje konfiugracje koncentratora do bazy
+   * 
+   * @param session
+   * @param conf
+   * @return obiekt konfiguracji z ID
+   */
+  private ConcentratorConf addConcentratorConfiguration(Session session,
+      ConcentratorConf conf) {
+    session.save(conf);
+    int id = ((BigInteger) session.createSQLQuery("SELECT LAST_INSERT_ID()")
+        .uniqueResult()).intValue();
+    conf.setIdConcentratorConf(id);
+    return conf;
+  }
+  
+  /**
+   * Dodaje liste requestu otrzymanych od koncentratora
+   * 
+   * @param session
+   * @param req
+   * @param reqs
+   * @return
+   */
+  private List<RequestConf> addRequest(Session session, Request req,
+      List<SRequest> reqs) {
     ArrayList<RequestConf> results = new ArrayList<RequestConf>();
-    for (SRequest buf : reqs){
-
-      RequestConf reqConfSensor = new RequestConf(req, buf.getConfigurationType());
+    for (SRequest buf : reqs) {
+      
+      RequestConf reqConfSensor = new RequestConf(req,
+          buf.getConfigurationType());
       session.save(reqConfSensor);
       int idReq = ((BigInteger) session.createSQLQuery(
           "SELECT LAST_INSERT_ID()").uniqueResult()).intValue();
@@ -223,7 +388,6 @@ public class DBManager implements IDBManager
       results.add(reqConfSensor);
     }
     
-
     return results;
   }
   
@@ -232,12 +396,11 @@ public class DBManager implements IDBManager
     
     Request req = new Request(idPackage, receiveTime, concentrator, null);
     session.save(req);
-    int idReq = ((BigInteger) session.createSQLQuery(
-        "SELECT LAST_INSERT_ID()").uniqueResult()).intValue();
+    int idReq = ((BigInteger) session.createSQLQuery("SELECT LAST_INSERT_ID()")
+        .uniqueResult()).intValue();
     req.setIdRequest(idReq);
     return req;
   }
-
   
   @SuppressWarnings("unchecked")
   private List<Sensor> getSensors(Session session, int idConcentrator) {
