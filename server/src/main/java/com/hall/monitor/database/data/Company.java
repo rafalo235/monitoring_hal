@@ -4,11 +4,11 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 @Entity
@@ -26,8 +26,7 @@ public class Company
   @Column(nullable = false, name = "companyAddress")
   private String    companyAddress;
   
-  @OneToMany(mappedBy = "company")
-  @OrderBy("hallName")
+  @OneToMany(mappedBy = "company", fetch = FetchType.EAGER)
   private Set<Hall> halls;
   
   public Company()

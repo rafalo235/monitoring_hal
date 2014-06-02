@@ -1,36 +1,59 @@
-#include "HttpThread.h"
+#include <memory>
 #include <QDataStream>
 #include <QByteArray>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include "HttpThread.h"
+
 #include "util/Logger.h"
-#include "configuration/ConfigurationManager.h"
 #include "util/Cryptography.h"
+
+#include "communication/core/ConnectionTask.h"
+#include "communication/core/ConnectionResult.h"
 
 namespace NProtocol {
 
+  CHttpThread::CHttpThread(){
 
-  void CHttpThread::sendData(const uint32_t id1,
-                             const EMessageType type, const UMessage& message)
+    thread.reset(new std::thread([&](){run();}));
+  }
+
+  void CHttpThread::run(){
+    const SProtocol* protocol = nullptr;
+    do{
+      const CConnectionTask task = sendingQueue.pop();
+      protocol = task.getProtocol();
+      if (protocol != nullptr){
+        sendHttp(*protocol);
+      }
+    }while(protocol == nullptr);
+  }
+
+  void CHttpThread::addToSendingQueue(const SProtocol& prot)
   {
-    SProtocol protocol;
-    protocol.version = VERSION;
-    protocol.idConcentrator = NEngine::CConfigurationManager::getInstance()->
-                              getConfiguration()->getIdConcentrator();
+    CConnectionTask task(prot);
+    sendingQueue.push(task);
 
-    protocol.idPackage = id1;
-    protocol.crc = 0;
-    protocol.type = type;
-    protocol.message = message;
-    protocol.size = protocol.getSize();
-    const char* data = reinterpret_cast<const char*>(&protocol);
-    int dataSize = protocol.size;
-    protocol.crc = NUtil::CCryptography::crc16(data, dataSize);
+  }
+
+  void CHttpThread::exit()
+  {
+    sendingQueue.push(CConnectionTask());
+    thread->join();
+  }
+
+
+  void CHttpThread::sendHttp(const SProtocol& protocol)
+  {
 
     QByteArray postData;
     // konwertuj protokol do postaci binarnej tablicy QByteArray
     if (!convertToBinary(postData, protocol)){
       // nieprawidlowy format protokolu
       LOG_ERROR("Sending protocol error. idPackage:", protocol.idPackage);
-      emit resultReady(EConnectionStatus::OUTPUT_PROTOCOL_FORMAT_ERROR, protocol);
+      DConnectionResult res(new CConnectionResult(protocol, protocol, EConnectionStatus::OUTPUT_PROTOCOL_FORMAT_ERROR));
+      resultsQueue.push(res);
     }
     else
     {
@@ -46,34 +69,35 @@ namespace NProtocol {
       // typ MIME
       req.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
       // wyslij post'a
-      QNetworkReply *reply = mgr.post(req, postData);
+      std::shared_ptr<QNetworkReply> reply(mgr.post(req, postData));
       eventLoop.exec(); // czekaj QEventLoop::quit (czyli QNetworkAccessManager::finished)
 
       if (reply->error() == QNetworkReply::NoError) {
         //success
         LOG_DEBUG("Protocol has been sent successfully. idPackage:", protocol.idPackage);
         SProtocol responseProtocol;
-        EConnectionStatus status = EConnectionStatus::NONE;
         // przekonwertuj do struktury
         if (!convertToProtocol(responseProtocol, reply->readAll())){
           // blad struktury protokolu
-          status = EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR;
           LOG_ERROR("Received protocol error. idPackage:", protocol.idPackage);
+          DConnectionResult res(new CConnectionResult(protocol, protocol, EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR));
+          resultsQueue.push(res);
         }
         else{
           LOG_DEBUG("Protocol has been received successfully. idPackage:", responseProtocol.idPackage);
+          DConnectionResult res(new CConnectionResult(protocol, responseProtocol, EConnectionStatus::NONE));
+          resultsQueue.push(res);
         }
-        delete reply;
-        emit resultReady(status, responseProtocol);
+
       }
       else {
-        //failure
-        LOG_ERROR("Protocol sending error. idPackage:", protocol.idPackage, ". Error: ", reply->errorString().toStdString());
-        delete reply;
-        emit resultReady(EConnectionStatus::CONNECTION_ERROR, protocol);
+
+        LOG_ERROR("Protocol sending error. idPackage:",
+                  protocol.idPackage, ". Error: ", reply->errorString().toStdString());
+        DConnectionResult res(new CConnectionResult(protocol, protocol, EConnectionStatus::CONNECTION_ERROR));
+        resultsQueue.push(res);
       }
     }
-
   }
 
   bool CHttpThread::convertToBinary(QByteArray& array, const SProtocol& protocol)

@@ -1,7 +1,11 @@
 package com.hall.monitor.rest;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,10 +19,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.hibernate.cfg.Configuration;
+
 import com.hall.monitor.database.DBManager;
 import com.hall.monitor.database.data.Company;
 import com.hall.monitor.database.data.Concentrator;
+import com.hall.monitor.database.data.ConcentratorConf;
 import com.hall.monitor.database.data.Hall;
+import com.hall.monitor.database.data.Sensor;
+import com.hall.monitor.database.data.SensorConf;
+import com.hall.monitor.database.data.User;
 import com.hall.monitor.engine.Engine;
 import com.hall.monitor.engine.converter.ProtocolConverter;
 import com.hall.monitor.engine.converter.ProtocolConverter.ParserException;
@@ -36,17 +46,19 @@ import com.hall.monitor.protocol.SServerResponse;
 public class ConcentratorRest
 {
   
-  Logger log = Logger.getLogger(ConcentratorRest.class.getSimpleName());
+  Logger         log    = Logger.getLogger(ConcentratorRest.class
+                            .getSimpleName());
   private Engine engine = new Engine();
+  
   @POST
   @Path("/post")
   @Consumes(MediaType.APPLICATION_OCTET_STREAM)
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
   public Response receiveData(byte bytes[]) {
-
+    
     byte response[] = engine.onReceiveData(bytes);
-    if (response == null){
-      // odpowiedz na potwierdzeni konfiguracja 
+    if (response == null) {
+      // odpowiedz na potwierdzeni konfiguracja
       return Response.status(201).build();
     }
     return Response.status(201).entity(response).build();
@@ -54,12 +66,13 @@ public class ConcentratorRest
   }
   
   // ////////////////////////////////////////////////////////////////////////////////////////////////////
-  private Response sendError(){
+  private Response sendError() {
     ResponseBuilder builder = Response.status(201);
     builder.entity("Blad");
     Response res = builder.build();
     return res;
   }
+  
   private SProtocol getTest() {
     
     ArrayList<SConfigurationValue> configurations = new ArrayList<SConfigurationValue>();
@@ -128,8 +141,8 @@ public class ConcentratorRest
     try {
       DBManager db = new DBManager();
       Company company = db.getCompany(companyName, address);
-      String str = company.getIdCompany() + " : " + company.getCompanyName() + " : "
-          + company.getCompanyAddress();
+      String str = company.getIdCompany() + " : " + company.getCompanyName()
+          + " : " + company.getCompanyAddress();
       
       ResponseBuilder builder = Response.status(201);
       builder.entity(str.toString());
@@ -211,18 +224,26 @@ public class ConcentratorRest
     }
   }
   
-  /////////////////////////// concentrator
+  // ///////////////////////// concentrator
   @GET
   @Path("/test/add_concentrator")
   @Produces(MediaType.TEXT_PLAIN)
   public Response testAddConcentrator() {
+    return addConcentrator(1);
+  }
+  
+  private Response addConcentrator(int size) {
     try {
       DBManager db = new DBManager();
       Company company = db.getCompany("Firma1", "Lodz");
-      Hall hall = db.getHall(company.getIdCompany(), "HallName1", "HallAddresss1");
+      Hall hall = db.getHall(company.getIdCompany(), "HallName1",
+          "HallAddresss1");
       List<Integer> idSensors = new ArrayList<Integer>();
-      idSensors.add(1);
-      Concentrator concentrator = db.addConcentrator(hall.getIdHall(), idSensors);
+      for (int i = 0; i < size; ++i) {
+        idSensors.add(i);
+      }
+      Concentrator concentrator = db.addConcentrator(hall.getIdHall(),
+          idSensors);
       
       ResponseBuilder builder = Response.status(201);
       builder.entity("ID CONCENTRATOR:" + concentrator.getIdConcentrator());
@@ -233,15 +254,61 @@ public class ConcentratorRest
       return sendError();
     }
   }
+  
+  private void addUsers(int size) {
+    DBManager db = new DBManager();
+    for (int i = 0; i < size; ++i) {
+      String firstName = "firstName" + i;
+      String lastName = "lastName" + i;
+      String login = "login" + i;
+      String pass = "pass" + i;
+      db.addUser(firstName, lastName, login, pass);
+    }
+  }
+  
+  private void addConfigure() {
+    try {
+      DBManager db = new DBManager();
+      Company company = db.getCompany("Firma1", "Lodz");
+      Hall hall = db.getHall(company.getIdCompany(), "HallName1",
+          "HallAddresss1");
+      List<Concentrator> concs = db.getConcentrators(hall.getIdHall());
+      Concentrator concentrator = concs.iterator().next();
+      User user = db.getUser("login0", "pass0");
+      
+      Set<SensorConf> sensorCon = new HashSet<SensorConf>();
+      Set<Sensor> sensors = concentrator.getSensors();
+      Iterator<Sensor> it = sensors.iterator();
+      EConfigurationType types[] = EConfigurationType.values();
+      int i = 0;
+      Date timeStamp = new Date();
+      boolean changed = false;
+      ConcentratorConf conf1 = new ConcentratorConf(concentrator, sensorCon,
+          user, changed, timeStamp);
+      while (it.hasNext()) {
+        
+        SensorConf s = new SensorConf(conf1, it.next(), types[i++],
+            EValueType.INT_32, String.valueOf(1));
+        sensorCon.add(s);
+      }
+      
+      db.storeConcentratorConfiguration(concentrator.getIdConcentrator(), conf1);
+    }
+    catch (Throwable e) {
+      e.printStackTrace();
+    }
+  }
+  
   @GET
   @Path("/test/add_test")
   @Produces(MediaType.TEXT_PLAIN)
   public Response testAddTest() {
     testAddCompany();
     testAddHall();
-    testAddConcentrator();
-    testAddConcentrator();
-    return testAddConcentrator();
+    addUsers(3);
+    Response res = addConcentrator(4);
+    addConfigure();
+    return res;
   }
   
 }

@@ -113,6 +113,13 @@ namespace NProtocol
       }
 
     }
+
+    static SData getVoid(){
+      SData s;
+      s.type = EValueType::VOID;
+      s.value.vVoid8 = cVoidValue;
+      return s;
+    }
   };
 
   //! \brief Opcja konfiguracji
@@ -162,7 +169,7 @@ namespace NProtocol
   enum class EDangerLevel : int8_t
   {
     NONE = 0,       //!< dane z czujnika nie wskazuja zagrozenia.
-    DANGER = 1,     //!< dane z czujnika wskazuja pierwszy stopien zagrozenia
+    WARNING = 1,     //!< dane z czujnika wskazuja pierwszy stopien zagrozenia
     ALARM = 2       //!< dane z czujnika wskazuja niebezpieczenstwo
   };
 

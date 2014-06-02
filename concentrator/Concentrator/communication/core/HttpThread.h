@@ -1,34 +1,26 @@
 #ifndef HTTPTHREAD_H
 #define HTTPTHREAD_H
 
-#include <QtCore>
-#include <QtDebug>
-#include <QObject>
-#include "protocol.h"
+#include <thread>
 #include <QByteArray>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QUrl>
-#include "util/Logger.h"
+#include <memory>
+
+#include "util/QueueThread.h"
+#include "communication/interfaces/protocol.h"
+#include "communication/core/ByteWrapper.h"
+#include "communication/core/ConnectionResult.h"
+#include "communication/core/ConnectionTask.h"
+#include "communication/interfaces/IConnection.h"
 
 namespace NProtocol {
 
-  //! \brief Stan komunikacji HTTP
-  enum class EConnectionStatus{
-    NONE,
-    CONNECTION_ERROR,
-    INPUT_PROTOCOL_FORMAT_ERROR,
-    OUTPUT_PROTOCOL_FORMAT_ERROR,
-
-  };
-
-  class CHttpThread : public QObject
+  class CHttpThread
   {
-    Q_OBJECT
-
-
   private:
+
+    std::shared_ptr<std::thread> thread;
+    NUtil::CQueueThread<CConnectionTask> sendingQueue;
+    NUtil::CQueueThread<DConnectionResult> resultsQueue;
 
     //! \brief Konwertuje obiekt protokolu do postaci tablicy binarnej i dodaje do array.
     //!        Nie mozna zrobic prostej konwersji z powodu wykorzystanych unii i dynamicznych tablic
@@ -53,28 +45,6 @@ namespace NProtocol {
     template<typename T>
     static inline void convertToBinary(QByteArray& array, const T& data);
 
-
-    //! \brief Klasa pomocnicza w konwertowaniu tablicy bajtow na protokol
-    class CByteWrapper{
-      const char* src;
-      int pointer;
-    public:
-      CByteWrapper(const QByteArray& array) : src(array.constData()), pointer(0){
-
-      }
-
-      //! \brief Odczytuje obiekt typu T z tablicy bajtow
-      //! \return Odczytany obiekt typu T
-      template<typename T>
-      T read(){
-        // dobrze by bylo zrobic konsturktory rvalue
-        T dest;
-        memcpy(&dest, src + pointer, sizeof(dest));
-        pointer += sizeof(dest);
-        return dest;
-      }
-    };
-
     //! \brief makro do ulatwienia odczytu
 #define READ_WRAPPER(obj, wrapper) obj = wrapper.read<decltype(obj)>();
 
@@ -90,11 +60,33 @@ namespace NProtocol {
     inline static bool convertToProtocol(SConfigurationValue& confValue, CByteWrapper& wrapper);
     inline static bool convertToProtocol(SData& sdata, CByteWrapper& wrapper);
 
-  public slots:
-     void sendData(const uint32_t id, const EMessageType type, const UMessage& message);
+    // ////////////////////////////////////////////////////////////////////
 
-  signals:
-    void resultReady(const EConnectionStatus error, const SProtocol& protocol);
+  public:
+    CHttpThread();
+
+    void addToSendingQueue(const SProtocol& prot);
+
+    //! IConnection::getResult()
+    const DConnectionResult getResult(){
+      return resultsQueue.pop();
+    }
+
+    //! IConnection::exit()
+    void exit();
+
+    //! IConnection::isAnyResult()
+    bool isAnyResult() const{
+      return resultsQueue.size() != 0;
+    }
+
+  private:
+    void run();
+
+    void sendHttp(const SProtocol& protocol);
+
+
+
   };
 }
 #endif // HTTPTHREAD_H

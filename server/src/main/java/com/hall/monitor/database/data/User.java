@@ -17,16 +17,19 @@ public class User
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "idUser")
-  private int    idUser;
+  private int                   idUser;
   
   @Column(nullable = false, name = "firstName")
-  private String firstName;
+  private String                firstName;
   
   @Column(nullable = false, name = "lastName")
-  private String lastName;
+  private String                lastName;
   
   @Column(nullable = false, name = "login")
-  private String login;
+  private String                login;
+  
+  @Column(nullable = false, name = "password")
+  private String                password;
   
   @OneToMany(mappedBy = "user")
   private Set<ConcentratorConf> configures;
@@ -35,12 +38,25 @@ public class User
   {
   }
   
-  public User(String firstName, String lastName, String login)
+  public User(String firstName, String lastName, String login, String password)
   {
     super();
     this.firstName = firstName;
     this.lastName = lastName;
     this.login = login;
+    this.password = password;
+  }
+  
+  public void setIdUser(int idUser) {
+    this.idUser = idUser;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+  
+  public void setPassword(String password) {
+    this.password = password;
   }
   
   public String getFirstName() {

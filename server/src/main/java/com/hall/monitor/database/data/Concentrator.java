@@ -4,6 +4,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -11,8 +12,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.OrderBy;
 
 @Entity
 @Table(name = "Concentrators")
@@ -27,8 +26,7 @@ public class Concentrator
   @JoinColumn(name = "idHall")
   private Hall        hall;
   
-  @OneToMany(mappedBy = "concentrator")
-  @OrderBy(clause = "idConcentatorSensor")
+  @OneToMany(mappedBy = "concentrator", fetch = FetchType.EAGER)
   private Set<Sensor> sensors;
   
   public Concentrator()

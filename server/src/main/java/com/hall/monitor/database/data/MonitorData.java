@@ -13,8 +13,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.OrderBy;
-
 @Entity
 @Table(name = "MonitorDatas")
 public class MonitorData
@@ -40,7 +38,6 @@ public class MonitorData
   private int             sensorsAmount;
   
   @OneToMany(mappedBy = "monitorData")
-  @OrderBy(clause = "timeStamp")
   private Set<SensorData> sensorDatas;
   
   @ManyToOne

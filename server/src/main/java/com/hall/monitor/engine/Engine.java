@@ -15,6 +15,7 @@ import com.hall.monitor.protocol.EDangerLevel;
 import com.hall.monitor.protocol.EMessageType;
 import com.hall.monitor.protocol.EReceiveStatus;
 import com.hall.monitor.protocol.SConfiguration;
+import com.hall.monitor.protocol.SConfigurationResponse;
 import com.hall.monitor.protocol.SMonitorData;
 import com.hall.monitor.protocol.SProtocol;
 import com.hall.monitor.protocol.SRequest;
@@ -55,8 +56,9 @@ public class Engine
       else if(message instanceof SServerRequest){
         responseProtocol =  operateSeverRequest(protocol);
       }
-      // message instanceof SConfigurationResponse){
+      else if(message instanceof SConfigurationResponse){
       responseProtocol =  operateConfigurationResponse(protocol);
+      }
       
     }
     catch (ParserException e) {

@@ -46,7 +46,7 @@ public class SensorConf
   {
   }
   
-  public SensorConf(Sensor sensor, EConfigurationType configType,
+  public SensorConf(ConcentratorConf concentratorConf, Sensor sensor, EConfigurationType configType,
       EValueType type, String dataStr)
   {
     super();
@@ -54,6 +54,7 @@ public class SensorConf
     this.configType = configType;
     this.type = type;
     this.dataStr = dataStr;
+    this.concentratorConf = concentratorConf;
   }
   
   public ConcentratorConf getConcentratorConf() {

@@ -16,24 +16,44 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    communication/Communication.cpp \
-    communication/HttpThread.cpp \
+    communication/core/HttpThread.cpp \
     util/Logger.cpp \
     util/Cryptography.cpp \
-    configuration/SensorConfiguration.cpp \
-    configuration/Configuration.cpp \
-    configuration/ConfigurationManager.cpp \
-    tests/Test.cpp
+    configuration/core/Configuration.cpp \
+    tests/Test.cpp \
+    util/QueueThread.cpp \
+    communication/core/Connection.cpp \
+    engine/core/CycleMonitor.cpp \
+    engine/core/Engine.cpp \
+    sensors/core/CSensorsManager.cpp
 
 HEADERS += \
-    communication/protocol.h \
-    communication/Communication.h \
-    communication/HttpThread.h \
+    communication/core/protocol.h \
+    communication/core/HttpThread.h \
     util/Logger.h \
     util/Cryptography.h \
-    configuration/SensorConfiguration.h \
-    configuration/Configuration.h \
-    configuration/ConfigurationManager.h \
-    tests/Test.h
+    configuration/core/SensorConfiguration.h \
+    configuration/core/Configuration.h \
+    tests/Test.h \
+    util/QueueThread.h \
+    communication/core/ConnectionResult.h \
+    communication/core/ByteWrapper.h \
+    communication/core/ConnectionTask.h \
+    communication/interfaces/IConnection.h \
+    communication/interfaces/IConnectionResult.h \
+    communication/interfaces/ConnectionFactory.h \
+    communication/core/Connection.h \
+    configuration/interfaces/IConfiguration.h \
+    configuration/interfaces/ConfigurationFactory.h \
+    configuration/interfaces/ISensorConfiguration.h \
+    engine/core/CycleMonitor.h \
+    engine/core/Engine.h \
+    sensors/interfaces/ISensorsManager.h \
+    sensors/interfaces/SensorsFactory.h \
+    sensors/core/CSensorsManager.h \
+    communication/interfaces/protocol.h \
+    communication/interfaces/protocolUtil.h \
+    engine/interfaces/IEngine.h \
+    engine/interfaces/EngineFactory.h
 
 QMAKE_CXXFLAGS += -std=c++11

@@ -17,7 +17,7 @@
 #endif
 
 #ifdef LOGGER_ENABLE
-#include "communication/protocol.h"
+#include "communication/interfaces/protocol.h"
 #endif
 
 // konwersja pliku z nazwa, do samej nazwy - slash zalezy od OS'a
@@ -220,7 +220,7 @@ namespace NUtil{
       sensorStateEnums[NProtocol::ESensorState::BROKEN] = "BROKEN";
 
       dangerLevelEnums[NProtocol::EDangerLevel::NONE] = "NONE";
-      dangerLevelEnums[NProtocol::EDangerLevel::DANGER] = "DANGER";
+      dangerLevelEnums[NProtocol::EDangerLevel::WARNING] = "WARNING";
       dangerLevelEnums[NProtocol::EDangerLevel::ALARM] = "ALARM";
 
 

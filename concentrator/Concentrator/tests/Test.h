@@ -1,7 +1,7 @@
 #ifndef TEST_H
 #define TEST_H
 
-#include "communication/protocol.h"
+#include "communication/interfaces/protocol.h"
 
 
 /*

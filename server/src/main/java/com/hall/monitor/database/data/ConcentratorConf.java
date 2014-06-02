@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -29,7 +30,7 @@ public class ConcentratorConf
   @JoinColumn(name = "idConcentrator")
   private Concentrator    concentrator;
   
-  @OneToMany(mappedBy = "concentratorConf")
+  @OneToMany(mappedBy = "concentratorConf", fetch = FetchType.EAGER)
   private Set<SensorConf> sensorConf;
   
   @ManyToOne

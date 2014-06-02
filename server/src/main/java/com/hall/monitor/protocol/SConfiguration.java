@@ -18,7 +18,13 @@ public class SConfiguration
     this.configurationSize = (char) configurations.size();
     this.configurations = configurations;
   }
-  
+  public SConfiguration()
+  {
+    super();
+
+    this.configurations = new ArrayList<SConfigurationValue>();
+    this.configurationSize = (char) configurations.size();
+  }
   public char getConfigurationSize() {
     return configurationSize;
   }

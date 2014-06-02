@@ -6,6 +6,7 @@ import com.hall.monitor.database.data.Company;
 import com.hall.monitor.database.data.Concentrator;
 import com.hall.monitor.database.data.ConcentratorConf;
 import com.hall.monitor.database.data.Hall;
+import com.hall.monitor.database.data.User;
 import com.hall.monitor.protocol.SConfiguration;
 import com.hall.monitor.protocol.SProtocol;
 import com.hall.monitor.protocol.SRequest;
@@ -31,4 +32,9 @@ public interface IDBManager
   
   public boolean store(SProtocol protocol);
   
+  public User addUser(String firstName, String lastName, String login,
+      String pass);
+  
+  public User getUser(String login, String pass);
+
 }
