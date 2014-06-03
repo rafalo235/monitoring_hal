@@ -23,7 +23,8 @@ SOURCES += main.cpp \
     configuration/SensorConfiguration.cpp \
     configuration/Configuration.cpp \
     configuration/ConfigurationManager.cpp \
-    tests/Test.cpp
+    tests/Test.cpp \
+    communication/ModbusThread.cpp
 
 HEADERS += \
     communication/protocol.h \
@@ -34,6 +35,7 @@ HEADERS += \
     configuration/SensorConfiguration.h \
     configuration/Configuration.h \
     configuration/ConfigurationManager.h \
-    tests/Test.h
+    tests/Test.h \
+    communication/ModbusThread.h
 
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++0x

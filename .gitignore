@@ -5,6 +5,8 @@
 *.o
 *.a
 *.so
-build-Concentrator-Desktop_Qt_5_2_1_GCC_64bit-Debug/
-build-Concentrator-Desktop_Qt_5_2_1_GCC_64bit-Release/
+build-Concentrator-Desktop_Qt_*_GCC_*-Debug/
+build-Concentrator-Desktop_Qt_*_GCC_*-Release/
+*.pro.user
+*.pro.user.*
 
