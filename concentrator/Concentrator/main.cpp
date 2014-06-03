@@ -7,6 +7,7 @@
 #include "communication/Communication.h"
 #include "tests/Test.h"
 #include "configuration/ConfigurationManager.h"
+#include "communication/ModbusThread.h"
 
 using namespace NProtocol;
 using namespace NTest;
@@ -14,13 +15,15 @@ using namespace NEngine;
 
 int main(int argc, char *argv[])
 {
-  QCoreApplication a(argc, argv);
+    QCoreApplication a(argc, argv);
+    ModbusThread t;
+    CTest test;
 
+    t.start();
 
-  CTest test;
-  test.saveConfigurationFile();
-  CConfigurationManager::getInstance()->readConfiguration();
-  test.createProtocol();
+    test.saveConfigurationFile();
+    CConfigurationManager::getInstance()->readConfiguration();
+    test.createProtocol();
 
-  return a.exec();
+    return a.exec();
 }
