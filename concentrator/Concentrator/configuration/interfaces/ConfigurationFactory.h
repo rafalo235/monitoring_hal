@@ -5,7 +5,10 @@
 #include "configuration/interfaces/IConfiguration.h"
 #include "configuration/core/Configuration.h"
 
+#include "configuration/tests/ConfigurationMock.h"
+
 namespace NEngine{
+
   typedef std::shared_ptr<IConfiguration> DConfiguration;
 
   class CConfigurationFactory
@@ -17,7 +20,12 @@ namespace NEngine{
     CConfigurationFactory& operator=(const CConfigurationFactory&) = delete;
 
     static DConfiguration getInstance(){
+#ifdef CONFIG_MOCK
+      static DConfiguration configuration(new CConfigurationMock());
+#else
       static DConfiguration configuration(new CConfiguration());
+#endif
+
 
       return configuration;
     }

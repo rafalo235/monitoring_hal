@@ -8,11 +8,14 @@
 
 namespace NEngine {
 
+  const char* CConfiguration::fileName = "configuration.conf";
+
   bool CConfiguration::readConfiguration() {
-    std::ifstream file("configuration.conf");
+    std::ifstream file(fileName);
     if (!file.is_open()){
       return false;
     }
+    //TODO: sprawdzanie czy plik jest poprawny
     decltype(SProtocol::idConcentrator) idConcentrator;
     uint16_t sendingPeriod;
     uint16_t checkingSensorPeriod;
@@ -25,13 +28,18 @@ namespace NEngine {
     file.read(reinterpret_cast<char*>(&sensorsAmount), sizeof(sensorsAmount));
 
     std::vector<DSensorConfiguration> sensors;
-    CSensorConfiguration conf;
+    decltype(SSensorData::idSensor) id;
+    bool turnOn;
+    SData warning;
+    SData alarm;
+
     for(int i = 0; i < sensorsAmount; ++i){
+      file.read(reinterpret_cast<char*>(&id), sizeof(id));
+      file.read(reinterpret_cast<char*>(&turnOn), sizeof(turnOn));
+      file.read(reinterpret_cast<char*>(&warning), sizeof(warning));
+      file.read(reinterpret_cast<char*>(&alarm), sizeof(alarm));
 
-
-      file.read(reinterpret_cast<char*>(&conf), sizeof(conf));
-      CSensorConfiguration* a = new CSensorConfiguration(conf);
-      DSensorConfiguration buf(a);
+      DSensorConfiguration buf(new CSensorConfiguration(id, turnOn, warning, alarm));
       sensors.push_back(buf);
     }
     file.close();
@@ -46,11 +54,11 @@ namespace NEngine {
 
   bool CConfiguration::saveConfiguration()const{
 
-    std::ofstream file("configuration.conf");
+    std::ofstream file(fileName);
     if (!file.is_open()){
       return false;
     }
-
+// TODO: sprawdzanie czy plik jest poprawny - CRC
     const uint8_t sensorsAmount = static_cast<uint8_t>(sensors.size());
 
     file.write(reinterpret_cast<const char*>(&idConcentrator), sizeof(idConcentrator));
@@ -62,7 +70,19 @@ namespace NEngine {
     file.write(reinterpret_cast<const char*>(&sensorsAmount), sizeof(sensorsAmount));
 
     std::for_each(sensors.begin(), sensors.end(),
-                  [&](const DSensorConfiguration& c){file.write(reinterpret_cast<const char*>(&(*c)), sizeof(*c));});
+                  [&](const DSensorConfiguration& c)
+                    {
+                        decltype(SSensorData::idSensor) id = c->getSensorId();
+                        bool turnOn = c->isTurnOn();
+                        const SData warning = c->getWarnigLvl();
+                        const SData alarm = c->getAlarmLvl();
+                        file.write(reinterpret_cast<const char*>(&id), sizeof(id));
+                        file.write(reinterpret_cast<const char*>(&turnOn), sizeof(turnOn));
+                        file.write(reinterpret_cast<const char*>(&warning), sizeof(warning));
+                        file.write(reinterpret_cast<const char*>(&alarm), sizeof(alarm));
+
+                    });
+
     file.close();
     return true;
   }

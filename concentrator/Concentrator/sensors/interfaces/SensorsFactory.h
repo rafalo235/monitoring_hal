@@ -6,6 +6,9 @@
 #include "sensors/interfaces/ISensorsManager.h"
 #include "sensors/core/CSensorsManager.h"
 
+#ifdef SENSOR_MOCK
+#include "sensors/tests/CSensorsManagerMock.h"
+#endif
 namespace NSensors{
 
   typedef std::shared_ptr<ISensorsManager> DSensorManager;
@@ -19,7 +22,12 @@ namespace NSensors{
     CSensorFactory(const CSensorFactory&) = delete;
 
     static DSensorManager getInstance(){
-      static DSensorManager manager(new CSensorsManager());
+#ifdef SENSOR_MOCK
+       static DSensorManager manager(new CSensorsManagerMock());
+#else
+       static DSensorManager manager(new CSensorsManager());
+#endif
+
 
       return manager;
     }

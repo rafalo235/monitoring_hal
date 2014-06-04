@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "communication/interfaces/protocolUtil.h"
+#include "util/Logger.h"
 
 namespace NEngine{
   using namespace NProtocol;
@@ -30,7 +31,7 @@ namespace NEngine{
 
   // funkcja wywolywana z odrebnego watku
   void CCycleMonitor::run(){
-
+    LOG_DEBUG("Engine thread was lunched");
     do{
 
       // pobiera aktualny czas
@@ -43,6 +44,7 @@ namespace NEngine{
       std::this_thread::sleep_until(
             std::chrono::system_clock::from_time_t(wakeUpTime));
 
+      LOG_DEBUG("Engine thread woke up.");
       // pobiera aktualny czas
       curTime = std::chrono::system_clock::to_time_t(
                   std::chrono::system_clock::now());
@@ -78,17 +80,19 @@ namespace NEngine{
       // czas sprawdzic czujniki
       if (curTime - checkingSensorsTime >= configuration->getCheckingSensorPeriod())
       {
+        LOG_DEBUG("Engine thread checks sensors.");
         warning = checkSensors(false);
       }
       // czas wyslac dane z czujnikow lub dane byly niepokojace i trzeba je wyslac
       if ((curTime - sendingDataTime >= configuration->getSendingPeriod()) || warning)
       {
+        LOG_DEBUG("Engine thread sends data.");
         if (!warning){
           checkSensors(false);
         }
         SMonitorData monitor{
               static_cast<decltype(SMonitorData::sendTime)>(curTime),
-              static_cast<decltype(SMonitorData::sensorsAmount)>(configuration->getSensorConfiguration()->size()),
+              static_cast<decltype(SMonitorData::sensorsAmount)>(configuration->getSensorConfiguration().size()),
               static_cast<decltype(SMonitorData::sensorsDataSize)>(sensorsData.size()),
               sensorsData.data()};
         connection->sendMonitorData(monitor);
@@ -117,14 +121,14 @@ namespace NEngine{
   // Sprawdza czujniki.
   bool CCycleMonitor::checkSensors(bool addToVector){
     bool warningLevel = false;
-    const std::vector<DSensorConfiguration>* sensorsConf = configuration->getSensorConfiguration();
+    const std::vector<DSensorConfiguration> sensorsConf = configuration->getSensorConfiguration();
 
     std::time_t curTime = std::chrono::system_clock::to_time_t(
                             std::chrono::system_clock::now());
 
     bool checkOnceAgain = false;
     do{
-      for(const DSensorConfiguration& conf : *sensorsConf){
+      for(const DSensorConfiguration& conf : sensorsConf){
 
         if (conf->isTurnOn())
         {

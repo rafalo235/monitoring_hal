@@ -93,7 +93,7 @@ namespace NUtil{
     CLogger(const CLogger&) = delete;
     CLogger& operator=(const CLogger&) = delete;
 
-    static std::shared_ptr<CLogger> logger;
+
 
 
 #ifdef LOGGER_FILE_ENABLE
@@ -102,8 +102,10 @@ namespace NUtil{
 
   public:
     static std::shared_ptr<CLogger> getInstance(){
-      if (logger.use_count() == 0){
-        logger.reset(new CLogger());
+      static std::shared_ptr<CLogger> logger(new CLogger());
+      static bool inited = false;
+      if (inited){
+
         // otworz plik jesli trzeba
 #ifdef LOGGER_FILE_ENABLE
         logger->file.open("log.txt", std::ios::out);
@@ -111,6 +113,7 @@ namespace NUtil{
 #ifdef LOGGER_ENABLE
         logger->initEnums();
 #endif
+        inited = true;
       }
       return logger;
     }

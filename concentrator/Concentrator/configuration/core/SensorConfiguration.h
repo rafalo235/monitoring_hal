@@ -9,17 +9,30 @@ namespace NEngine {
   using namespace NProtocol;
   class CConfiguration;
 
+
   //! \brief Konfiguracja pojedynczego czujnika
   class CSensorConfiguration : public ISensorConfiguration
   {
     friend class CConfiguration;
-
+#ifdef CONFIG_MOCK
+    friend class CConfigurationMock;
+#endif
     decltype(SSensorData::idSensor) idSensor;
     bool turnOn;
     SData warningLvl;
     SData alarmLvl;
 
     CSensorConfiguration() = default;
+    CSensorConfiguration(decltype(SSensorData::idSensor)& idSensor1,
+                         bool& turnOn1, SData& warningLvl1, SData& alarmLvl1) :
+                            idSensor(idSensor1),
+                            turnOn(turnOn1),
+                            warningLvl(warningLvl1),
+                            alarmLvl(alarmLvl1)
+    {
+
+    }
+
   public:
 
     CSensorConfiguration& operator=(const CSensorConfiguration&) = delete;

@@ -25,7 +25,7 @@ namespace NEngine{
     virtual uint16_t getSendingPeriod() const = 0;
 
     //! \return Zwraca konfiguracje czujnikow
-    virtual const std::vector<DSensorConfiguration>* getSensorConfiguration()const =0;
+    virtual const std::vector<DSensorConfiguration>& getSensorConfiguration()const =0;
 
     //! \return true, jesli dane maja byc ciagle zapisywane na karte SD nawet jeśli polaczenie z serwerem jest OK
     virtual bool getSaveSDCardIfOnlineEnable() const = 0;

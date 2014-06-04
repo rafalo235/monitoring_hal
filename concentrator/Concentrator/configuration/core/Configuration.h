@@ -19,7 +19,9 @@ namespace NEngine {
   class CConfiguration : public IConfiguration
   {
     friend class CConfigurationFactory;
-
+#ifdef CONFIG_MOCK
+  protected:
+#endif
     //! \brief ID koncentratora do wysylania
     decltype(SProtocol::idConcentrator) idConcentrator;
 
@@ -38,6 +40,7 @@ namespace NEngine {
     //! \return true jesli wszystko ok, false jesli nie
     bool saveConfiguration() const;
 
+    static const char* fileName;
   public:
 
     CConfiguration()
@@ -67,8 +70,8 @@ namespace NEngine {
     }
 
     //! \return Zwraca konfiguracje czujnikow
-    virtual const std::vector<DSensorConfiguration>* getSensorConfiguration()const{
-      return &sensors;
+    virtual const std::vector<DSensorConfiguration>& getSensorConfiguration()const{
+      return sensors;
     }
 
     virtual bool setCheckingSensorPeriod(const uint16_t checkingSensorPeriod1){
