@@ -123,13 +123,14 @@ public class DBManager implements IDBManager
         // poszukiwanie sensora
         Sensor sensor = null;
         for (Sensor sensorBuf : sensors) {
-          if (sensorBuf.getIdSensor() == sensorId) {
+          if (sensorBuf.getIdConcentratorSensor() == sensorId) {
             sensor = sensorBuf;
             break;
           }
         }
         if (sensor == null) {
           // czujnik nie znaleziony
+          log.log(Level.SEVERE, "Sensor wasn't found. idConcentrator: " + concentratorId + " concentrator sensor id: "+ sensorId);
           session.getTransaction().rollback();
           session.close();
           return false;
