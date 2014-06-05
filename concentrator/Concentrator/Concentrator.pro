@@ -61,4 +61,4 @@ HEADERS += \
     configuration/tests/ConfigurationMock.h \
     configuration/tests/SensorConfigurationMock.h
 
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++0x
