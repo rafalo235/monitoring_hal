@@ -3,6 +3,7 @@
 #include <ctime>
 #include <chrono>
 #include <vector>
+#include <cstdint>
 
 #include "communication/interfaces/protocolUtil.h"
 #include "util/Logger.h"
@@ -44,7 +45,7 @@ namespace NEngine{
       std::this_thread::sleep_until(
             std::chrono::system_clock::from_time_t(wakeUpTime));
 
-      LOG_DEBUG("Engine thread woke up.");
+      //LOG_DEBUG("Engine thread woke up.");
       // pobiera aktualny czas
       curTime = std::chrono::system_clock::to_time_t(
                   std::chrono::system_clock::now());
@@ -70,7 +71,7 @@ namespace NEngine{
             // zapisywanie danych nawet jesli byly
             saveSensorsData();
           }
-          sensorsData.resize(0);
+         // sensorsData.clear();
           operateReceivedProtocol(result);
           break;
         }
@@ -80,23 +81,29 @@ namespace NEngine{
       // czas sprawdzic czujniki
       if (curTime - checkingSensorsTime >= configuration->getCheckingSensorPeriod())
       {
-        LOG_DEBUG("Engine thread checks sensors.");
+        //LOG_DEBUG("Engine thread checks sensors.");
         warning = checkSensors(false);
+       // LOG_DEBUG("Engine thread checked sensors.");
       }
       // czas wyslac dane z czujnikow lub dane byly niepokojace i trzeba je wyslac
       if ((curTime - sendingDataTime >= configuration->getSendingPeriod()) || warning)
       {
-        LOG_DEBUG("Engine thread sends data.");
+       // LOG_DEBUG("Engine thread sends data.");
         if (!warning){
-          checkSensors(false);
+          checkSensors(true);
         }
-        SMonitorData monitor{
-              static_cast<decltype(SMonitorData::sendTime)>(curTime),
-              static_cast<decltype(SMonitorData::sensorsAmount)>(configuration->getSensorConfiguration().size()),
-              static_cast<decltype(SMonitorData::sensorsDataSize)>(sensorsData.size()),
-              sensorsData.data()};
-        connection->sendMonitorData(monitor);
+        if (sensorsData.size() > 0){
 
+            uint8_t amount =
+                    static_cast<uint8_t>(configuration->getSensorConfiguration().size());
+
+            CMonitorData* monitorData = new CMonitorData(curTime, amount, sensorsData);
+            std::shared_ptr<CMonitorData> monitor(monitorData);
+            connection->sendMonitorData(monitor);
+        }
+      }
+      else{
+          LOG_DEBUG("Engine thread didn't send data.");
       }
     }while(!threadExit.load(std::memory_order_consume));
 
@@ -126,21 +133,23 @@ namespace NEngine{
     std::time_t curTime = std::chrono::system_clock::to_time_t(
                             std::chrono::system_clock::now());
 
-    bool checkOnceAgain = false;
+    bool checkOnceAgain;
     do{
+      checkOnceAgain = false;
+
       for(const DSensorConfiguration& conf : sensorsConf){
 
         if (conf->isTurnOn())
         {
           //TODO: jak sprawdzic czy czujnik nie jest rozwalony?
-          SData data = sensors->getSensorData(conf->getSensorId());
+          CData data = sensors->getSensorData(conf->getSensorId());
           EDangerLevel dangerLvl = EDangerLevel::NONE;
           // czy dane z czujnikow sa powyzej danych alarmowych
           if (conf->getAlarmLvl() < data)
           {
             dangerLvl = EDangerLevel::ALARM;
             warningLevel = true;
-            // jesli nie dodawac do wektora, uruchom powtornie przeglad i zapisuje do wektora
+            // jesli nie dodawac do wektora, uruchom powtornie przeglad i zapisuj do wektora
             if (!addToVector){
               checkOnceAgain = true;
               break;
@@ -156,13 +165,13 @@ namespace NEngine{
             }
           }
           if (addToVector){
-            sensorsData.push_back(
-                  SSensorData{++idSensorBase,
+            sensorsData.emplace_back(
+                  ++idSensorBase,
                               conf->getSensorId(),
-                              static_cast<decltype(SSensorData::timeStamp)>(curTime),
+                              curTime,
                               ESensorState::OK,
                               dangerLvl,
-                              data});
+                              data);
             // skoro dane sa juz dodawane do listy, to nie trzeba powtornie przechodzic
             checkOnceAgain = false;
           }
@@ -171,21 +180,22 @@ namespace NEngine{
         {
           if (addToVector){
 
-            sensorsData.push_back(
-                  SSensorData{++idSensorBase,
+            sensorsData.emplace_back(
+                  ++idSensorBase,
                               conf->getSensorId(),
-                              static_cast<decltype(SSensorData::timeStamp)>(curTime),
+                              curTime,
                               ESensorState::TURN_OFF,
                               EDangerLevel::NONE,
-                              SData::getVoid()});
+                              CData());
             // skoro dane sa juz dodawane do listy, to nie trzeba powtornie przechodzic
             checkOnceAgain = false;
           }
         }
-        if (checkOnceAgain){
-          // uruchom jeszcze raz sprawdzanie danych, ale tym razem zapamietaj
-          addToVector = true;
-        }
+
+      }
+      if (checkOnceAgain){
+        // uruchom jeszcze raz sprawdzanie danych, ale tym razem zapamietaj
+        addToVector = true;
       }
     }while(checkOnceAgain);
 

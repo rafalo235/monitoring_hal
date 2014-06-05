@@ -2,7 +2,7 @@
 #define QUEUETHREAD_H
 #include <mutex>
 #include <condition_variable>
-#include <deque>
+#include <queue>
 
 namespace NUtil {
 
@@ -10,33 +10,28 @@ namespace NUtil {
   class CQueueThread
   {
   private:
-    std::mutex              mutex;
-    std::condition_variable condition;
-    std::deque<T>           queue;
+    std::mutex              d_mutex;
+    std::condition_variable d_condition;
+    std::deque<T>           d_queue;
   public:
-    CQueueThread() = default;
-
-    void push(T const& value)
-    {
+    void push(T const& value) {
       {
-        std::unique_lock<std::mutex> lock(this->mutex);
-        queue.push_front(value);
+        std::unique_lock<std::mutex> lock(this->d_mutex);
+        d_queue.push_front(value);
       }
-      this->condition.notify_one();
+      this->d_condition.notify_one();
+    }
+    T pop() {
+      std::unique_lock<std::mutex> lock(this->d_mutex);
+      this->d_condition.wait(lock, [=]{ return !this->d_queue.empty(); });
+      T rc(std::move(this->d_queue.back()));
+      this->d_queue.pop_back();
+      return rc;
+    }
+    int size() const{
+      return d_queue.size();
     }
 
-    T pop()
-      {
-        std::unique_lock<std::mutex> lock(this->mutex);
-        this->condition.wait(lock, [=]{ return !this->queue.empty(); });
-        T rc(std::move(this->queue.back()));
-        this->queue.pop_back();
-        return rc;
-      }
-
-    decltype (queue.size()) size() const{
-      return queue.size();
-    }
   };
 }
 

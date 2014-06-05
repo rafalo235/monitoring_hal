@@ -12,7 +12,7 @@ namespace NSensors {
   public:
 
 
-    virtual SData getSensorData(const decltype(SSensorData::idSensor) idSensor) const = 0 ;
+    virtual CData getSensorData(const int8_t idSensor) const = 0 ;
 
     virtual ~ISensorsManager() = default;
   };

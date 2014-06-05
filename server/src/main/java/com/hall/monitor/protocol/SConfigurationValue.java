@@ -2,8 +2,8 @@ package com.hall.monitor.protocol;
 
 public class SConfigurationValue
 {
-  // int8_t idSensor;
-  private byte               idSensor;
+  // uint8_t idSensor;
+  private char               idSensor;
   
   // EConfigurationType configurationType;
   private EConfigurationType configurationType;
@@ -14,7 +14,7 @@ public class SConfigurationValue
   public static final int    HEADER_SIZE = (EValueType.INT_8.getTypeSizeBits() + EConfigurationType
                                              .getSizeBits()) / 8;
   
-  public SConfigurationValue(byte idSensor,
+  public SConfigurationValue(char idSensor,
       EConfigurationType configurationType, SData data)
   {
     super();
@@ -23,7 +23,7 @@ public class SConfigurationValue
     this.data = data;
   }
   
-  public byte getIdSensor() {
+  public char getIdSensor() {
     return idSensor;
   }
   

@@ -21,13 +21,13 @@ SOURCES += main.cpp \
     util/Cryptography.cpp \
     configuration/core/Configuration.cpp \
     tests/Test.cpp \
-    util/QueueThread.cpp \
     communication/core/Connection.cpp \
     engine/core/CycleMonitor.cpp \
     engine/core/Engine.cpp \
     sensors/core/CSensorsManager.cpp \
     sensors/tests/CSensorsManagerMock.cpp \
-    configuration/tests/ConfigurationMock.cpp
+    configuration/tests/ConfigurationMock.cpp \
+    communication/interfaces/protocol.cpp
 
 HEADERS += \
     communication/core/protocol.h \
@@ -58,6 +58,7 @@ HEADERS += \
     engine/interfaces/IEngine.h \
     engine/interfaces/EngineFactory.h \
     sensors/tests/CSensorsManagerMock.h \
-    configuration/tests/ConfigurationMock.h
+    configuration/tests/ConfigurationMock.h \
+    configuration/tests/SensorConfigurationMock.h
 
 QMAKE_CXXFLAGS += -std=c++11

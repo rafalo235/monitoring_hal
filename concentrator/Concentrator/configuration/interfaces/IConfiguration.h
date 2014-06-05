@@ -2,6 +2,8 @@
 #define ICONFIGURATION_H
 
 #include <memory>
+#include <string>
+
 #include "communication/interfaces/protocol.h"
 #include "configuration/interfaces/ISensorConfiguration.h"
 
@@ -19,7 +21,7 @@ namespace NEngine{
     virtual uint16_t getCheckingSensorPeriod() const = 0;
 
     //! \return Zwraca id koncentratora odczytane z pliku konfiguracyjnego
-    virtual decltype(SProtocol::idConcentrator) getIdConcentrator() const = 0;
+    virtual uint16_t getIdConcentrator() const = 0;
 
     //! \return Zwraca przerwe pomiedzy wysylanymi danymi
     virtual uint16_t getSendingPeriod() const = 0;
@@ -30,13 +32,21 @@ namespace NEngine{
     //! \return true, jesli dane maja byc ciagle zapisywane na karte SD nawet jeśli polaczenie z serwerem jest OK
     virtual bool getSaveSDCardIfOnlineEnable() const = 0;
 
+    virtual const std::string getServerUrl() const = 0;
+
     virtual bool setCheckingSensorPeriod(const uint16_t checkingSensorPeriod1) = 0;
 
     virtual bool setSendingPeriod(const uint16_t sendingPeriod1) = 0;
 
-    virtual bool setWarningLevel(const decltype(SSensorData::idSensor) idSensor, const SData& value) = 0;
-    virtual bool setAlarmLevel(const decltype(SSensorData::idSensor) idSensor, const SData& value) = 0;
-    virtual bool setTurnOn(const decltype(SSensorData::idSensor) idSensor, const bool turnOn) = 0;
+    virtual bool setWarningLevel(const int8_t idSensor,
+                                 const CData& value) = 0;
+
+    virtual bool setAlarmLevel(const int8_t idSensor,
+                               const CData& value) = 0;
+
+    virtual bool setTurnOn(const int8_t idSensor,
+                           const bool turnOn) = 0;
+
     virtual bool setSaveSDCardIfOnlineEnable(bool enable) = 0;
 
     virtual ~IConfiguration() = default;

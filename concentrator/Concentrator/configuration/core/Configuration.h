@@ -19,11 +19,11 @@ namespace NEngine {
   class CConfiguration : public IConfiguration
   {
     friend class CConfigurationFactory;
-#ifdef CONFIG_MOCK
+
   protected:
-#endif
+
     //! \brief ID koncentratora do wysylania
-    decltype(SProtocol::idConcentrator) idConcentrator;
+    uint16_t idConcentrator;
 
     //! \brief Przerwa pomiedzy wysylanymi danymi
     uint16_t sendingPeriod;
@@ -40,6 +40,8 @@ namespace NEngine {
     //! \return true jesli wszystko ok, false jesli nie
     bool saveConfiguration() const;
 
+    std::string serverUrl;
+
     static const char* fileName;
   public:
 
@@ -55,26 +57,36 @@ namespace NEngine {
     virtual bool readConfiguration();
 
     //! \return Zwraca przerwe pomiedzy sprawdzaniem danych z czujnikow
-    virtual uint16_t getCheckingSensorPeriod() const{
+    virtual uint16_t getCheckingSensorPeriod() const
+    {
       return checkingSensorPeriod;
     }
 
     //! \return Zwraca id koncentratora odczytane z pliku konfiguracyjnego
-    virtual decltype(SProtocol::idConcentrator) getIdConcentrator() const{
+    virtual uint16_t getIdConcentrator() const
+    {
       return idConcentrator;
     }
 
     //! \return Zwraca przerwe pomiedzy wysylanymi danymi
-    virtual uint16_t getSendingPeriod() const{
+    virtual uint16_t getSendingPeriod() const
+    {
       return sendingPeriod;
     }
 
     //! \return Zwraca konfiguracje czujnikow
-    virtual const std::vector<DSensorConfiguration>& getSensorConfiguration()const{
+    virtual const std::vector<DSensorConfiguration>& getSensorConfiguration() const
+    {
       return sensors;
     }
 
-    virtual bool setCheckingSensorPeriod(const uint16_t checkingSensorPeriod1){
+    virtual const std::string getServerUrl() const
+    {
+      return serverUrl;
+    }
+
+    virtual bool setCheckingSensorPeriod(const uint16_t checkingSensorPeriod1)
+    {
       if (checkingSensorPeriod1 == checkingSensorPeriod){
         return true;
       }
@@ -82,7 +94,8 @@ namespace NEngine {
       return saveConfiguration();
     }
 
-    virtual bool setSendingPeriod(const uint16_t sendingPeriod1){
+    virtual bool setSendingPeriod(const uint16_t sendingPeriod1)
+    {
       if (sendingPeriod1 == sendingPeriod){
         return true;
       }
@@ -90,7 +103,9 @@ namespace NEngine {
       return saveConfiguration();
     }
 
-    virtual bool setWarningLevel(const decltype(SSensorData::idSensor) idSensor, const SData& value){
+    virtual bool setWarningLevel(const int8_t idSensor,
+                                 const CData& value)
+    {
       std::vector<DSensorConfiguration>::iterator it = std::find_if(
                                                          sensors.begin(), sensors.end(),
                                                          [&](DSensorConfiguration& s){return s->getSensorId() == idSensor;});
@@ -103,7 +118,9 @@ namespace NEngine {
       return saveConfiguration();
     }
 
-    virtual bool setAlarmLevel(const decltype(SSensorData::idSensor) idSensor, const SData& value){
+    virtual bool setAlarmLevel(const int8_t idSensor,
+                               const CData& value)
+    {
       std::vector<DSensorConfiguration>::iterator it = std::find_if(
                                                          sensors.begin(), sensors.end(),
                                                          [&](DSensorConfiguration& s){return s->getSensorId() == idSensor;});
@@ -116,7 +133,9 @@ namespace NEngine {
       return saveConfiguration();
     }
 
-    virtual bool setTurnOn(const decltype(SSensorData::idSensor) idSensor, const bool turnOn){
+    virtual bool setTurnOn(const int8_t idSensor,
+                           const bool turnOn)
+    {
       std::vector<DSensorConfiguration>::iterator it = std::find_if(
                                                          sensors.begin(), sensors.end(),
                                                          [&](DSensorConfiguration& s){return s->getSensorId() == idSensor;});

@@ -4,6 +4,9 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <algorithm>
+#include <string>
+
 #include "HttpThread.h"
 
 #include "util/Logger.h"
@@ -11,6 +14,7 @@
 
 #include "communication/core/ConnectionTask.h"
 #include "communication/core/ConnectionResult.h"
+#include "configuration/interfaces/ConfigurationFactory.h"
 
 namespace NProtocol {
 
@@ -20,39 +24,46 @@ namespace NProtocol {
   }
 
   void CHttpThread::run(){
-    const SProtocol* protocol = nullptr;
+    bool exit = false;
     do{
-      const CConnectionTask task = sendingQueue.pop();
-      protocol = task.getProtocol();
-      if (protocol != nullptr){
-        sendHttp(*protocol);
+      const DConnectionTask task = sendingQueue.pop();
+      if (task->getType() == IConnectionTask::EConnectionTaskType::EXIT)
+      {
+        exit = true;
       }
-    }while(protocol == nullptr);
+      else if (task->getType() == IConnectionTask::EConnectionTaskType::SENDING)
+      {
+        std::shared_ptr<CSendingTask> sendingTask = std::dynamic_pointer_cast<CSendingTask>(task);
+        sendHttp(sendingTask->getProtocol());
+      }
+
+    }while(exit);
   }
 
-  void CHttpThread::addToSendingQueue(const SProtocol& prot)
+  void CHttpThread::addToSendingQueue(const CProtocol& prot)
   {
-    CConnectionTask task(prot);
+    DConnectionTask task(new CSendingTask(prot));
     sendingQueue.push(task);
 
   }
 
   void CHttpThread::exit()
   {
-    sendingQueue.push(CConnectionTask());
+    DConnectionTask task(new CExitTask());
+    sendingQueue.push(task);
     thread->join();
   }
 
 
-  void CHttpThread::sendHttp(const SProtocol& protocol)
+  void CHttpThread::sendHttp(const CProtocol& protocol)
   {
 
     QByteArray postData;
     // konwertuj protokol do postaci binarnej tablicy QByteArray
     if (!convertToBinary(postData, protocol)){
       // nieprawidlowy format protokolu
-      LOG_ERROR("Sending protocol error. idPackage:", protocol.idPackage);
-      DConnectionResult res(new CConnectionResult(protocol, protocol, EConnectionStatus::OUTPUT_PROTOCOL_FORMAT_ERROR));
+      LOG_ERROR("Sending protocol error. idPackage:", protocol.getIdPackage());
+      DConnectionResult res(new CConnectionResult(protocol, EConnectionStatus::OUTPUT_PROTOCOL_FORMAT_ERROR));
       resultsQueue.push(res);
     }
     else
@@ -65,7 +76,9 @@ namespace NProtocol {
       QObject::connect(&mgr, SIGNAL(finished(QNetworkReply*)), &eventLoop, SLOT(quit()));
 
       // HTTP
-      QNetworkRequest req(QUrl("http://localhost:8080/HallMonitorServer/rest/concentrator/post"));
+      const std::string url = NEngine::CConfigurationFactory::getInstance()->getServerUrl();
+      QUrl qUrl(url.c_str());
+      QNetworkRequest req(qUrl);
       // typ MIME
       req.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
       // wyslij post'a
@@ -74,17 +87,19 @@ namespace NProtocol {
 
       if (reply->error() == QNetworkReply::NoError) {
         //success
-        LOG_DEBUG("Protocol has been sent successfully. idPackage:", protocol.idPackage);
-        SProtocol responseProtocol;
+        LOG_DEBUG("Protocol has been sent successfully. idPackage:", protocol.getIdPackage());
+        CByteWrapper wrapper(reply->readAll());
+        std::shared_ptr<CProtocol> responseProtocol =
+            convertToProtocol(wrapper);
         // przekonwertuj do struktury
-        if (!convertToProtocol(responseProtocol, reply->readAll())){
+        if (responseProtocol){
           // blad struktury protokolu
-          LOG_ERROR("Received protocol error. idPackage:", protocol.idPackage);
-          DConnectionResult res(new CConnectionResult(protocol, protocol, EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR));
+          LOG_ERROR("Received protocol error. idPackage:", protocol.getIdPackage());
+          DConnectionResult res(new CConnectionResult(protocol, EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR));
           resultsQueue.push(res);
         }
         else{
-          LOG_DEBUG("Protocol has been received successfully. idPackage:", responseProtocol.idPackage);
+          LOG_DEBUG("Protocol has been received successfully. idPackage:", responseProtocol->getIdPackage());
           DConnectionResult res(new CConnectionResult(protocol, responseProtocol, EConnectionStatus::NONE));
           resultsQueue.push(res);
         }
@@ -93,82 +108,87 @@ namespace NProtocol {
       else {
 
         LOG_ERROR("Protocol sending error. idPackage:",
-                  protocol.idPackage, ". Error: ", reply->errorString().toStdString());
-        DConnectionResult res(new CConnectionResult(protocol, protocol, EConnectionStatus::CONNECTION_ERROR));
+                  protocol.getIdPackage(), ". Error: ", reply->errorString().toStdString());
+        DConnectionResult res(new CConnectionResult(protocol, EConnectionStatus::CONNECTION_ERROR));
         resultsQueue.push(res);
       }
     }
   }
 
-  bool CHttpThread::convertToBinary(QByteArray& array, const SProtocol& protocol)
+  bool CHttpThread::convertToBinary(QByteArray& array, const CProtocol& protocol)
   {
 
-    array.reserve(protocol.size);
-    convertToBinary(array, protocol.version);
-    convertToBinary(array, protocol.size);
-    convertToBinary(array, protocol.idConcentrator);
-    convertToBinary(array, protocol.idPackage);
-    convertToBinary(array, protocol.type);
+    array.reserve(protocol.getSize());
+    convertToBinary(array, protocol.getVersion());
+    convertToBinary(array, protocol.getSize());
+    convertToBinary(array, protocol.getIdConcentrator());
+    convertToBinary(array, protocol.getIdPackage());
+    convertToBinary(array, protocol.getType());
 
-    switch(protocol.type){
+    switch(protocol.getType()){
     case MONITOR_DATA:
-      convertToBinary(array, protocol.message.monitorData);
+      convertToBinary(array, std::dynamic_pointer_cast<CMonitorData>(protocol.getMessage()));
       break;
 
     case CONFIGURATION_RESPONSE:
-      convertToBinary(array, protocol.message.configurationResponse);
+      convertToBinary(array, std::dynamic_pointer_cast<CConfigurationResponse>(protocol.getMessage()));
       break;
 
     case SERVER_REQUEST:
-      convertToBinary(array, protocol.message.serverRequest);
+      convertToBinary(array, std::dynamic_pointer_cast<CServerRequest>(protocol.getMessage()));
       break;
     case SERVER_MONITOR_RESPONSE:
       // typ protokolu server -> concentrator
       return false;
       break;
     }
-    convertToBinary(array, protocol.crc);
+    convertToBinary(array, protocol.getCRC());
 
 
     return true;
   }
 
-  void CHttpThread::convertToBinary(QByteArray& array, const SServerRequest& reqs)
+  void CHttpThread::convertToBinary(QByteArray& array, const std::shared_ptr<CServerRequest>& reqs)
   {
-    convertToBinary(array, reqs.requestsSize);
-    for(decltype(SServerRequest::requestsSize) i = 0; i < reqs.requestsSize; ++i){
-      convertToBinary(array, reqs.requests[i]);
-    }
-  }
-
-  void CHttpThread::convertToBinary(QByteArray& array, const SRequest& req)
-  {
-    convertToBinary(array, req.idSensor);
-    convertToBinary(array, req.configurationType);
+    convertToBinary(array, reqs->getRequestsSize());
+    std::for_each(reqs->getRequests().begin(), reqs->getRequests().end(),
+                  [&](const CRequest& req){
+                    convertToBinary(array, req);
+                  });
 
   }
 
-  void CHttpThread::convertToBinary(QByteArray& array, const SConfigurationResponse& confResp)
+  void CHttpThread::convertToBinary(QByteArray& array, const CRequest& req)
   {
-    convertToBinary(array, confResp.status);
-    convertToBinary(array, confResp.idRequestPackage);
-    convertToBinary(array, confResp.currentConfiguration);
-  }
-
-  void CHttpThread::convertToBinary(QByteArray& array, const SConfiguration& conf)
-  {
-    convertToBinary(array, conf.configurationSize);
-    for(decltype(SConfiguration::configurationSize) i = 0; i < conf.configurationSize; ++i){
-      convertToBinary(array, conf.configurations[i]);
-    }
+    convertToBinary(array, req.getIdSensor());
+    convertToBinary(array, req.getConfigurationType());
 
   }
 
-  void CHttpThread::convertToBinary(QByteArray& array, const SConfigurationValue& confValue)
+  void CHttpThread::convertToBinary(QByteArray& array,
+                                    const std::shared_ptr<CConfigurationResponse>& confResp)
   {
-    convertToBinary(array, confValue.idSensor);
-    convertToBinary(array, confValue.configurationType);
-    convertToBinary(array, confValue.data);
+    convertToBinary(array, confResp->getStatus());
+    convertToBinary(array, confResp->getIdRequestPackage());
+    convertToBinary(array, confResp->getCurrentConfiguration());
+  }
+
+  void CHttpThread::convertToBinary(QByteArray& array, const CConfiguration& conf)
+  {
+    convertToBinary(array, conf.getConfigurationsSize());
+    std::for_each(conf.getConfigurations().begin(), conf.getConfigurations().end(),
+                  [&](const CConfigurationValue& value){
+                    convertToBinary(array, value);
+                  });
+
+
+  }
+
+  void CHttpThread::convertToBinary(QByteArray& array, const CConfigurationValue& confValue)
+  {
+    convertToBinary(array, confValue.getIdSensor());
+    convertToBinary(array, confValue.getConfigurationType());
+    convertToBinary(array, confValue.getData());
 
   }
 
@@ -177,163 +197,216 @@ namespace NProtocol {
     array.append((const char*)&data, sizeof(data));
   }
 
-  void CHttpThread::convertToBinary(QByteArray& array, const SMonitorData& monitorData)
+  void CHttpThread::convertToBinary(QByteArray& array, const std::shared_ptr<CMonitorData>& monitorData)
   {
-    convertToBinary(array, monitorData.sendTime);
-    convertToBinary(array, monitorData.sensorsAmount);
-    convertToBinary(array, monitorData.sensorsDataSize);
+    convertToBinary(array, monitorData->getSendTime());
+    convertToBinary(array, monitorData->getSensorAmount());
+    convertToBinary(array, monitorData->getSensorsDataSize());
 
-    for(decltype(SMonitorData::sensorsDataSize) i = 0; i < monitorData.sensorsDataSize; ++i){
-      convertToBinary(array, monitorData.sensorsData[i]);
-    }
+    std::for_each(monitorData->getSensorsData().begin(), monitorData->getSensorsData().end(),
+                  [&](const CSensorData& value){
+                    convertToBinary(array, value);
+                  });
+
+
   }
 
-  void CHttpThread::convertToBinary(QByteArray& array, const SSensorData& sensorData)
+  void CHttpThread::convertToBinary(QByteArray& array, const CSensorData& sensorData)
   {
 
-    convertToBinary(array, sensorData.idData);
-    convertToBinary(array, sensorData.idSensor);
-    convertToBinary(array, sensorData.timeStamp);
-    convertToBinary(array, sensorData.sensorState);
-    convertToBinary(array, sensorData.dangerLevel);
+    convertToBinary(array, sensorData.getIdData());
+    convertToBinary(array, sensorData.getIdSensor());
+    convertToBinary(array, sensorData.getTimeStamp());
+    convertToBinary(array, sensorData.getSensorState());
+    convertToBinary(array, sensorData.getDangerLevel());
 
-    convertToBinary(array, sensorData.data);
+    convertToBinary(array, sensorData.getData());
   }
 
-  void CHttpThread::convertToBinary(QByteArray& array, const SData& data)
+  void CHttpThread::convertToBinary(QByteArray& array, const CData& data)
   {
-    convertToBinary(array, data.type);
+    convertToBinary(array, data.getType());
 
-    switch(data.type){
+    switch(data.getType()){
     case EValueType::INT_8:
-      convertToBinary(array, data.value.vInt8);
+      convertToBinary(array, data.getValue().vInt8);
       break;
     case EValueType::UINT_8:
-      convertToBinary(array, data.value.vUInt8);
+      convertToBinary(array, data.getValue().vUInt8);
       break;
     case EValueType::INT_16:
-      convertToBinary(array, data.value.vInt16);
+      convertToBinary(array, data.getValue().vInt16);
       break;
     case EValueType::UINT_16:
-      convertToBinary(array, data.value.vUInt16);
+      convertToBinary(array, data.getValue().vUInt16);
       break;
     case EValueType::INT_32:
-      convertToBinary(array, data.value.vInt32);
+      convertToBinary(array, data.getValue().vInt32);
       break;
     case EValueType::UINT_32:
-      convertToBinary(array, data.value.vUInt32);
+      convertToBinary(array, data.getValue().vUInt32);
       break;
     case EValueType::INT_64:
-      convertToBinary(array, data.value.vInt64);
+      convertToBinary(array, data.getValue().vInt64);
       break;
     case EValueType::UINT_64:
-      convertToBinary(array, data.value.vUInt64);
+      convertToBinary(array, data.getValue().vUInt64);
       break;
     case EValueType::FLOAT_32:
-      convertToBinary(array, data.value.vFloat32);
+      convertToBinary(array, data.getValue().vFloat32);
       break;
     case EValueType::DOUBLE_64:
-      convertToBinary(array, data.value.vDouble64);
+      convertToBinary(array, data.getValue().vDouble64);
       break;
     case EValueType::VOID:
-      convertToBinary(array, data.value.vVoid8);
+      convertToBinary(array, data.getValue().vVoid8);
       break;
     }
 
   }
+  // ///////////////////////// CONVERT TO PROTOCOL ////////////////////////
 
-  bool CHttpThread::convertToProtocol(SProtocol& protocol, const QByteArray& array)
-  {
-    CByteWrapper wrapper(array);
-    READ_WRAPPER(protocol.version, wrapper);
-    READ_WRAPPER(protocol.size, wrapper);
-    READ_WRAPPER(protocol.idConcentrator, wrapper);
-    READ_WRAPPER(protocol.idPackage, wrapper);
-    READ_WRAPPER(protocol.type, wrapper);
+  std::shared_ptr<CProtocol> CHttpThread::convertToProtocol(CByteWrapper& wrapper){
+    std::shared_ptr<CProtocol> protocol;
 
-    switch(protocol.type){
-    case EMessageType::SERVER_MONITOR_RESPONSE:
-      if(!convertToProtocol(protocol.message.serverMonitorResponse, wrapper)){
-        return false;
-      }
-      break;
-    case EMessageType::MONITOR_DATA:
-    case EMessageType::CONFIGURATION_RESPONSE:
-    case EMessageType::SERVER_REQUEST:
-      return false;
+    uint8_t version;
+    uint32_t size;
+    uint16_t idConcentrator;
+    uint32_t idPackage;
+    EMessageType type;
+
+    READ_WRAPPER(version, wrapper);
+    if (version != VERSION)
+    {
+      return protocol;
     }
+    READ_WRAPPER(size, wrapper);
+    READ_WRAPPER(idConcentrator, wrapper);
+    if (idConcentrator != NEngine::CConfigurationFactory::getInstance()->getIdConcentrator())
+    {
+      return protocol;
+    }
+    READ_WRAPPER(idPackage, wrapper);
+    READ_WRAPPER(type, wrapper);
 
-    return true;
+    std::shared_ptr<IMessage> message;
+    if (!convertToProtocol(message, wrapper))
+    {
+      return protocol;
+    }
+    protocol.reset(new CProtocol(version, size, idConcentrator, idPackage, type, message));
+    return protocol;
   }
 
-  bool CHttpThread::convertToProtocol(SServerResponse& response, CByteWrapper& wrapper)
+  bool CHttpThread::convertToProtocol(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper)
   {
-    READ_WRAPPER(response.status, wrapper);
-    READ_WRAPPER(response.idRequestPackage, wrapper);
-    return convertToProtocol(response.configuration, wrapper);
+    EReceiveStatus status;
+    uint32_t idRequestPackage;
+
+    READ_WRAPPER(status, wrapper);
+    READ_WRAPPER(idRequestPackage, wrapper);
+
+    std::vector<CConfigurationValue> configurations;
+
+    if (convertToProtocol(configurations, wrapper))
+    {
+       CConfiguration configuration(configurations);
+        message.reset(new CServerResponse(status, idRequestPackage, configuration));
+        return true;
+    }
+    return false;
   }
 
-  bool CHttpThread::convertToProtocol(SConfiguration& configuration, CByteWrapper& wrapper)
+//////////
+  bool CHttpThread::convertToProtocol(std::vector<CConfigurationValue>& configurations, CByteWrapper& wrapper)
   {
-    READ_WRAPPER(configuration.configurationSize, wrapper);
-    configuration.configurations = new SConfigurationValue[configuration.configurationSize];
+    uint8_t configurationSize;
+    READ_WRAPPER(configurationSize, wrapper);
 
-    for(decltype(configuration.configurationSize) i = 0; i < configuration.configurationSize; ++i){
-      if (!convertToProtocol(configuration.configurations[i], wrapper))
+    for(decltype(configurationSize) i = 0; i < configurationSize; ++i){
+      int8_t idSensor;
+      EConfigurationType configurationType;
+      READ_WRAPPER(idSensor, wrapper);
+      READ_WRAPPER(configurationType, wrapper);
+      CData data;
+      if (convertToProtocol(data, wrapper))
       {
+        configurations.emplace_back(idSensor, configurationType, data);
+      }
+      else
+      {
+        // niepoprawny format
         return false;
       }
     }
     return true;
   }
-
-  bool CHttpThread::convertToProtocol(SConfigurationValue& confValue, CByteWrapper& wrapper)
+////////////////
+  bool CHttpThread::convertToProtocol(CData& sdata, CByteWrapper& wrapper)
   {
-    READ_WRAPPER(confValue.idSensor, wrapper);
-    READ_WRAPPER(confValue.configurationType, wrapper);
-    return convertToProtocol(confValue.data, wrapper);
-  }
-
-  bool CHttpThread::convertToProtocol(SData& sdata, CByteWrapper& wrapper)
-  {
-    READ_WRAPPER(sdata.type, wrapper);
-    switch(sdata.type){
+    EValueType type;
+    READ_WRAPPER(type, wrapper);
+    void* value;
+    switch(type){
     case EValueType::INT_8:
-      READ_WRAPPER(sdata.value.vInt8, wrapper);
+      int8_t vInt8;
+      READ_WRAPPER(vInt8, wrapper);
+      value = &vInt8;
       break;
     case EValueType::UINT_8:
-      READ_WRAPPER(sdata.value.vUInt8, wrapper);
+      uint8_t vUInt8;
+      READ_WRAPPER(vUInt8, wrapper);
+      value = &vUInt8;
       break;
     case EValueType::INT_16:
-      READ_WRAPPER(sdata.value.vInt16, wrapper);
+      int16_t vInt16;
+      READ_WRAPPER(vInt16, wrapper);
+      value = &vInt16;
       break;
     case EValueType::UINT_16:
-      READ_WRAPPER(sdata.value.vUInt16, wrapper);
+      uint16_t vUInt16;
+      READ_WRAPPER(vUInt16, wrapper);
+      value = &vUInt16;
       break;
     case EValueType::INT_32:
-      READ_WRAPPER(sdata.value.vInt32, wrapper);
+      int32_t vInt32;
+      READ_WRAPPER(vInt32, wrapper);
+      value = &vInt32;
       break;
     case EValueType::UINT_32:
-      READ_WRAPPER(sdata.value.vUInt32, wrapper);
+      uint32_t vUInt32;
+      READ_WRAPPER(vUInt32, wrapper);
+      value = &vUInt32;
       break;
     case EValueType::INT_64:
-      READ_WRAPPER(sdata.value.vInt64, wrapper);
+      int64_t vInt64;
+      READ_WRAPPER(vInt64, wrapper);
+      value = &vInt64;
       break;
     case EValueType::UINT_64:
-      READ_WRAPPER(sdata.value.vUInt64, wrapper);
+      uint64_t vUInt64;
+      READ_WRAPPER(vUInt64, wrapper);
+      value = &vUInt64;
       break;
     case EValueType::FLOAT_32:
-      READ_WRAPPER(sdata.value.vFloat32, wrapper);
+      float32_t vFloat32;
+      READ_WRAPPER(vFloat32, wrapper);
+      value = &vFloat32;
       break;
     case EValueType::DOUBLE_64:
-      READ_WRAPPER(sdata.value.vDouble64, wrapper);
+      double64_t vDouble64;
+      READ_WRAPPER(vDouble64, wrapper);
+      value = &vDouble64;
       break;
     case EValueType::VOID:
-      READ_WRAPPER(sdata.value.vVoid8, wrapper);
+      uint8_t vVoid8;
+      READ_WRAPPER(vVoid8, wrapper);
+      value = &vVoid8;
       break;
     default:
       return false;
     }
+    sdata.setValue(type, value);
     return true;
   }
 }

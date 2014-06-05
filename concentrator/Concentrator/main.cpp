@@ -1,14 +1,5 @@
 #define LOGGER_ENABLE
 #define LOGGER_FILE_ENABLE
-// Ponizszy include definiuje mocka konfiguracji.
-// Usuniecie go powoduje uzycie gotowej implementacji konfiguracji
-#include "configuration/tests/ConfigurationMock.h"
-
-// Ponizszy include definiuje mocka sensorow.
-// Usuniecie go powoduje uzycie gotowej implemtacji sensorow
-#include "sensors/tests/CSensorsManagerMock.h"
-
-
 
 
 #include <QCoreApplication>

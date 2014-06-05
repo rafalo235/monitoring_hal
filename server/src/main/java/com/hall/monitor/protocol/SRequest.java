@@ -3,8 +3,8 @@ package com.hall.monitor.protocol;
 public class SRequest
 {
   public static final byte CONCENTRATOR_ID = (byte)0xFF;
-  // int8_t idSensor;
-  private byte               idSensor;
+  // uint8_t idSensor;
+  private char               idSensor;
   
   // EConfigurationType configurationType;
   private EConfigurationType configurationType;
@@ -12,14 +12,14 @@ public class SRequest
   public static final int    HEADER_SIZE = (EValueType.INT_8.getTypeSizeBits() + EConfigurationType
                                              .getSizeBits()) / 8;
   
-  public SRequest(byte idSensor, EConfigurationType configurationType)
+  public SRequest(char idSensor, EConfigurationType configurationType)
   {
     super();
     this.idSensor = idSensor;
     this.configurationType = configurationType;
   }
   
-  public byte getIdSensor() {
+  public char getIdSensor() {
     return idSensor;
   }
   

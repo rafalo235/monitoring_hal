@@ -19,7 +19,7 @@ namespace NProtocol {
   private:
 
     std::shared_ptr<std::thread> thread;
-    NUtil::CQueueThread<CConnectionTask> sendingQueue;
+    NUtil::CQueueThread<DConnectionTask> sendingQueue;
     NUtil::CQueueThread<DConnectionResult> resultsQueue;
 
     //! \brief Konwertuje obiekt protokolu do postaci tablicy binarnej i dodaje do array.
@@ -27,17 +27,17 @@ namespace NProtocol {
     //! \param[in,out] array tablica bajtow do ktorej ma zostac dodany protokol
     //! \param[in] protocol prokol do konwersji
     //! \return true jesli format protokolu jest prawidlowy, false jesli nie
-    static bool convertToBinary(QByteArray& array, const SProtocol& protocol);
+    static bool convertToBinary(QByteArray& array, const CProtocol& protocol);
 
     // ponizsze funkcje sluza do konwersji okreslonych struktur - nie chce mi sie opisywac
-    inline static void convertToBinary(QByteArray& array, const SMonitorData& monitorData);
-    inline static void convertToBinary(QByteArray& array, const SSensorData& sensorData);
-    inline static void convertToBinary(QByteArray& array, const SData& data);
-    inline static void convertToBinary(QByteArray& array, const SConfigurationResponse& confResp);
-    inline static void convertToBinary(QByteArray& array, const SConfiguration& conf);
-    inline static void convertToBinary(QByteArray& array, const SConfigurationValue& confValue);
-    inline static void convertToBinary(QByteArray& array, const SServerRequest& reqs);
-    inline static void convertToBinary(QByteArray& array, const SRequest& req);
+    inline static void convertToBinary(QByteArray& array, const std::shared_ptr<CMonitorData>& monitorData);
+    inline static void convertToBinary(QByteArray& array, const CSensorData& sensorData);
+    inline static void convertToBinary(QByteArray& array, const CData& data);
+    inline static void convertToBinary(QByteArray& array, const std::shared_ptr<CConfigurationResponse>& confResp);
+    inline static void convertToBinary(QByteArray& array, const CConfiguration& conf);
+    inline static void convertToBinary(QByteArray& array, const CConfigurationValue& confValue);
+    inline static void convertToBinary(QByteArray& array, const std::shared_ptr<CServerRequest>& reqs);
+    inline static void convertToBinary(QByteArray& array, const CRequest& req);
 
     //! \brief Konwertuje dowolny prymityw do tablicy binarnej i dodaje do array
     //! \param[in,out] array tablica bajtow do ktorej maja byc dodane dane z 'data'
@@ -48,27 +48,19 @@ namespace NProtocol {
     //! \brief makro do ulatwienia odczytu
 #define READ_WRAPPER(obj, wrapper) obj = wrapper.read<decltype(obj)>();
 
-    //! \brief Konwertuje tablice bajtow na protokol
-    //! \param[in,out] protocol protokol odczytany
-    //! \param[in] array tablica bajtow
-    //! \return true jesli wszystko ok; false jesli byl blad formatu protokolu
-    static bool convertToProtocol(SProtocol& protocol, const QByteArray& array);
-
-
-    inline static bool convertToProtocol(SServerResponse& response, CByteWrapper& wrapper);
-    inline static bool convertToProtocol(SConfiguration& configuration, CByteWrapper& wrapper);
-    inline static bool convertToProtocol(SConfigurationValue& confValue, CByteWrapper& wrapper);
-    inline static bool convertToProtocol(SData& sdata, CByteWrapper& wrapper);
-
+    std::shared_ptr<CProtocol> convertToProtocol(CByteWrapper& wrapper);
+    bool convertToProtocol(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper);
+    bool convertToProtocol(std::vector<CConfigurationValue>& configurations, CByteWrapper& wrapper);
+    bool convertToProtocol(CData& sdata, CByteWrapper& wrapper);
     // ////////////////////////////////////////////////////////////////////
 
   public:
     CHttpThread();
 
-    void addToSendingQueue(const SProtocol& prot);
+    void addToSendingQueue(const CProtocol& prot);
 
     //! IConnection::getResult()
-    const DConnectionResult getResult(){
+    const DConnectionResult getResult() {
       return resultsQueue.pop();
     }
 
@@ -83,7 +75,7 @@ namespace NProtocol {
   private:
     void run();
 
-    void sendHttp(const SProtocol& protocol);
+    void sendHttp(const CProtocol& protocol);
 
 
 

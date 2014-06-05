@@ -13,10 +13,10 @@ namespace NEngine{
   {
   public:
 
-    virtual decltype(SSensorData::idSensor) getSensorId() = 0;
+    virtual uint8_t getSensorId() = 0;
     virtual bool isTurnOn() const = 0;
-    virtual const SData getWarnigLvl() const = 0;
-    virtual const SData getAlarmLvl() const = 0;
+    virtual const CData getWarnigLvl() const = 0;
+    virtual const CData getAlarmLvl() const = 0;
 
     virtual ~ISensorConfiguration() = default;
   };

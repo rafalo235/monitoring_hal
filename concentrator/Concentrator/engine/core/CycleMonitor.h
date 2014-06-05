@@ -33,7 +33,7 @@ namespace NEngine{
     int secondInterval;
     std::time_t checkingSensorsTime;
     std::time_t sendingDataTime;
-    std::vector<SSensorData> sensorsData;
+    std::vector<CSensorData> sensorsData;
     uint32_t idSensorBase;
 
   public:

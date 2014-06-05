@@ -12,6 +12,7 @@
  *      E - enum
  *      N - namespace
  *      S - struct
+ *      C - class
  *
  *      Formatowanie: doxygen
  *
@@ -28,6 +29,8 @@
 
 #include <cstdint>
 #include <algorithm>
+#include <vector>
+#include <memory>
 
 namespace NProtocol
 {
@@ -75,16 +78,88 @@ namespace NProtocol
   };
 
   //! \brief Struktrura przechowywujace wartosci
-  struct SData
+  class CData
   {
     EValueType type;  //!< Typ wartosci przechowywanej w UValue
     UValue value;     //!< Wartosc o typie EValueType
 
+  public:
+
     //! \brief Rozmiar samego naglowka
-    const static uint32_t headerSize = sizeof(type);
+    const static uint32_t headerSize;
+
+    CData() noexcept {
+      value.vVoid8 = cVoidValue;
+      type = EValueType::VOID;
+    }
+
+    //!
+    //! \brief SData Konstruktor nadajacy wartosc
+    //! \param type1 typ wartosci
+    //! \param value1 wskaznik do wartosci
+    //!
+    CData(const EValueType& type1, void* value1) noexcept
+    {
+      setValue(type1, value1);
+    }
+
+    CData(const CData&) = default;
+    CData& operator=(const CData&) = default;
+
+    void setValue(const EValueType& type1, void* value1) noexcept{
+      type = type1;
+      switch(type){
+      case EValueType::INT_8:
+        value.vInt8 = *(reinterpret_cast<int8_t*>(value1));
+        break;
+      case EValueType::UINT_8:
+        value.vUInt8 = *(reinterpret_cast<uint8_t*>(value1));
+        break;
+      case EValueType::INT_16:
+        value.vInt16 = *(reinterpret_cast<int16_t*>(value1));
+        break;
+      case EValueType::UINT_16:
+        value.vUInt16 = *(reinterpret_cast<uint16_t*>(value1));
+        break;
+      case EValueType::INT_32:
+        value.vInt32 = *(reinterpret_cast<int32_t*>(value1));
+        break;
+      case EValueType::UINT_32:
+        value.vUInt32 = *(reinterpret_cast<uint32_t*>(value1));
+        break;
+      case EValueType::INT_64:
+        value.vInt64 = *(reinterpret_cast<int64_t*>(value1));
+        break;
+      case EValueType::UINT_64:
+        value.vUInt64 = *(reinterpret_cast<uint64_t*>(value1));
+        break;
+      case EValueType::FLOAT_32:
+        value.vFloat32 = *(reinterpret_cast<float32_t*>(value1));
+        break;
+      case EValueType::DOUBLE_64:
+        value.vDouble64 = *(reinterpret_cast<double64_t*>(value1));
+        break;
+      case EValueType::VOID:
+        value.vVoid8 = cVoidValue;
+        break;
+      }
+    }
+
+    //! \brief Typ danych
+    EValueType getType() const noexcept
+    {
+      return type;
+    }
+
+    //! \brief Wartosc
+    const UValue getValue() const noexcept
+    {
+      return value;
+    }
 
     //! \brief Zwraca rozmiar calej struktury
-    uint32_t getSize() const{
+    uint32_t getSize() const noexcept
+    {
       switch(type){
       case EValueType::INT_8:
         return headerSize + sizeof(value.vInt8);
@@ -113,14 +188,8 @@ namespace NProtocol
       }
 
     }
-
-    static SData getVoid(){
-      SData s;
-      s.type = EValueType::VOID;
-      s.value.vVoid8 = cVoidValue;
-      return s;
-    }
   };
+
 
   //! \brief Opcja konfiguracji
   enum class EConfigurationType : int8_t
@@ -174,83 +243,219 @@ namespace NProtocol
   };
 
   //! \brief Dane pojedynczego pomiaru.
-  struct SSensorData
+  class CSensorData
   {
-    uint32_t idData;           //!< id pomiaru
-    uint8_t idSensor;          //!< id czujnika
-    uint64_t timeStamp;        //!< czas pomiaru
-    ESensorState sensorState;  //!< stan czujnika
-    EDangerLevel dangerLevel;  //!< stopien niebezpieczenstwa
-    SData data; //!< dane pomiaru; dla sensorState != ESensorState.OK pole data przechowuje wartosc cVoidValue
+    const uint32_t idData;           //!< id pomiaru
+    const uint8_t idSensor;          //!< id czujnika
+    const uint64_t timeStamp;        //!< czas pomiaru
+    const ESensorState sensorState;  //!< stan czujnika
+    const EDangerLevel dangerLevel;  //!< stopien niebezpieczenstwa
+    const CData data; //!< dane pomiaru; dla sensorState != ESensorState.OK pole data przechowuje wartosc cVoidValue
+
+  public:
+
+    CSensorData(const uint32_t idData1,
+                const uint8_t& idSensor1,
+                const uint64_t timeStamp1,
+                const ESensorState& sensorState1,
+                const EDangerLevel& dangerLevel1,
+                const CData& data1) :
+      idData(idData1),
+      idSensor(idSensor1),
+      timeStamp(timeStamp1),
+      sensorState(sensorState1),
+      dangerLevel(dangerLevel1),
+      data(data1)
+    {
+    }
+    CSensorData(const CSensorData&) = default;
+    CSensorData& operator=(const CSensorData&) = default;
+    uint32_t getIdData() const noexcept
+    {
+      return idData;
+    }
+
+    uint8_t getIdSensor() const noexcept
+    {
+      return idSensor;
+    }
+
+    uint64_t getTimeStamp() const noexcept
+    {
+      return timeStamp;
+    }
+
+    ESensorState getSensorState() const noexcept
+    {
+      return sensorState;
+    }
+
+    EDangerLevel getDangerLevel() const noexcept
+    {
+      return dangerLevel;
+    }
+
+    const CData getData() const noexcept
+    {
+      return data;
+    }
 
     //! \brief Rozmiar samego naglowka
-    const static uint32_t headerSize = sizeof(idData) + sizeof(idSensor) +
-                                        sizeof(timeStamp) +
-                                       sizeof(sensorState) + sizeof(dangerLevel);
+    const static uint32_t headerSize;
 
     //! \brief Zwraca rozmiar calej struktury
-    uint32_t getSize() const{
+    uint32_t getSize() const noexcept
+    {
       return headerSize + data.getSize();
     }
   };
 
-  //! \brief Dane z czujnikow wysylane z koncentrator do serwera
-  struct SMonitorData
-  {
-    uint64_t sendTime;        //!< czas pierwszej proby wyslania pakietu
-    uint8_t sensorsAmount;    //!< ilosc czujnikow
-    uint32_t sensorsDataSize; //!< wielkosc tablicy SSensorData
-    SSensorData* sensorsData; //!< tablica z danymi z czujnikow
+  //! \brief Wiadomosc przesylana protokolem.
+  class IMessage{
 
+  public:
+    virtual uint32_t getSize() const = 0;
+    virtual ~IMessage(){}
+  };
+
+  //! \brief Dane z czujnikow wysylane z koncentrator do serwera (SProtocol.type = EMessageType .MONITOR_DATA)
+  class CMonitorData : public IMessage
+  {
+    const uint64_t sendTime;        //!< czas pierwszej proby wyslania pakietu
+    const uint8_t sensorsAmount;    //!< ilosc czujnikow
+    const std::vector<CSensorData> sensorsData; //!< wektor z danymi z czujnikow
+
+  public:
     //! \brief Rozmiar samego naglowka
-    const static uint32_t headerSize = sizeof(sendTime) + sizeof(sensorsAmount) +
-                                        sizeof(sensorsDataSize);
+    const static uint32_t headerSize;
+
+    CMonitorData(const uint64_t& sendTime1,
+                 const uint8_t& sensorsAmount1,
+                 const std::vector<CSensorData>& sensorsData1) :
+      sendTime(sendTime1),
+      sensorsAmount(sensorsAmount1),
+      sensorsData(sensorsData1)
+    {
+    }
+
+    CMonitorData(const CMonitorData&) = default;
+    CMonitorData& operator=(const CMonitorData&) = default;
+
+    uint64_t getSendTime() const noexcept
+    {
+      return sendTime;
+    }
+
+    uint8_t getSensorAmount() const noexcept
+    {
+      return sensorsAmount;
+    }
+
+    uint32_t getSensorsDataSize() const noexcept
+    {
+      return static_cast<uint32_t>(sensorsData.size());
+    }
+
+    const std::vector<CSensorData>& getSensorsData() const noexcept
+    {
+      return sensorsData;
+    }
 
     //! \brief Zwraca rozmiar calej struktury
-    uint32_t getSize() const{
+    virtual uint32_t getSize() const noexcept
+    {
       uint32_t size = 0;
-      std::for_each(sensorsData, sensorsData + sensorsDataSize,
-                    [&size](SSensorData data){size += data.getSize();});
+      std::for_each(sensorsData.begin(), sensorsData.end(),
+                    [&size](CSensorData data){size += data.getSize();});
       return headerSize + size;
     }
+
   };
 
   //! \brief Id koncentratora
   const int8_t cIdConcentrator = 0xFF;
 
   //! \brief Pojedyncza wartosc konfigurowalna.
-  struct SConfigurationValue
+  class CConfigurationValue
   {
-    int8_t idSensor;        //!< id czujnika lub koncentratora (cIdConcentrator)
-    EConfigurationType configurationType;  //!< opcja konfiguracji
-    SData data;                            //!< wartosc dla danej opcji
+    const uint8_t idSensor;        //!< id czujnika lub koncentratora (cIdConcentrator)
+    const EConfigurationType configurationType;  //!< opcja konfiguracji
+    const CData data;                            //!< wartosc dla danej opcji
+
+  public:
+
+    CConfigurationValue(const uint8_t& idSensor1,
+                        const EConfigurationType& configurationType1,
+                        const CData& data1) noexcept:
+      idSensor(idSensor1),
+      configurationType(configurationType1),
+      data(data1)
+    {
+
+    }
+    CConfigurationValue(const CConfigurationValue&) = default;
+    CConfigurationValue& operator=(const CConfigurationValue&) = default;
+    uint8_t getIdSensor() const noexcept
+    {
+      return idSensor;
+    }
+
+    EConfigurationType getConfigurationType() const noexcept
+    {
+      return configurationType;
+    }
+
+    const CData getData() const noexcept
+    {
+      return data;
+    }
 
     //! \brief Rozmiar samego naglowka
-    const static uint32_t headerSize = sizeof(idSensor) + sizeof(configurationType);
+    const static uint32_t headerSize;
 
     //! \brief Zwraca rozmiar calej struktury
-    uint32_t getSize() const{
+    uint32_t getSize() const noexcept
+    {
       return headerSize + data.getSize();
     }
   };
 
   //! \brief Ustawienia konfiguracyjne
-  struct SConfiguration
+  class CConfiguration
   {
-    uint8_t configurationSize;           //!< Rozmiar tablicy configurations
-    SConfigurationValue* configurations; //!< Tablica opcji konfiguracji
+    const std::vector<CConfigurationValue> configurations; //!< Tablica opcji konfiguracji
+
+  public:
+
+    CConfiguration(const std::vector<CConfigurationValue> configurations1) noexcept:
+      configurations(configurations1)
+    {
+    }
+    CConfiguration(const CConfiguration&) = default;
+    CConfiguration& operator=(const CConfiguration&) = default;
+    uint8_t getConfigurationsSize() const noexcept
+    {
+      return static_cast<uint8_t>(configurations.size());
+    }
+
+    const std::vector<CConfigurationValue>& getConfigurations() const noexcept
+    {
+      return configurations;
+    }
 
     //! \brief Rozmiar samego naglowka
-    const static uint32_t headerSize = sizeof(configurationSize);
+    const static uint32_t headerSize;
 
     //! \brief Zwraca rozmiar calej struktury
-    uint32_t getSize() const{
+    uint32_t getSize() const noexcept
+    {
       uint32_t size = 0;
-      std::for_each(configurations, configurations + configurationSize,
-                    [&size](SConfigurationValue data){size += data.getSize();});
+      std::for_each(configurations.begin(), configurations.end(),
+                    [&size](CConfigurationValue data){size += data.getSize();});
       return headerSize + size;
     }
   };
+
 
   //! \brief Status otrzymanego pakietu, ktory jest wysylany wraz z odpowiedzia
   enum class EReceiveStatus : int8_t
@@ -261,119 +466,259 @@ namespace NProtocol
     OPERATION_FAILED  //!< Zadanie przekazane przez otrzymany pakiet nie moglo zostac wykonane
   };
 
-  //! \brief Potwierdzenie zmiany konfiguracji koncentratora do serwera
-  struct SConfigurationResponse
+  //! \brief Potwierdzenie zmiany konfiguracji koncentratora do serwera (SProtocol.type = EMessageType.CONFIGURATION_RESPONSE)
+  class CConfigurationResponse : public IMessage
   {
-    EReceiveStatus status;               //!< Status otrzymanego pakietu konfiguracyjnego lub status zmiany konfiguracji
-    uint32_t idRequestPackage;           //!< ID pakietu, ktory zglosil zmiane konfiguracji - pole SProtocol.idPackage
-    SConfiguration currentConfiguration; //!< Konfiguracja koncentratora
+    const EReceiveStatus status;               //!< Status otrzymanego pakietu konfiguracyjnego lub status zmiany konfiguracji
+    const uint32_t idRequestPackage;           //!< ID pakietu, ktory zglosil zmiane konfiguracji - pole SProtocol.idPackage
+    const CConfiguration currentConfiguration; //!< Konfiguracja koncentratora
+
+  public:
+
+    CConfigurationResponse(const EReceiveStatus& status1,
+                           const uint32_t& idRequestPackage1,
+                           const CConfiguration& currentConfiguration1) noexcept:
+      status(status1),
+      idRequestPackage(idRequestPackage1),
+      currentConfiguration(currentConfiguration1)
+    {}
+
+    CConfigurationResponse(const CConfigurationResponse&) = default;
+    CConfigurationResponse& operator=(const CConfigurationResponse&) = default;
+
+    EReceiveStatus getStatus() const noexcept
+    {
+      return status;
+    }
+
+    uint32_t getIdRequestPackage() const noexcept
+    {
+      return idRequestPackage;
+    }
+
+    const CConfiguration getCurrentConfiguration() const noexcept
+    {
+      return currentConfiguration;
+    }
 
     //! \brief Rozmiar samego naglowka
-    const static uint32_t headerSize = sizeof(status) + sizeof(idRequestPackage);
+    const static uint32_t headerSize;
 
     //! \brief Zwraca rozmiar calej struktury
-    uint32_t getSize() const{
+    virtual uint32_t getSize() const noexcept
+    {
       return headerSize + currentConfiguration.getSize();
     }
   };
 
   //! \brief Pojedyncze zadanie opcji konfigurowalnej
-  struct SRequest
+  class CRequest
   {
-    int8_t idSensor;                      //!< id czujnika lub koncentratora (cIdConcentrator)
-    EConfigurationType configurationType; //!< opcja konfiguracji
+    const uint8_t idSensor;                      //!< id czujnika lub koncentratora (cIdConcentrator)
+    const EConfigurationType configurationType; //!< opcja konfiguracji
+
+  public:
+
+    CRequest(const uint8_t idSensor1, const EConfigurationType& configurationType1)  noexcept:
+      idSensor(idSensor1), configurationType(configurationType1)
+    {
+    }
+
+    CRequest(const CRequest&) = default;
+    CRequest& operator=(const CRequest&) = default;
+
+    uint8_t getIdSensor() const noexcept
+    {
+      return idSensor;
+    }
+
+    EConfigurationType getConfigurationType() const noexcept
+    {
+      return configurationType;
+    }
 
     //! \brief Rozmiar samego naglowka
-    const static uint32_t headerSize = sizeof(idSensor) + sizeof(configurationType);
+    const static uint32_t headerSize;
   };
 
-  //! Prosba koncentratora o wyslanie konfiguracji
-  struct SServerRequest
+  //! Prosba koncentratora o wyslanie konfiguracji (SProtocol.type = EMessageType.SERVER_REQUEST)
+  class CServerRequest : public IMessage
   {
-    uint8_t requestsSize; //!< rozmiar tablicy requests
-    SRequest* requests;   //!< tablica o wielkosci requestsSize zadan konfiguracji
+    const std::vector<CRequest> requests;   //!< tablica o wielkosci requestsSize zadan konfiguracji
+
+  public:
+
+    CServerRequest(const std::vector<CRequest>& requests1) noexcept :
+      requests(requests1)
+    {
+    }
+
+    CServerRequest(const CServerRequest&) = default;
+    CServerRequest& operator=(const CServerRequest&) = default;
+
+    uint8_t getRequestsSize() const noexcept
+    {
+      return static_cast<uint8_t>(requests.size());
+    }
+
+    const std::vector<CRequest>& getRequests() const noexcept
+    {
+      return requests;
+    }
 
     //! \brief Rozmiar samego naglowka
-    const static uint32_t headerSize = sizeof(requestsSize);
+    const static uint32_t headerSize;
 
     //! \brief Zwraca rozmiar calej struktury
-    uint32_t getSize() const{
-      return headerSize + SRequest::headerSize * requestsSize;
+    virtual uint32_t getSize() const noexcept
+    {
+      return headerSize + CRequest::headerSize * requests.size();
     }
   };
 
-  //! \brief Odpowiedz serwera po otrzymaniu danych z czujnikow.
-  struct SServerResponse
+
+  //! \brief Odpowiedz serwera po otrzymaniu danych z czujnikow (SProtocol.type = EMessageType.SERVER_RESPONSE).
+  class CServerResponse : public IMessage
   {
-    EReceiveStatus status;        //!< Status otrzymanego pakietu z danymi z czujnikow
-    uint32_t idRequestPackage;    //!< ID pakietu, ktory wyslal dane z czujnikow
-    SConfiguration configuration; //!< Zadanie zmiany konfiguracji koncentratora
+    const EReceiveStatus status;        //!< Status otrzymanego pakietu z danymi z czujnikow
+    const uint32_t idRequestPackage;    //!< ID pakietu, ktory wyslal dane z czujnikow
+    const CConfiguration configuration; //!< Zadanie zmiany konfiguracji koncentratora
+
+  public:
 
     //! \brief Rozmiar samego naglowka
-    const static uint32_t headerSize = sizeof(status) + sizeof(idRequestPackage);
+    const static uint32_t headerSize;
+
+    CServerResponse(const EReceiveStatus& status1,
+                    const uint32_t& idRequestPackage1,
+                    const CConfiguration& configuration1) noexcept :
+      status(status1),
+      idRequestPackage(idRequestPackage1),
+      configuration(configuration1)
+    {
+    }
+
+    CServerResponse(const CServerResponse&) = default;
+    CServerResponse& operator=(const CServerResponse&) = default;
+
+    EReceiveStatus getStatus() const noexcept
+    {
+      return status;
+    }
+
+    uint32_t getIdRequestPackage() const noexcept
+    {
+      return idRequestPackage;
+    }
+
+    const CConfiguration getConfiguration() const noexcept
+    {
+      return configuration;
+    }
 
     //! \brief Zwraca rozmiar calej struktury
-    uint32_t getSize() const{
+    virtual uint32_t getSize() const noexcept
+    {
       return headerSize + configuration.getSize();
     }
   };
 
-  //! \brief Wiadomosc przesylana protokolem.
-  union UMessage
-  {
-    //! \brief Dane z czujnikow (SProtocol.type = EMessageType .MONITOR_DATA)
-    SMonitorData monitorData;
-    //! \brief Potwierdzenie konfiguracji koncentratora (SProtocol.type = EMessageType.CONFIGURATION_RESPONSE)
-    SConfigurationResponse configurationResponse;
-    //! \brief Prosba koncentratora o przeslanie konfiguracji (SProtocol.type = EMessageType.SERVER_REQUEST)
-    SServerRequest serverRequest;
-    //! \brief Potwierdzenie serwera otrzymanych danych i ewentualne wyslanie konfiguracji (SProtocol.type = EMessageType.SERVER_RESPONSE)
-    SServerResponse serverMonitorResponse;
-  };
-
   //! \brief Struktura protokolu.
-  struct SProtocol
+  class CProtocol
   {
     //! \brief Wersja protkolu
-    uint8_t version;
+    const uint8_t version;
     //! \brief Rozmiar laczny danych przesylanych protokolem.
     uint32_t size;
     //! \brief ID koncentratora
-    uint16_t idConcentrator;
+    const uint16_t idConcentrator;
     //! \brief ID danych pakietu danych.
-    uint32_t idPackage;
+    const uint32_t idPackage;
     //! \brief Typ pakietu danych wysylanych protokolem
-    EMessageType type;
+    const EMessageType type;
     //! \brief Dane wysylane protokolem. Typ danych zalezny do wartoci idPackage.
-    UMessage message;
+    const std::shared_ptr<IMessage> message;
     //! \brief Cykliczny kod nadmiarowy dla calej struktury
     uint16_t crc;
 
-    const static uint32_t headerSize = sizeof(version) + sizeof(size) +
-                                        sizeof(idConcentrator) + sizeof(idPackage) + sizeof(type) + sizeof(crc);
+  public:
 
-    //! \brief Zwraca rozmiar calej struktury
-    uint32_t getSize() const{
-      switch(type){
-      case MONITOR_DATA:
-        return headerSize + message.monitorData.getSize();
-        break;
-      case CONFIGURATION_RESPONSE:
-        return headerSize + message.configurationResponse.getSize();
-        break;
-      case SERVER_MONITOR_RESPONSE:
-        return headerSize + message.serverMonitorResponse.getSize();
-        break;
-      case SERVER_REQUEST:
-        return headerSize + message.serverRequest.getSize();
-        break;
-      default:
-        return 0;
+    CProtocol(const uint8_t& version1,
+              const uint32_t& size1,
+              const uint16_t& idConcentrator1,
+              const uint32_t& idPackage1,
+              const EMessageType& type1,
+              const std::shared_ptr<IMessage>& message1) noexcept :
+      version(version1),
+      size(size1),
+      idConcentrator(idConcentrator1),
+      idPackage(idPackage1),
+      type(type1),
+      message(message1),
+      crc(0)
+    {
+      if (size == 0){
+        size = getSize();
       }
 
     }
-  };
 
+    CProtocol(const CProtocol&) = default;
+    CProtocol& operator=(const CProtocol&) = default;
+
+    uint8_t getVersion() const noexcept
+    {
+      return version;
+    }
+
+
+    uint16_t getIdConcentrator() const noexcept
+    {
+      return idConcentrator;
+    }
+
+    uint32_t getIdPackage() const noexcept
+    {
+      return idPackage;
+    }
+
+    EMessageType getType() const noexcept
+    {
+      return type;
+    }
+
+    const std::shared_ptr<IMessage> getMessage() const noexcept
+    {
+      return message;
+    }
+
+    uint16_t getCRC() const noexcept
+    {
+      return crc;
+    }
+
+    void setCRC(uint16_t crc1)
+    {
+      crc = crc1;
+    }
+
+    const static uint32_t headerSize;
+
+    //! \brief Zwraca rozmiar calej struktury
+    uint32_t getSize() const
+    {
+      if (size != 0){
+        return size;
+      }
+      if (!message){
+        return headerSize;
+      }
+      int s1 = message->getSize();
+      return headerSize + s1;
+
+
+    }
+  };
 
 }
 

@@ -1,25 +1,62 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include <memory>
+
 #include "communication/interfaces/protocol.h"
 
 namespace NProtocol{
-  class CConnectionTask
+
+  class IConnectionTask;
+  typedef std::shared_ptr<IConnectionTask> DConnectionTask;
+
+  class IConnectionTask
+  {
+  public:
+    enum class EConnectionTaskType{SENDING, EXIT};
+  private:
+    const EConnectionTaskType type;
+  public:
+
+    IConnectionTask(const EConnectionTaskType type1) : type(type1)
+    {
+
+    }
+
+    EConnectionTaskType getType() const
+    {
+      return type;
+    }
+
+    virtual ~IConnectionTask(){}
+  };
+
+  class CSendingTask : public IConnectionTask
   {
   private:
-    const SProtocol* protocol;
+    const CProtocol protocol;
   public:
-    CConnectionTask() : protocol(nullptr){
+    CSendingTask(const CProtocol& protocol1) :
+      IConnectionTask(EConnectionTaskType::SENDING),
+      protocol(protocol1)
+    {
 
     }
 
-    CConnectionTask(const SProtocol& protocol1) : protocol(&protocol1){
-
-    }
-
-    const SProtocol* getProtocol() const{
+    const CProtocol getProtocol() const
+    {
       return protocol;
     }
+    virtual ~CSendingTask(){}
+  };
+
+  class CExitTask : public IConnectionTask
+  {
+  public:
+    CExitTask() :
+      IConnectionTask(EConnectionTaskType::EXIT)
+    {}
+    virtual ~CExitTask(){}
   };
 }
 

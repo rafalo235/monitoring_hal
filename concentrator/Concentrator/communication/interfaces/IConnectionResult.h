@@ -25,13 +25,13 @@ namespace NProtocol{
     //! \brief getSentProtocol zwraca protokol wysyłany do serwera
     //! \return obiekt protokolu wysylanego
     //!
-    virtual const SProtocol getSentProtocol() const = 0;
+    virtual const CProtocol getSentProtocol() const = 0;
 
     //!
-    //! \brief getReceivedProtocol zwraca protokol odebrany lub wysylany jesli nie zostal wyslany
-    //! \return obiekt protokolu odebranego lub wysylanego
+    //! \brief getReceivedProtocol zwraca protokol odebrany
+    //! \return obiekt protokolu odebranego
     //!
-    virtual const SProtocol getReceivedProtocol() const = 0;
+    virtual const std::shared_ptr<CProtocol> getReceivedProtocol() const = 0;
 
     //!
     //! \brief getStatus Status wyslanego protokolu

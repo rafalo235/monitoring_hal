@@ -6,62 +6,66 @@
 namespace NProtocol{
 
 
-  bool operator>(const SData& data1, const SData& data2){
+  bool operator>(const CData& data1, const CData& data2){
 
-    switch(data1.type){
+    switch(data1.getType()){
     case EValueType::INT_8:
-      return data1.value.vInt8 > data2.value.vInt8;
+      return data1.getValue().vInt8 > data2.getValue().vInt8;
     case EValueType::INT_16:
-      return data1.value.vInt8 > data2.value.vInt16;
+      return data1.getValue().vInt8 > data2.getValue().vInt16;
     case EValueType::INT_32:
-      return data1.value.vInt8 > data2.value.vInt32;
+      return data1.getValue().vInt8 > data2.getValue().vInt32;
     case EValueType::INT_64:
-      return data1.value.vInt8 > data2.value.vInt64;
+      return data1.getValue().vInt8 > data2.getValue().vInt64;
     case EValueType::UINT_8:
-      return data1.value.vUInt8 > data2.value.vUInt8;
+      return data1.getValue().vUInt8 > data2.getValue().vUInt8;
     case EValueType::UINT_16:
-      return data1.value.vUInt8 > data2.value.vUInt16;
+      return data1.getValue().vUInt8 > data2.getValue().vUInt16;
     case EValueType::UINT_32:
-      return data1.value.vUInt8 > data2.value.vUInt32;
+      return data1.getValue().vUInt8 > data2.getValue().vUInt32;
     case EValueType::UINT_64:
-      return data1.value.vUInt8 > data2.value.vUInt64;
+      return data1.getValue().vUInt8 > data2.getValue().vUInt64;
     case EValueType::DOUBLE_64:
-      return data1.value.vDouble64 > data2.value.vDouble64;
+      return data1.getValue().vDouble64 > data2.getValue().vDouble64;
     case EValueType::FLOAT_32:
-      return data1.value.vFloat32 > data2.value.vFloat32;
+      return data1.getValue().vFloat32 > data2.getValue().vFloat32;
     case EValueType::VOID:
       return false;
     }
     return true;
   }
 
-  bool operator<(const SData& data1, const SData& data2){
+  bool operator<(const CData& data1, const CData& data2){
 
-    switch(data1.type){
+    switch(data1.getType()){
     case EValueType::INT_8:
-      return data1.value.vInt8 < data2.value.vInt8;
+      return data1.getValue().vInt8 < data2.getValue().vInt8;
     case EValueType::INT_16:
-      return data1.value.vInt8 < data2.value.vInt16;
+      return data1.getValue().vInt8 < data2.getValue().vInt16;
     case EValueType::INT_32:
-      return data1.value.vInt8 < data2.value.vInt32;
+      return data1.getValue().vInt8 < data2.getValue().vInt32;
     case EValueType::INT_64:
-      return data1.value.vInt8 < data2.value.vInt64;
+      return data1.getValue().vInt8 < data2.getValue().vInt64;
     case EValueType::UINT_8:
-      return data1.value.vUInt8 < data2.value.vUInt8;
+      return data1.getValue().vUInt8 < data2.getValue().vUInt8;
     case EValueType::UINT_16:
-      return data1.value.vUInt8 < data2.value.vUInt16;
+      return data1.getValue().vUInt8 < data2.getValue().vUInt16;
     case EValueType::UINT_32:
-      return data1.value.vUInt8 < data2.value.vUInt32;
+      return data1.getValue().vUInt8 < data2.getValue().vUInt32;
     case EValueType::UINT_64:
-      return data1.value.vUInt8 < data2.value.vUInt64;
+      return data1.getValue().vUInt8 < data2.getValue().vUInt64;
     case EValueType::DOUBLE_64:
-      return data1.value.vDouble64 < data2.value.vDouble64;
+      return data1.getValue().vDouble64 < data2.getValue().vDouble64;
     case EValueType::FLOAT_32:
-      return data1.value.vFloat32 < data2.value.vFloat32;
+      return data1.getValue().vFloat32 < data2.getValue().vFloat32;
     case EValueType::VOID:
       return false;
     }
     return true;
   }
+
+
+
+
 }
 #endif // PROTOCOLUTIL_H

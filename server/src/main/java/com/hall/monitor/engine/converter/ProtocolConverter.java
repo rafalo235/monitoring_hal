@@ -118,7 +118,7 @@ public class ProtocolConverter
   private static SConfigurationValue convertToSConfigurationValue(
       DataByteInputStream stream, int idConcentrator) throws ParserException {
     
-    byte idSensor = stream.readInt8();
+    char idSensor = stream.readUInt8();
     byte configurationTypeBuf = stream.readInt8();
     EConfigurationType configurationType = EConfigurationType
         .convert(configurationTypeBuf);
@@ -253,7 +253,7 @@ public class ProtocolConverter
   private static void convertToBytes(DataByteOutputStream data,
       SConfigurationValue value) {
     
-    data.writeInt8(value.getIdSensor());
+    data.writeUInt8(value.getIdSensor());
     data.writeInt8(value.getConfigurationType().getCppValue());
     convertToBytes(data, value.getData());
   }

@@ -234,128 +234,128 @@ namespace NUtil{
 
     }
 
-    static void logProtocol(const NProtocol::SData& sdata)
+    static void logProtocol(const NProtocol::CData& sdata)
     {
       std::cout<<"sdata value: ";
-      switch(sdata.type){
+      switch(sdata.getType()){
       case NProtocol::EValueType::INT_8:
-        std::cout<<sdata.value.vInt8;
+        std::cout<<sdata.getValue().vInt8;
         break;
       case NProtocol::EValueType::UINT_8:
-        std::cout<<sdata.value.vUInt8;
+        std::cout<<sdata.getValue().vUInt8;
         break;
       case NProtocol::EValueType::INT_16:
-        std::cout<<sdata.value.vInt16;
+        std::cout<<sdata.getValue().vInt16;
         break;
       case NProtocol::EValueType::UINT_16:
-        std::cout<<sdata.value.vUInt16;
+        std::cout<<sdata.getValue().vUInt16;
         break;
       case NProtocol::EValueType::INT_32:
-        std::cout<<sdata.value.vInt32;
+        std::cout<<sdata.getValue().vInt32;
         break;
       case NProtocol::EValueType::UINT_32:
-        std::cout<<sdata.value.vUInt32;
+        std::cout<<sdata.getValue().vUInt32;
         break;
       case NProtocol::EValueType::INT_64:
-        std::cout<<sdata.value.vInt64;
+        std::cout<<sdata.getValue().vInt64;
         break;
       case NProtocol::EValueType::UINT_64:
-        std::cout<<sdata.value.vUInt64;
+        std::cout<<sdata.getValue().vUInt64;
         break;
       case NProtocol::EValueType::FLOAT_32:
-        std::cout<<sdata.value.vFloat32;
+        std::cout<<sdata.getValue().vFloat32;
         break;
       case NProtocol::EValueType::DOUBLE_64:
-        std::cout<<sdata.value.vDouble64;
+        std::cout<<sdata.getValue().vDouble64;
         break;
       case NProtocol::EValueType::VOID:
-        std::cout<<sdata.value.vVoid8;
+        std::cout<<sdata.getValue().vVoid8;
         break;
       }
-      std::cout<<" ("<<valueTypeEnums[sdata.type]<<")"<<std::endl;
+      std::cout<<" ("<<valueTypeEnums[sdata.getType()]<<")"<<std::endl;
     }
 
-    static void logProtocol(const NProtocol::SSensorData& sensorsData)
+    static void logProtocol(const NProtocol::CSensorData& sensorsData)
     {
-      std::cout<<"idData: "<<sensorsData.idData<<std::endl;
-      std::cout<<"idSensor: "<<static_cast<int>(sensorsData.idSensor)<<std::endl;
-      std::cout<<"timeStamp: "<<sensorsData.timeStamp<<std::endl;
-      std::cout<<"sensorState: "<<sensorStateEnums[sensorsData.sensorState]<<std::endl;
-      std::cout<<"dangerLevel: "<<dangerLevelEnums[sensorsData.dangerLevel]<<std::endl;
-
-    }
-
-    static void logProtocol(const NProtocol::SRequest& requests)
-    {
-      std::cout<<"idSensor: "<<static_cast<int>(requests.idSensor)<<std::endl;
-      std::cout<<"configurationType: "<<configurationTypeEnums[requests.configurationType]<<std::endl;
+      std::cout<<"idData: "<<sensorsData.getIdData()<<std::endl;
+      std::cout<<"idSensor: "<<static_cast<int>(sensorsData.getIdSensor())<<std::endl;
+      std::cout<<"timeStamp: "<<sensorsData.getTimeStamp()<<std::endl;
+      std::cout<<"sensorState: "<<sensorStateEnums[sensorsData.getSensorState()]<<std::endl;
+      std::cout<<"dangerLevel: "<<dangerLevelEnums[sensorsData.getDangerLevel()]<<std::endl;
 
     }
 
-    static void logProtocol(const NProtocol::SMonitorData& monitorData)
+    static void logProtocol(const NProtocol::CRequest& requests)
     {
-      std::cout<<"sendTime: "<<monitorData.sendTime<<std::endl;
-      std::cout<<"sensorsAmount: "<<static_cast<int>(monitorData.sensorsAmount)<<std::endl;
-      std::cout<<"sensorsDataSize: "<<monitorData.sensorsDataSize<<std::endl;
-      std::for_each(monitorData.sensorsData, monitorData.sensorsData + monitorData.sensorsDataSize,
-                    [&](const NProtocol::SSensorData& sensorsData){ logProtocol(sensorsData);} );
+      std::cout<<"idSensor: "<<static_cast<int>(requests.getIdSensor())<<std::endl;
+      std::cout<<"configurationType: "<<configurationTypeEnums[requests.getConfigurationType()]<<std::endl;
+
     }
 
-    static void logProtocol(const NProtocol::SConfigurationValue& confValue)
+    static void logProtocol(const std::shared_ptr<NProtocol::CMonitorData>& monitorData)
     {
-      std::cout<<"idSensor: "<<static_cast<int>(confValue.idSensor)<<std::endl;
-      std::cout<<"configurationType: "<<configurationTypeEnums[confValue.configurationType]<<std::endl;
-      logProtocol(confValue.data);
+      std::cout<<"sendTime: "<<monitorData->getSendTime()<<std::endl;
+      std::cout<<"sensorsAmount: "<<static_cast<int>(monitorData->getSensorAmount())<<std::endl;
+      std::cout<<"sensorsDataSize: "<<monitorData->getSensorsDataSize()<<std::endl;
+      std::for_each(monitorData->getSensorsData().begin(), monitorData->getSensorsData().end(),
+                    [&](const NProtocol::CSensorData& sensorsData){ logProtocol(sensorsData);} );
     }
 
-    static void logProtocol(const NProtocol::SConfiguration& configuration)
+    static void logProtocol(const NProtocol::CConfigurationValue& confValue)
     {
-      std::cout<<"configurationSize: "<<static_cast<int>(configuration.configurationSize)<<std::endl;
-      std::for_each(configuration.configurations, configuration.configurations + configuration.configurationSize,
-                    [&](const NProtocol::SConfigurationValue& value){ logProtocol(value);} );
+      std::cout<<"idSensor: "<<static_cast<int>(confValue.getIdSensor())<<std::endl;
+      std::cout<<"configurationType: "<<configurationTypeEnums[confValue.getConfigurationType()]<<std::endl;
+      logProtocol(confValue.getData());
     }
 
-    static void logProtocol(const NProtocol::SConfigurationResponse& configurationResponse)
+    static void logProtocol(const NProtocol::CConfiguration& configuration)
     {
-      std::cout<<"status: "<<receiveStatusEnums[configurationResponse.status]<<std::endl;
-      std::cout<<"idRequestPackage: "<<configurationResponse.idRequestPackage<<std::endl;
-      logProtocol(configurationResponse.currentConfiguration);
+      std::cout<<"configurationSize: "<<static_cast<int>(configuration.getConfigurationsSize())<<std::endl;
+      std::for_each(configuration.getConfigurations().begin(), configuration.getConfigurations().end(),
+                    [&](const NProtocol::CConfigurationValue& value){ logProtocol(value);} );
     }
 
-    static void logProtocol(const NProtocol::SServerRequest& serverRequest)
+    static void logProtocol(const std::shared_ptr<NProtocol::CConfigurationResponse>& configurationResponse)
     {
-      std::cout<<"requestsSize: "<<static_cast<int>(serverRequest.requestsSize)<<std::endl;
-      std::for_each(serverRequest.requests, serverRequest.requests + serverRequest.requestsSize,
-                    [&](const NProtocol::SRequest& req){ logProtocol(req);} );
+      std::cout<<"status: "<<receiveStatusEnums[configurationResponse->getStatus()]<<std::endl;
+      std::cout<<"idRequestPackage: "<<configurationResponse->getIdRequestPackage()<<std::endl;
+      logProtocol(configurationResponse->getCurrentConfiguration());
     }
 
-    static void logProtocol(const NProtocol::SServerResponse& serverMonitorResponse)
+    static void logProtocol(const std::shared_ptr<NProtocol::CServerRequest>& serverRequest)
     {
-      std::cout<<"status: "<<receiveStatusEnums[serverMonitorResponse.status]<<std::endl;
-      std::cout<<"idRequestPackage: "<<serverMonitorResponse.idRequestPackage<<std::endl;
-      logProtocol(serverMonitorResponse.configuration);
+      std::cout<<"requestsSize: "<<static_cast<int>(serverRequest->getRequestsSize())<<std::endl;
+      std::for_each(serverRequest->getRequests().begin(), serverRequest->getRequests().end(),
+                    [&](const NProtocol::CRequest& req){ logProtocol(req);} );
+    }
+
+    static void logProtocol(const std::shared_ptr<NProtocol::CServerResponse>& serverMonitorResponse)
+    {
+      std::cout<<"status: "<<receiveStatusEnums[serverMonitorResponse->getStatus()]<<std::endl;
+      std::cout<<"idRequestPackage: "<<serverMonitorResponse->getIdRequestPackage()<<std::endl;
+      logProtocol(serverMonitorResponse->getConfiguration());
     }
 
   public:
-    void logProtocol(const NProtocol::SProtocol& protocol)
+    void logProtocol(const NProtocol::CProtocol& protocol)
     {
-      std::cout<<"version: "<<static_cast<int>(protocol.version)<<std::endl;
-      std::cout<<"size: "<<protocol.size<<std::endl;
-      std::cout<<"idConcentrator: "<<protocol.idConcentrator<<std::endl;
-      std::cout<<"idPackage: "<<protocol.idPackage<<std::endl;
-      std::cout<<"type: "<<messageTypeEnums[protocol.type]<<std::endl;
-      switch(protocol.type){
+      std::cout<<"version: "<<static_cast<int>(protocol.getVersion())<<std::endl;
+      std::cout<<"size: "<<protocol.getSize()<<std::endl;
+      std::cout<<"idConcentrator: "<<protocol.getIdConcentrator()<<std::endl;
+      std::cout<<"idPackage: "<<protocol.getIdPackage()<<std::endl;
+      std::cout<<"type: "<<messageTypeEnums[protocol.getType()]<<std::endl;
+      switch(protocol.getType()){
       case NProtocol::EMessageType::MONITOR_DATA:
-        logProtocol(protocol.message.monitorData);
+        logProtocol(std::dynamic_pointer_cast<NProtocol::CMonitorData>(protocol.getMessage()));
         break;
       case NProtocol::EMessageType::CONFIGURATION_RESPONSE:
-        logProtocol(protocol.message.configurationResponse);
+        logProtocol(std::dynamic_pointer_cast<NProtocol::CConfigurationResponse>(protocol.getMessage()));
         break;
       case NProtocol::EMessageType::SERVER_MONITOR_RESPONSE:
-        logProtocol(protocol.message.serverMonitorResponse);
+        logProtocol(std::dynamic_pointer_cast<NProtocol::CServerResponse>(protocol.getMessage()));
         break;
       case NProtocol::EMessageType::SERVER_REQUEST:
-        logProtocol(protocol.message.serverRequest);
+        logProtocol(std::dynamic_pointer_cast<NProtocol::CServerRequest>(protocol.getMessage()));
         break;
       }
     }

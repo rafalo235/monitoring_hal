@@ -77,17 +77,17 @@ public class ConcentratorRest
     
     ArrayList<SConfigurationValue> configurations = new ArrayList<SConfigurationValue>();
     SData data1 = new SData(EValueType.INT_32, 100);
-    SConfigurationValue val1 = new SConfigurationValue((byte) 1,
+    SConfigurationValue val1 = new SConfigurationValue((char) 1,
         EConfigurationType.DANGER_LEVEL, data1);
     configurations.add(val1);
     
     SData data2 = new SData(EValueType.INT_32, 200);
-    SConfigurationValue val2 = new SConfigurationValue((byte) 2,
+    SConfigurationValue val2 = new SConfigurationValue((char) 2,
         EConfigurationType.DANGER_LEVEL, data2);
     configurations.add(val2);
     
     SData data3 = new SData(EValueType.UINT_32, 200L);
-    SConfigurationValue val3 = new SConfigurationValue((byte) 1,
+    SConfigurationValue val3 = new SConfigurationValue((char) 1,
         EConfigurationType.DANGER_LEVEL, data3);
     configurations.add(val3);
     

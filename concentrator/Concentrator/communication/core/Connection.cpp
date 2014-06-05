@@ -5,7 +5,7 @@
 
 namespace NProtocol{
 
-  decltype(SProtocol::idPackage) CConnection::idPackageBase = 0;
+  uint32_t CConnection::idPackageBase = 0;
 
   CConnection::CConnection(){
 
@@ -15,46 +15,36 @@ namespace NProtocol{
 
   }
 
-  decltype(SProtocol::idPackage) CConnection::sendProtocol(
-      const EMessageType type, const UMessage& message)
+  uint32_t CConnection::sendProtocol(
+      const EMessageType type, const std::shared_ptr<IMessage>& message)
   {
 
-    SProtocol protocol;
-    protocol.version = VERSION;
-    protocol.idConcentrator = NEngine::CConfigurationFactory::getInstance()->getIdConcentrator();
+    uint16_t idConcentrator = NEngine::CConfigurationFactory::getInstance()->getIdConcentrator();
+    CProtocol protocol(VERSION, 0,
+                       idConcentrator,
+                       ++idPackageBase, type, message);
 
-    protocol.idPackage = ++idPackageBase;
-    protocol.crc = 0;
-    protocol.type = type;
-    protocol.message = message;
-    protocol.size = protocol.getSize();
     const char* data = reinterpret_cast<const char*>(&protocol);
-    int dataSize = protocol.size;
-    protocol.crc = NUtil::CCryptography::crc16(data, dataSize);
+    int dataSize = protocol.getSize();
+    protocol.setCRC(NUtil::CCryptography::crc16(data, dataSize));
 
     thread.addToSendingQueue(protocol);
     return idPackageBase;
   }
 
-  decltype(SProtocol::idPackage) CConnection::sendMonitorData(const SMonitorData& data)
+  uint32_t CConnection::sendMonitorData(const std::shared_ptr<CMonitorData>& data)
   {
-    UMessage message;
-    message.monitorData = data;
-    return sendProtocol(EMessageType::MONITOR_DATA, message);
+    return sendProtocol(EMessageType::MONITOR_DATA, std::dynamic_pointer_cast<IMessage>(data));
   }
 
-  decltype(SProtocol::idPackage) CConnection::sendConfigurationResponse(const SConfigurationResponse& data)
+  uint32_t CConnection::sendConfigurationResponse(const std::shared_ptr<CConfigurationResponse>& data)
   {
-    UMessage message;
-    message.configurationResponse = data;
-    return sendProtocol(EMessageType::CONFIGURATION_RESPONSE, message);
+    return sendProtocol(EMessageType::CONFIGURATION_RESPONSE, std::dynamic_pointer_cast<IMessage>(data));
   }
 
-  decltype(SProtocol::idPackage) CConnection::sendServerRequest(const SServerRequest& data)
+  uint32_t CConnection::sendServerRequest(const std::shared_ptr<CServerRequest>& data)
   {
-    UMessage message;
-    message.serverRequest = data;
-    return sendProtocol(EMessageType::SERVER_REQUEST, message);
+    return sendProtocol(EMessageType::SERVER_REQUEST, std::dynamic_pointer_cast<IMessage>(data));
   }
 
 }

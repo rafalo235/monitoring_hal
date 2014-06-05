@@ -10,11 +10,10 @@ namespace NSensors{
   public:
     CSensorsManager() = default;
 
-    virtual SData getSensorData(const decltype(SSensorData::idSensor) idSensor) const{
+    virtual CData getSensorData(const int8_t idSensor) const{
 
       // TODO: kto to zrobi?
-      SData s;
-      return s;
+      return CData();
     }
   };
 }

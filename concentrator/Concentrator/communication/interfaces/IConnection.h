@@ -18,17 +18,20 @@ namespace NProtocol{
     //! \brief Wysyla dane z czujnikow do serwera
     //! \param[in] data Dane czujnikow
     //! \return Id pakietu
-    virtual decltype(SProtocol::idPackage) sendMonitorData(const SMonitorData& data) = 0;
+    virtual uint32_t sendMonitorData(
+        const std::shared_ptr<CMonitorData>& data) = 0;
 
     //! \brief Wysyla potwierdzenie zmiany konfiguracji do serwera
     //! \param[in] data Aktualna konfiguracja
     //! \return Id pakietu
-    virtual decltype(SProtocol::idPackage) sendConfigurationResponse(const SConfigurationResponse& data) = 0;
+    virtual uint32_t sendConfigurationResponse(
+        const std::shared_ptr<CConfigurationResponse>& data) = 0;
 
     //! \brief Wysyla prosbe o wyslanie konfigruacji do serwera
     //! \param[in] data Typy konfiguracji
     //! \return Id pakietu
-    virtual decltype(SProtocol::idPackage) sendServerRequest(const SServerRequest& data) = 0;
+    virtual uint32_t sendServerRequest(
+        const std::shared_ptr<CServerRequest>& data) = 0;
 
     //! \brief Sprawdza czy sa jakies dane z serwera lub blad polaczenie
     //! \return true, jesli sa dane; false jesli nie

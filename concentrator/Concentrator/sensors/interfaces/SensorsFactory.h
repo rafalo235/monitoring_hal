@@ -1,6 +1,8 @@
 #ifndef CSENSORSFACTORY_H
 #define CSENSORSFACTORY_H
 
+#define SENSOR_MOCK
+
 #include <memory>
 
 #include "sensors/interfaces/ISensorsManager.h"

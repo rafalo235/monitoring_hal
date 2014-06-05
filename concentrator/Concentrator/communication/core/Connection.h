@@ -18,7 +18,7 @@ namespace NProtocol {
     friend class CConnectionFactory;
 
     CHttpThread thread;
-    static decltype(SProtocol::idPackage) idPackageBase;
+    static uint32_t idPackageBase;
 
     CConnection();
     CConnection(const CConnection&) = delete;
@@ -28,20 +28,24 @@ namespace NProtocol {
     //! \param type typ protokolu
     //! \param message typ wiadomosci
     //! \return id pakietu
-    decltype(SProtocol::idPackage) sendProtocol(const EMessageType type, const UMessage& message);
+    uint32_t sendProtocol(
+        const EMessageType type, const std::shared_ptr<IMessage>& message);
 
   public:
 
     ~CConnection();
 
     //! IConnection::sendMonitorData(SMonitorData)
-    virtual decltype(SProtocol::idPackage) sendMonitorData(const SMonitorData& data);
+    virtual uint32_t sendMonitorData(
+        const std::shared_ptr<CMonitorData>& data);
 
     //! IConnection::sendConfigurationResponse(SConfigurationResponse)
-    virtual decltype(SProtocol::idPackage) sendConfigurationResponse(const SConfigurationResponse& data);
+    virtual uint32_t sendConfigurationResponse(
+        const std::shared_ptr<CConfigurationResponse>& data);
 
     //! IConnection::sendServerRequest(SServerRequest)
-    virtual decltype(SProtocol::idPackage) sendServerRequest(const SServerRequest& data);
+    virtual uint32_t sendServerRequest(
+        const std::shared_ptr<CServerRequest>& data);
 
     //! IConnection::isAnyResult()
     virtual bool isAnyResult() const{

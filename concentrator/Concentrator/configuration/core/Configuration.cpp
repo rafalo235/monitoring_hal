@@ -16,30 +16,37 @@ namespace NEngine {
       return false;
     }
     //TODO: sprawdzanie czy plik jest poprawny
-    decltype(SProtocol::idConcentrator) idConcentrator;
+    uint16_t idConcentrator;
     uint16_t sendingPeriod;
     uint16_t checkingSensorPeriod;
     uint8_t sensorsAmount;
     bool saveSDCardIfOnlineEnable;
+
+    uint8_t serverUrlLength;
+
     file.read(reinterpret_cast<char*>(&idConcentrator), sizeof(idConcentrator));
     file.read(reinterpret_cast<char*>(&sendingPeriod), sizeof(sendingPeriod));
     file.read(reinterpret_cast<char*>(&checkingSensorPeriod), sizeof(checkingSensorPeriod));
     file.read(reinterpret_cast<char*>(&saveSDCardIfOnlineEnable), sizeof(saveSDCardIfOnlineEnable));
+    file.read(reinterpret_cast<char*>(&serverUrlLength), sizeof(serverUrlLength));
+    std::string serverUrl(serverUrlLength, '\0');
+
+    file.read(&serverUrl[0], serverUrlLength);
     file.read(reinterpret_cast<char*>(&sensorsAmount), sizeof(sensorsAmount));
 
     std::vector<DSensorConfiguration> sensors;
-    decltype(SSensorData::idSensor) id;
+    uint8_t idSensor;
     bool turnOn;
-    SData warning;
-    SData alarm;
+    CData warning;
+    CData alarm;
 
     for(int i = 0; i < sensorsAmount; ++i){
-      file.read(reinterpret_cast<char*>(&id), sizeof(id));
+      file.read(reinterpret_cast<char*>(&idSensor), sizeof(idSensor));
       file.read(reinterpret_cast<char*>(&turnOn), sizeof(turnOn));
       file.read(reinterpret_cast<char*>(&warning), sizeof(warning));
       file.read(reinterpret_cast<char*>(&alarm), sizeof(alarm));
 
-      DSensorConfiguration buf(new CSensorConfiguration(id, turnOn, warning, alarm));
+      DSensorConfiguration buf(new CSensorConfiguration(idSensor, turnOn, warning, alarm));
       sensors.push_back(buf);
     }
     file.close();
@@ -49,6 +56,7 @@ namespace NEngine {
     this->sendingPeriod = sendingPeriod;
     this->sensors = sensors;
     this->saveSDCardIfOnlineEnable = saveSDCardIfOnlineEnable;
+    this->serverUrl = serverUrl;
     return true;
   }
 
@@ -65,18 +73,21 @@ namespace NEngine {
     file.write(reinterpret_cast<const char*>(&sendingPeriod), sizeof(sendingPeriod));
     file.write(reinterpret_cast<const char*>(&checkingSensorPeriod), sizeof(checkingSensorPeriod));
     file.write(reinterpret_cast<const char*>(&saveSDCardIfOnlineEnable), sizeof(saveSDCardIfOnlineEnable));
+    uint8_t serverUrlLength = static_cast<uint8_t>(serverUrl.length());
+    file.write(reinterpret_cast<const char*>(&serverUrlLength), sizeof(serverUrlLength));
+    const char* serverUrlBuf = serverUrl.c_str();
 
-
+    file.write(serverUrlBuf, serverUrlLength);
     file.write(reinterpret_cast<const char*>(&sensorsAmount), sizeof(sensorsAmount));
 
     std::for_each(sensors.begin(), sensors.end(),
                   [&](const DSensorConfiguration& c)
                     {
-                        decltype(SSensorData::idSensor) id = c->getSensorId();
+                        uint8_t idSensor = c->getSensorId();
                         bool turnOn = c->isTurnOn();
-                        const SData warning = c->getWarnigLvl();
-                        const SData alarm = c->getAlarmLvl();
-                        file.write(reinterpret_cast<const char*>(&id), sizeof(id));
+                        const CData warning = c->getWarnigLvl();
+                        const CData alarm = c->getAlarmLvl();
+                        file.write(reinterpret_cast<const char*>(&idSensor), sizeof(idSensor));
                         file.write(reinterpret_cast<const char*>(&turnOn), sizeof(turnOn));
                         file.write(reinterpret_cast<const char*>(&warning), sizeof(warning));
                         file.write(reinterpret_cast<const char*>(&alarm), sizeof(alarm));

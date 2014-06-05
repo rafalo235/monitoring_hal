@@ -66,7 +66,7 @@ public class DBManager implements IDBManager
     for (SensorConf con : list) {
       EConfigurationType configurationType = con.getConfigType();
       SData data = convert(con.getType(), con.getDataStr());
-      byte idSensor = (byte) con.getIdSensorConf();
+      char idSensor = (char) con.getIdSensorConf();
       SConfigurationValue value = new SConfigurationValue(idSensor,
           configurationType, data);
       configurations.add(value);
@@ -252,7 +252,7 @@ public class DBManager implements IDBManager
     for (ConcentratorConf conf : list) {
       
       for (SensorConf sensConf : conf.getSensorConf()) {
-        byte idSensor = (byte) sensConf.getSensor().getIdConcentratorSensor();
+        char idSensor = (char) sensConf.getSensor().getIdConcentratorSensor();
         EConfigurationType configurationType = sensConf.getConfigType();
         SData data = convert(sensConf.getType(), sensConf.getDataStr());
         configurations.add(new SConfigurationValue(idSensor, configurationType,

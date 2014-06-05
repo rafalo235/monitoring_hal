@@ -1,6 +1,8 @@
 #ifndef CONNECTIONRESULT_H
 #define CONNECTIONRESULT_H
 
+#include <memory>
+
 #include "communication/interfaces/protocol.h"
 #include "communication/interfaces/IConnectionResult.h"
 
@@ -11,28 +13,42 @@ namespace NProtocol{
   {
   private:
 
-    const SProtocol sentProtocol;
-    const SProtocol receivedProtocol;
+    const CProtocol sentProtocol;
+    const std::shared_ptr<CProtocol> receivedProtocol;
     const EConnectionStatus status;
 
   public:
 
-    CConnectionResult(const SProtocol& sentProtocol1,
-                      const SProtocol& receivedProtocol1,
-                      const EConnectionStatus status1) :
-      sentProtocol(sentProtocol1), receivedProtocol(receivedProtocol1), status(status1){
+    CConnectionResult(const CProtocol& sentProtocol1,
+                      const std::shared_ptr<CProtocol>& receivedProtocol1,
+                      const EConnectionStatus status1) noexcept:
+                        sentProtocol(sentProtocol1),
+                        receivedProtocol(receivedProtocol1),
+                        status(status1)
+    {
 
     }
 
-    virtual const SProtocol getSentProtocol() const{
+    CConnectionResult(const CProtocol& sentProtocol1,
+                      const EConnectionStatus status1) noexcept:
+                        sentProtocol(sentProtocol1),
+                        status(status1)
+    {
+
+    }
+
+    virtual const CProtocol getSentProtocol() const noexcept
+    {
       return sentProtocol;
     }
 
-    virtual const SProtocol getReceivedProtocol() const{
+    virtual const std::shared_ptr<CProtocol> getReceivedProtocol() const noexcept
+    {
       return receivedProtocol;
     }
 
-    virtual EConnectionStatus getStatus() const{
+    virtual EConnectionStatus getStatus() const noexcept
+    {
       return status;
     }
   };

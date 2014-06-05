@@ -14,17 +14,20 @@ namespace NEngine {
   class CSensorConfiguration : public ISensorConfiguration
   {
     friend class CConfiguration;
-#ifdef CONFIG_MOCK
-    friend class CConfigurationMock;
-#endif
-    decltype(SSensorData::idSensor) idSensor;
+
+    uint8_t idSensor;
     bool turnOn;
-    SData warningLvl;
-    SData alarmLvl;
+    CData warningLvl;
+    CData alarmLvl;
+
 
     CSensorConfiguration() = default;
-    CSensorConfiguration(decltype(SSensorData::idSensor)& idSensor1,
-                         bool& turnOn1, SData& warningLvl1, SData& alarmLvl1) :
+  protected:
+
+    CSensorConfiguration(uint8_t& idSensor1,
+                         bool& turnOn1,
+                         CData& warningLvl1,
+                         CData& alarmLvl1) :
                             idSensor(idSensor1),
                             turnOn(turnOn1),
                             warningLvl(warningLvl1),
@@ -39,34 +42,40 @@ namespace NEngine {
     CSensorConfiguration(const CSensorConfiguration&) = default;
 
     //! \return true jesli wlaczony, false jesli nie
-    virtual bool isTurnOn() const{
+    virtual bool isTurnOn() const
+    {
       return turnOn;
     }
 
     //! \return poziom ostrzegawczy
-    virtual const SData getWarnigLvl() const{
+    virtual const CData getWarnigLvl() const
+    {
       return warningLvl;
     }
 
     //! \return poziom alarmowy
-    virtual const SData getAlarmLvl() const{
+    virtual const CData getAlarmLvl() const
+    {
       return alarmLvl;
     }
 
-    virtual decltype(SSensorData::idSensor) getSensorId()
+    virtual uint8_t getSensorId()
     {
       return idSensor;
     }
 
-    void setTurnOn(bool turnOn1){
+    void setTurnOn(bool turnOn1)
+    {
       turnOn = turnOn1;
     }
 
-    void setWarningLvl(const SData& data){
+    void setWarningLvl(const CData& data)
+    {
       warningLvl = data;
     }
 
-    void setAlarmLvl(const SData& data){
+    void setAlarmLvl(const CData& data)
+    {
       alarmLvl = data;
     }
 

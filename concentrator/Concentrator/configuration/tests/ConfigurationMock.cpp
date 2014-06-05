@@ -1,35 +1,36 @@
 #include "ConfigurationMock.h"
 #include "configuration/core/SensorConfiguration.h"
+#include "configuration/tests/SensorConfigurationMock.h"
+#include "util/Logger.h"
 
 namespace NEngine{
+
   CConfigurationMock::CConfigurationMock()
   {
-
+    LOG_DEBUG("CConfigurationMock - constructor.");
     idConcentrator = 1;
     sendingPeriod = 10;
     checkingSensorPeriod = 2;
     saveSDCardIfOnlineEnable = false;
-    SData warning;
-    warning.type = EValueType::INT_32;
-    warning.value.vInt32 = 10;
 
-    SData alarm;
-    alarm.type = EValueType::INT_32;
-    alarm.value.vInt32 = 12;
-    for (decltype(SSensorData::idSensor) i = 0; i < 3; ++i)
+    int warningValue = 10;
+    int alarmValue = 12;
+    CData warning(EValueType::INT_32, &warningValue);
+
+    CData alarm(EValueType::INT_32, &alarmValue);
+
+    for (int8_t i = 0; i < 3; ++i)
     {
 
-      DSensorConfiguration s(new CSensorConfiguration());
+      uint8_t idSensor1 = i;
+      bool turnOn = true;
 
-      std::shared_ptr<CSensorConfiguration> s1
-          = std::dynamic_pointer_cast<CSensorConfiguration>(s);
-      s1->idSensor = i;
-      s1->turnOn = true;
-      s1->warningLvl = warning;
-      s1->alarmLvl= alarm;
+      DSensorConfiguration s(
+                  new CSensorConfigurationMock(idSensor1, turnOn, warning, alarm));
       this->sensors.push_back(s);
 
     }
+    serverUrl = "http://localhost:8080/HallMonitorServer/rest/concentrator/post";
     saveConfiguration();
   }
 }

@@ -5,7 +5,11 @@
 #include "configuration/interfaces/IConfiguration.h"
 #include "configuration/core/Configuration.h"
 
+#define CONFIG_MOCK
+
+#ifdef CONFIG_MOCK
 #include "configuration/tests/ConfigurationMock.h"
+#endif
 
 namespace NEngine{
 
