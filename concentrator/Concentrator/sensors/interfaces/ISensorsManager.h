@@ -11,8 +11,13 @@ namespace NSensors {
   {
   public:
 
-
-    virtual CData getSensorData(const int8_t idSensor) const = 0 ;
+    //!
+    //! \brief getSensorData odczytuje dane z czujnikow
+    //! \param idSensor id czujnika
+    //! \param value odczytana wartosc
+    //! \return true jesli odczyt sie udal, false jesli czujnik jest rozwalony
+    //!
+    virtual bool getSensorData(const int8_t idSensor, CData& value) = 0;
 
     virtual ~ISensorsManager() = default;
   };

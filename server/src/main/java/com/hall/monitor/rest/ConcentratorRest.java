@@ -99,6 +99,26 @@ public class ConcentratorRest
   }
   
   @GET
+  @Path("/test/get_configuration")
+  @Produces(MediaType.TEXT_PLAIN)
+  public Response testGetConfiguration()
+  {
+    DBManager db = new DBManager();
+    SConfiguration conf = db.loadConcentratorConfiguration(1);
+    StringBuilder str = new StringBuilder();
+    str.append("Configuration size: "+ (int)conf.getConfigurationSize());
+    for(SConfigurationValue value : conf.getConfigurations()){
+      str.append("\nid Sensor: ");
+      str.append((int)value.getIdSensor());
+      str.append(" type: ");
+      str.append(value.getConfigurationType().toString());
+      str.append(" data: ");
+      str.append(value.getData().getValue().toString());
+
+    }
+    return Response.status(201).entity(str.toString()).build();
+  }
+  @GET
   @Path("/test/add_company")
   @Produces(MediaType.TEXT_PLAIN)
   public Response testAddCompany() {

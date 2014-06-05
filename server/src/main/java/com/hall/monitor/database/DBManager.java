@@ -83,10 +83,9 @@ public class DBManager implements IDBManager
    * @param monitor
    * @return
    */
-  private boolean storeMonitorData(Session session, long idPackage, int concentratorId,
-      SMonitorData monitor) {
+  private boolean storeMonitorData(Session session, long idPackage,
+      int concentratorId, SMonitorData monitor) {
     
-
     // zapisz date pierwszej proby wyslania
     Date sendTime = new Date(monitor.getSendTime());
     
@@ -130,7 +129,8 @@ public class DBManager implements IDBManager
         }
         if (sensor == null) {
           // czujnik nie znaleziony
-          log.log(Level.SEVERE, "Sensor wasn't found. idConcentrator: " + concentratorId + " concentrator sensor id: "+ sensorId);
+          log.log(Level.SEVERE, "Sensor wasn't found. idConcentrator: "
+              + concentratorId + " concentrator sensor id: " + sensorId);
           session.getTransaction().rollback();
           session.close();
           return false;
@@ -156,8 +156,8 @@ public class DBManager implements IDBManager
    * @param confResponse
    * @return
    */
-  private boolean storeConfigurationResponse(Session session, SConfigurationResponse confResponse) {
-
+  private boolean storeConfigurationResponse(Session session,
+      SConfigurationResponse confResponse) {
     
     // pobierz id pakietu z konfiguracja, na ktory koncentratora odpowiada
     long idRequestPackage = confResponse.getIdRequestPackage();
@@ -177,9 +177,9 @@ public class DBManager implements IDBManager
     
   }
   
-  private boolean storeServerRequest(Session session, long idPackage, int concentratorId,
-      SServerRequest configRequest) {
-
+  private boolean storeServerRequest(Session session, long idPackage,
+      int concentratorId, SServerRequest configRequest) {
+    
     // zapisz date otrzymania pakietu
     Date receiveTime = new Date();
     
@@ -188,7 +188,7 @@ public class DBManager implements IDBManager
     
     if (concentrator == null) {
       log.log(Level.SEVERE, "Concentrator wasn't found");
-
+      
       return false;
     }
     
@@ -198,7 +198,7 @@ public class DBManager implements IDBManager
     if (addRequest(session, req, configRequest.getRequests()) == null) {
       return false;
     }
-
+    
     return true;
   }
   
@@ -242,12 +242,11 @@ public class DBManager implements IDBManager
     SessionFactory factory = HibernateUtil.getFactory();
     Session session = factory.openSession();
     
+    Query query = session.createQuery("FROM ConcentratorConf WHERE idConcentrator = :id");
+    query.setParameter("id", idConcentrator);
+    
     @SuppressWarnings("unchecked")
-    List<ConcentratorConf> list = session
-        .createCriteria(ConcentratorConf.class)
-        .add(Restrictions.eq("concentrator.idConcentrator", idConcentrator))
-        .add(Restrictions.eq("changed", false))
-        .addOrder(Order.asc("timeStamp")).list();
+    List<ConcentratorConf> list = query.list();
     
     ArrayList<SConfigurationValue> configurations = new ArrayList<SConfigurationValue>();
     for (ConcentratorConf conf : list) {
@@ -318,7 +317,8 @@ public class DBManager implements IDBManager
     else if (umessage instanceof SServerRequest) {
       // prosba o przeslanie konfiguracji
       SServerRequest configRequest = (SServerRequest) umessage;
-      res =  storeServerRequest(session, idPackage, concentratorId, configRequest);
+      res = storeServerRequest(session, idPackage, concentratorId,
+          configRequest);
     }
     else if (umessage instanceof SServerResponse) {
       // wyslane potwierdzenie odebrania pakietow, ktore nie jest zapisywane w
@@ -327,10 +327,10 @@ public class DBManager implements IDBManager
       // obslugiwane przez inna metode.
       
     }
-    if (res){
+    if (res) {
       session.getTransaction().commit();
     }
-    else{
+    else {
       session.getTransaction().rollback();
     }
     session.close();
@@ -741,7 +741,5 @@ public class DBManager implements IDBManager
     session.close();
     return user;
   }
-
-
   
 }

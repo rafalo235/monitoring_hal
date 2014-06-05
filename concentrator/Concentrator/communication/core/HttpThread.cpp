@@ -92,7 +92,7 @@ namespace NProtocol {
         std::shared_ptr<CProtocol> responseProtocol =
             convertToProtocol(wrapper);
         // przekonwertuj do struktury
-        if (responseProtocol){
+        if (!responseProtocol){
           // blad struktury protokolu
           LOG_ERROR("Received protocol error. idPackage:", protocol.getIdPackage());
           DConnectionResult res(new CConnectionResult(protocol, EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR));

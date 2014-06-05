@@ -2,6 +2,7 @@
 #define CSENSORSMANAGERMOCK_H
 #define SENSOR_MOCK
 #include "sensors/core/CSensorsManager.h"
+#include "communication/interfaces/protocol.h"
 #include "util/Logger.h"
 
 namespace NSensors{
@@ -13,9 +14,11 @@ namespace NSensors{
       LOG_DEBUG("CSensorsManagerMock - constructor.");
     }
 
-    virtual CData getSensorData(const int8_t idSensor) const{
+    virtual bool getSensorData(const int8_t idSensor, CData& value)
+    {
       int buf = 4;
-      return CData(EValueType::INT_32, &buf);
+      value.setValue(EValueType::INT_32, &buf);
+      return true;
     }
   };
 }

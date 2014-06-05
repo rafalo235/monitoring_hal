@@ -133,65 +133,79 @@ namespace NEngine{
     std::time_t curTime = std::chrono::system_clock::to_time_t(
                             std::chrono::system_clock::now());
 
+    // jesli funkcja ma nie dodawac do wektora danych z czujnikow, lecz dane sa nie pokojace,
+    // zostanie petla powrotrnie uruchomi sprawdzanie czujnikow z zapisem do wektora.
     bool checkOnceAgain;
     do{
       checkOnceAgain = false;
-
+      // petla po czujnikach
       for(const DSensorConfiguration& conf : sensorsConf){
-
+        CData data;
+        EDangerLevel dangerLvl;
+        ESensorState sensorState;
+        // jesli czujnik jest wlaczony
         if (conf->isTurnOn())
         {
-          //TODO: jak sprawdzic czy czujnik nie jest rozwalony?
-          CData data = sensors->getSensorData(conf->getSensorId());
-          EDangerLevel dangerLvl = EDangerLevel::NONE;
-          // czy dane z czujnikow sa powyzej danych alarmowych
-          if (conf->getAlarmLvl() < data)
+          // pobierz dane i sprawdz czy czujnik nie jest popsuty
+          if (sensors->getSensorData(conf->getSensorId(), data))
           {
+            // czujnik dziala poprawnie
+            sensorState = ESensorState::OK;
+            // czy dane z czujnikow sa powyzej danych alarmowych
+            if (conf->getAlarmLvl() < data)
+            {
+              // wartosc wieksza niz alarmowa
+              dangerLvl = EDangerLevel::ALARM;
+              warningLevel = true;
+              // jesli nie dodawac do wektora, uruchom powtornie przeglad i zapisuj do wektora
+              if (!addToVector){
+                checkOnceAgain = true;
+                break;
+              }
+            }
+            else if (conf->getWarnigLvl() < data)
+            {
+              // wartosc wieksza niz ostrzegawcza, ale mniejsza niz alarmowa
+              dangerLvl = EDangerLevel::WARNING;
+              warningLevel = true;
+              // jesli nie dodawac do wektora, uruchom powtornie przeglad i zapisuj do wektora
+              if (!addToVector){
+                checkOnceAgain = true;
+                break;
+              }
+            }
+            else
+            {
+              // wartosc bezpieczna
+              dangerLvl = EDangerLevel::NONE;
+            }
+          }
+          else
+          {
+            // czujnik nie dziala poprawnia
+            sensorState = ESensorState::BROKEN;
             dangerLvl = EDangerLevel::ALARM;
-            warningLevel = true;
-            // jesli nie dodawac do wektora, uruchom powtornie przeglad i zapisuj do wektora
-            if (!addToVector){
-              checkOnceAgain = true;
-              break;
-            }
-          }
-          else if (conf->getWarnigLvl() < data){
-            dangerLvl = EDangerLevel::WARNING;
-            warningLevel = true;
-            // jesli nie dodawac do wektora, uruchom powtornie przeglad i zapisuj do wektora
-            if (!addToVector){
-              checkOnceAgain = true;
-              break;
-            }
-          }
-          if (addToVector){
-            sensorsData.emplace_back(
-                  ++idSensorBase,
-                              conf->getSensorId(),
-                              curTime,
-                              ESensorState::OK,
-                              dangerLvl,
-                              data);
-            // skoro dane sa juz dodawane do listy, to nie trzeba powtornie przechodzic
-            checkOnceAgain = false;
           }
         }
         else
         {
-          if (addToVector){
-
-            sensorsData.emplace_back(
-                  ++idSensorBase,
-                              conf->getSensorId(),
-                              curTime,
-                              ESensorState::TURN_OFF,
-                              EDangerLevel::NONE,
-                              CData());
-            // skoro dane sa juz dodawane do listy, to nie trzeba powtornie przechodzic
-            checkOnceAgain = false;
-          }
+          // czujnik nie jest wlaczony
+          sensorState = ESensorState::TURN_OFF;
+          dangerLvl = EDangerLevel::NONE;
         }
+        if (addToVector)
+        {
 
+          sensorsData.emplace_back(
+                ++idSensorBase,
+                            conf->getSensorId(),
+                            curTime,
+                            sensorState,
+                            dangerLvl,
+                            data);
+          // skoro dane sa juz dodawane do listy, to nie trzeba powtornie przechodzic
+          checkOnceAgain = false;
+        }
       }
       if (checkOnceAgain){
         // uruchom jeszcze raz sprawdzanie danych, ale tym razem zapamietaj
