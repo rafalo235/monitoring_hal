@@ -7,13 +7,6 @@ namespace NProtocol{
 
   uint32_t CConnection::idPackageBase = 0;
 
-  CConnection::CConnection(){
-
-  }
-
-  CConnection::~CConnection() {
-
-  }
 
   uint32_t CConnection::sendProtocol(
       const EMessageType type, const std::shared_ptr<IMessage>& message)

@@ -5,7 +5,11 @@
 
 namespace NProtocol{
 
-
+  //!
+  //! \brief operator> Operator wiekszosci przyjmujacy ze parametry maja dane tego samego typu
+  //! \param data1 lewa strona
+  //! \param data2 prawa strona
+  //! \return true gdy lewa strona > prawa strona
   bool operator>(const CData& data1, const CData& data2){
 
     switch(data1.getType()){
@@ -35,6 +39,10 @@ namespace NProtocol{
     return true;
   }
 
+  //! \brief operator< Operator mniejszosci przyjmujacy ze parametry maja dane tego samego typu
+  //! \param data1 lewa strona
+  //! \param data2 prawa strona
+  //! \return true gdy lewa strona < prawa strona
   bool operator<(const CData& data1, const CData& data2){
 
     switch(data1.getType()){
@@ -63,9 +71,6 @@ namespace NProtocol{
     }
     return true;
   }
-
-
-
 
 }
 #endif // PROTOCOLUTIL_H

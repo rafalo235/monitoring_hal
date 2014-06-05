@@ -2,11 +2,19 @@
 #define IENGINE_H
 
 namespace NEngine {
+  //!
+  //! \brief The IEngine class klasa abstrakcyjna silnika
   class IEngine
   {
   public:
 
+    //!
+    //! \brief init inicjuje wszystko (wczytuje dane konfiguracyjne, wlacza watki)
+    //! \return true jesli poprawnie zainicjalizowano silnik
     virtual bool init() = 0;
+
+    //!
+    //! \brief exit Wylacza watki.
     virtual void exit() = 0;
 
     virtual ~IEngine() = default;

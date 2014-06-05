@@ -8,6 +8,7 @@ namespace NProtocol{
 
   //! \brief Klasa pomocnicza w konwertowaniu tablicy bajtow na protokol
   class CByteWrapper{
+
     //! \brief Tablica bajtow
     const char* src;
 

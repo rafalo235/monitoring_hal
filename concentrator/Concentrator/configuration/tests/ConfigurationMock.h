@@ -9,10 +9,11 @@ namespace NEngine{
   //!
   //! \brief The CConfigurationMock class tworzy mock
   //!   dla configuracji. Aby użyc klasy należy zdefiniować CONFIG_MOCK.
-  //!
   class CConfigurationMock : public CConfiguration
   {
   public:
+    //!
+    //! \brief CConfigurationMock Kontruktor tworzacy przykladowa konfiguracje
     CConfigurationMock();
 
   };

@@ -55,10 +55,10 @@ namespace NProtocol
     UINT_64 = 7,    //!< UValue przechowuje uint64_t
     FLOAT_32 = 8,   //!< UValue przechowuje float32_t
     DOUBLE_64 = 9,  //!< UValue przechowuje double64_t
-    VOID = 10       //!< UValue przechowuje nic nieznacz�ca wartosc cVoidValue
+    VOID = 10       //!< UValue przechowuje nic nieznaczaca wartosc NProtocol::cVoidValue
   };
 
-  //! \brief Nic nieznaczaca dana wykorzystana dla typu EValueType::VOID
+  //! \brief Nic nieznaczaca dana wykorzystana dla typu NProtocol::EValueType::VOID
   const uint8_t cVoidValue = 0xFF;
 
   //! \brief Wartosci przechowywane w strukturze
@@ -81,7 +81,7 @@ namespace NProtocol
   class CData
   {
     EValueType type;  //!< Typ wartosci przechowywanej w UValue
-    UValue value;     //!< Wartosc o typie EValueType
+    UValue value;     //!< Wartosc o typie NProtocol::EValueType
 
   public:
 
@@ -95,17 +95,25 @@ namespace NProtocol
 
     //!
     //! \brief SData Konstruktor nadajacy wartosc
-    //! \param type1 typ wartosci
-    //! \param value1 wskaznik do wartosci
+    //! \param[in] type1 Typ wartosci
+    //! \param[in] value1 Wskaznik do wartosci
     //!
     CData(const EValueType& type1, void* value1) noexcept
     {
       setValue(type1, value1);
     }
 
-    CData(const CData&) = default;
-    CData& operator=(const CData&) = default;
+    //! \brief Domyslny konstruktor kopiujacy.
+    //! \param[in] obj Obiekt kopiowany
+    CData(const CData& obj) = default;
 
+    //! \brief Domyslny operator przypisania.
+    //! \param[in] obj Obiekt przypisywany
+    CData& operator=(const CData& obj) = default;
+
+    //! \brief Zmienia wartosc
+    //! \param[in] type1 Typ wartosci
+    //! \param[in] value1 Wskaznik do wartosci
     void setValue(const EValueType& type1, void* value1) noexcept{
       type = type1;
       switch(type){
@@ -145,19 +153,22 @@ namespace NProtocol
       }
     }
 
-    //! \brief Typ danych
+    //! \brief Zwaraca typ danych
+    //! \return Typ danych
     EValueType getType() const noexcept
     {
       return type;
     }
 
-    //! \brief Wartosc
+    //! \brief Zwraca wartosc
+    //! \return Wartosc
     const UValue getValue() const noexcept
     {
       return value;
     }
 
-    //! \brief Zwraca rozmiar calej struktury
+    //! \brief Zwraca dokladny rozmiar calej struktury uwzledniajac typ przechowywanych danych.
+    //! \return Rozmiar struktury
     uint32_t getSize() const noexcept
     {
       switch(type){
@@ -190,7 +201,6 @@ namespace NProtocol
     }
   };
 
-
   //! \brief Opcja konfiguracji
   enum class EConfigurationType : int8_t
   {
@@ -200,9 +210,9 @@ namespace NProtocol
     SENSOR_TURN_ON = 1,
     //! \brief Wylaczenie/wlaczenie zapisu na karte pamieci
     CARD_SAVE = 2,
-    //! \brief Wartosc czujnika powodujaca poziom niebezpieczenstwa EDangerLevel = DANGEROUS
+    //! \brief Wartosc czujnika powodujaca poziom niebezpieczenstwa NProtocol::EDangerLevel = NProtocol::EDangerLevel::WARNING
     DANGER_LEVEL = 3,
-    //! \brief Wartosc czujnika powodujaca poziom niebezpieczenstwa EDangerLevel = ALARM
+    //! \brief Wartosc czujnika powodujaca poziom niebezpieczenstwa NProtocol:EDangerLevel = NProtocol::EDangerLevel::ALARM
     ALARM_LEVEL = 4,
     //! \brief Resetowanie koncentratora
     RESET = 5,
@@ -212,17 +222,17 @@ namespace NProtocol
     KEY_LIFETIME = 7
   };
 
-  //! \brief Typ wiadomosci przekazywanej przez pekiet. Definiuje wartosc UMessage
+  //! \brief Typ wiadomosci przekazywanej przez pekiet. Definiuje wartosc IMessage
   enum EMessageType : int8_t
   {
-    //! \brief Koncentrator przesyla cykliczne dane z czujnikow. UMessage przechowuje SMonitorData.
+    //! \brief Koncentrator przesyla cykliczne dane z czujnikow. IMessage przechowuje CMonitorData.
     MONITOR_DATA = 0,
-    //! \brief Koncentrator potwierdza zmiane konfiguracji. UMessage przechowuje SConfigurationResponse.
+    //! \brief Koncentrator potwierdza zmiane konfiguracji. IMessage przechowuje CConfigurationResponse.
     CONFIGURATION_RESPONSE = 1,
-    //! \brief Koncentrator prosi o przeslanie konfiguracji. UMessage przechowuje SServerRequest.
+    //! \brief Koncentrator prosi o przeslanie konfiguracji. IMessage przechowuje CServerRequest.
     SERVER_REQUEST = 2,
     //! \brief Serwer potwierdza odebrane dane z czujnik z koncentrator
-    //!        i ewentualnie przesyla konfiguracje do koncentratora na zadanie koncentratora lub serwera. UMessage przechowuje SServerMonitorResponse.
+    //!        i ewentualnie przesyla konfiguracje do koncentratora na zadanie koncentratora lub serwera. IMessage przechowuje CServerMonitorResponse.
     SERVER_MONITOR_RESPONSE = 3,
   };
 
@@ -250,10 +260,18 @@ namespace NProtocol
     const uint64_t timeStamp;        //!< czas pomiaru
     const ESensorState sensorState;  //!< stan czujnika
     const EDangerLevel dangerLevel;  //!< stopien niebezpieczenstwa
-    const CData data; //!< dane pomiaru; dla sensorState != ESensorState.OK pole data przechowuje wartosc cVoidValue
+    const CData data; //!< dane pomiaru; dla CSensorData::sensorState != ESensorState::OK pole data przechowuje wartosc NProtocol::cVoidValue
 
   public:
 
+    //!
+    //! \brief CSensorData Konstruktor
+    //! \param[in] idData1 ID pomiaru
+    //! \param[in] idSensor1 ID sensoru
+    //! \param[in] timeStamp1 Czas
+    //! \param[in] sensorState1 Stan czujnika
+    //! \param[in] dangerLevel1 Stopien zagozenia
+    //! \param[in] data1 Dana pomiaru
     CSensorData(const uint32_t idData1,
                 const uint8_t& idSensor1,
                 const uint64_t timeStamp1,
@@ -268,33 +286,52 @@ namespace NProtocol
       data(data1)
     {
     }
-    CSensorData(const CSensorData&) = default;
-    CSensorData& operator=(const CSensorData&) = default;
+
+    //! \brief Domyslny konstruktor kopiujacy.
+    //! \param[in] obj Obiekt kopiowany
+    CSensorData(const CSensorData& obj) = default;
+
+    //! \brief Domyslny operator przypisania.
+    //! \param[in] obj Obiekt przypisywany
+    CSensorData& operator=(const CSensorData& obj) = default;
+
+    //! \brief Zwraca ID pomiaru.
+    //! \return ID pomiaru
     uint32_t getIdData() const noexcept
     {
       return idData;
     }
 
+    //! \brief Zwraca ID czujnika.
+    //! \return ID czujnika
     uint8_t getIdSensor() const noexcept
     {
       return idSensor;
     }
 
+    //! \brief Zwraca czas
+    //! \return Czas
     uint64_t getTimeStamp() const noexcept
     {
       return timeStamp;
     }
 
+    //! \brief Zwraca stan czujnika
+    //! \return Stan czujnika
     ESensorState getSensorState() const noexcept
     {
       return sensorState;
     }
 
+    //! \brief Zwraca poziom niebezpieczenstwa.
+    //! \return poziom niebezpieczenstwa
     EDangerLevel getDangerLevel() const noexcept
     {
       return dangerLevel;
     }
 
+    //! \brief Zwraca dane pomiaru.
+    //! \return dane pomiaru
     const CData getData() const noexcept
     {
       return data;
@@ -303,22 +340,27 @@ namespace NProtocol
     //! \brief Rozmiar samego naglowka
     const static uint32_t headerSize;
 
-    //! \brief Zwraca rozmiar calej struktury
+    //! \brief Zwraca dokladny, zalezny od danych w NProtocol::CData, rozmiar calej struktury
+    //! \return Dokladny rozmiar danych
     uint32_t getSize() const noexcept
     {
       return headerSize + data.getSize();
     }
   };
 
-  //! \brief Wiadomosc przesylana protokolem.
+  //! \brief Wiadomosc przesylana protokolem. Klasa abstrakcyjna
   class IMessage{
 
   public:
+    //! \brief Zwraca dokladny, zalezny od danych w NProtocol::CData, rozmiar calej struktury
+    //! \return Dokladny rozmiar danych
     virtual uint32_t getSize() const = 0;
+
+    //! \brief Domyslny dekonstruktor
     virtual ~IMessage(){}
   };
 
-  //! \brief Dane z czujnikow wysylane z koncentrator do serwera (SProtocol.type = EMessageType .MONITOR_DATA)
+  //! \brief Dane z czujnikow wysylane z koncentrator do serwera (CProtocol::type = EMessageType::MONITOR_DATA)
   class CMonitorData : public IMessage
   {
     const uint64_t sendTime;        //!< czas pierwszej proby wyslania pakietu
@@ -329,6 +371,12 @@ namespace NProtocol
     //! \brief Rozmiar samego naglowka
     const static uint32_t headerSize;
 
+    //!
+    //! \brief CMonitorData Konstruktor
+    //! \param[in] sendTime1 Data wyslania
+    //! \param[in] sensorsAmount1 Ilosc czujnikow
+    //! \param[in] sensorsData1 Dane pomiarowe
+    //!
     CMonitorData(const uint64_t& sendTime1,
                  const uint8_t& sensorsAmount1,
                  const std::vector<CSensorData>& sensorsData1) :
@@ -338,30 +386,44 @@ namespace NProtocol
     {
     }
 
-    CMonitorData(const CMonitorData&) = default;
-    CMonitorData& operator=(const CMonitorData&) = default;
+    //! \brief Domyslny konstruktor kopiujacy.
+    //! \param[in] obj Obiekt kopiowany
+    CMonitorData(const CMonitorData& obj) = default;
 
+    //! \brief Domyslny operator przypisania.
+    //! \param[in] obj Obiekt przypisywany
+    CMonitorData& operator=(const CMonitorData& obj) = default;
+
+    //! \brief Zwraca czas wyslania.
+    //! \return czas wyslania
     uint64_t getSendTime() const noexcept
     {
       return sendTime;
     }
 
+    //! \brief Zwraca ilosc czujnikow.
+    //! \return ilosc czujnikow
     uint8_t getSensorAmount() const noexcept
     {
       return sensorsAmount;
     }
 
+    //! \brief Zwraca ilosc pomiarow.
+    //! \return ilosc pomiarow
     uint32_t getSensorsDataSize() const noexcept
     {
       return static_cast<uint32_t>(sensorsData.size());
     }
 
+    //! \brief Zwraca referencje do pomiarow.
+    //! \return referencja do pomiarow
     const std::vector<CSensorData>& getSensorsData() const noexcept
     {
       return sensorsData;
     }
 
-    //! \brief Zwraca rozmiar calej struktury
+    //! \brief Zwraca dokladny, zalezny od danych w NProtocol::CData, rozmiar calej struktury
+    //! \return Dokladny rozmiar danych
     virtual uint32_t getSize() const noexcept
     {
       uint32_t size = 0;
@@ -372,18 +434,23 @@ namespace NProtocol
 
   };
 
-  //! \brief Id koncentratora
+  //! \brief Id koncentratora podawane jako id sensora
   const int8_t cIdConcentrator = 0xFF;
 
   //! \brief Pojedyncza wartosc konfigurowalna.
   class CConfigurationValue
   {
-    const uint8_t idSensor;        //!< id czujnika lub koncentratora (cIdConcentrator)
+    const uint8_t idSensor;        //!< id czujnika lub koncentratora (NProtocol::cIdConcentrator)
     const EConfigurationType configurationType;  //!< opcja konfiguracji
     const CData data;                            //!< wartosc dla danej opcji
 
   public:
 
+    //!
+    //! \brief CConfigurationValue Konstruktor
+    //! \param[in] idSensor1 Id czujnika
+    //! \param[in] configurationType1 Typ konfiguracji
+    //! \param[in] data1 Wartosc dla danej konfiguracji
     CConfigurationValue(const uint8_t& idSensor1,
                         const EConfigurationType& configurationType1,
                         const CData& data1) noexcept:
@@ -391,20 +458,32 @@ namespace NProtocol
       configurationType(configurationType1),
       data(data1)
     {
-
     }
-    CConfigurationValue(const CConfigurationValue&) = default;
-    CConfigurationValue& operator=(const CConfigurationValue&) = default;
+
+    //! \brief Domyslny konstruktor kopiujacy.
+    //! \param[in] obj Obiekt kopiowany
+    CConfigurationValue(const CConfigurationValue& obj) = default;
+
+    //! \brief Domyslny operator przypisania.
+    //! \param[in] obj Obiekt przypisywany
+    CConfigurationValue& operator=(const CConfigurationValue& obj) = default;
+
+    //! \brief Zwraca id czujnika.
+    //! \return id czujnika
     uint8_t getIdSensor() const noexcept
     {
       return idSensor;
     }
 
+    //! \brief Zwraca typ konfiguracji.
+    //! \return typ konfiguracji
     EConfigurationType getConfigurationType() const noexcept
     {
       return configurationType;
     }
 
+    //! \brief Zwraca wartosc dla danej konfiguracji.
+    //! \return wartosc dla danej konfiguracji
     const CData getData() const noexcept
     {
       return data;
@@ -413,7 +492,8 @@ namespace NProtocol
     //! \brief Rozmiar samego naglowka
     const static uint32_t headerSize;
 
-    //! \brief Zwraca rozmiar calej struktury
+    //! \brief Zwraca dokladny, zalezny od danych w NProtocol::CData, rozmiar calej struktury
+    //! \return Dokladny rozmiar danych
     uint32_t getSize() const noexcept
     {
       return headerSize + data.getSize();
@@ -427,17 +507,32 @@ namespace NProtocol
 
   public:
 
+    //!
+    //! \brief CConfiguration Konstruktor
+    //! \param[in] configurations1 wektor konfiguracji.
+    //!
     CConfiguration(const std::vector<CConfigurationValue> configurations1) noexcept:
       configurations(configurations1)
     {
     }
-    CConfiguration(const CConfiguration&) = default;
-    CConfiguration& operator=(const CConfiguration&) = default;
+
+    //! \brief Domyslny konstruktor kopiujacy.
+    //! \param[in] obj Obiekt kopiowany
+    CConfiguration(const CConfiguration& obj) = default;
+
+    //! \brief Domyslny operator przypisania.
+    //! \param[in] obj Obiekt przypisywany
+    CConfiguration& operator=(const CConfiguration& obj) = default;
+
+    //! \brief Zwraca wielkosc wektora konfiguracji.
+    //! \return wielkosc wektora konfiguracji
     uint8_t getConfigurationsSize() const noexcept
     {
       return static_cast<uint8_t>(configurations.size());
     }
 
+    //! \brief Zwraca referencje do wektora konfiguracji
+    //! \return referencje do wektora konfiguracji
     const std::vector<CConfigurationValue>& getConfigurations() const noexcept
     {
       return configurations;
@@ -446,7 +541,8 @@ namespace NProtocol
     //! \brief Rozmiar samego naglowka
     const static uint32_t headerSize;
 
-    //! \brief Zwraca rozmiar calej struktury
+    //! \brief Zwraca dokladny, zalezny od danych w NProtocol::CData, rozmiar calej struktury
+    //! \return Dokladny rozmiar danych
     uint32_t getSize() const noexcept
     {
       uint32_t size = 0;
@@ -475,28 +571,46 @@ namespace NProtocol
 
   public:
 
+    //!
+    //! \brief CConfigurationResponse Konstruktor
+    //! \param[in] status1 status paczki, ktorej obiekt jest odpowiedzia
+    //! \param[in] idRequestPackage1 id paczki, ktorej obiekt jest odpowiedzia
+    //! \param[in] currentConfiguration1 obecna konfiguracja
     CConfigurationResponse(const EReceiveStatus& status1,
                            const uint32_t& idRequestPackage1,
                            const CConfiguration& currentConfiguration1) noexcept:
       status(status1),
       idRequestPackage(idRequestPackage1),
       currentConfiguration(currentConfiguration1)
-    {}
+    {
 
-    CConfigurationResponse(const CConfigurationResponse&) = default;
-    CConfigurationResponse& operator=(const CConfigurationResponse&) = default;
+    }
 
+    //! \brief Domyslny konstruktor kopiujacy.
+    //! \param[in] obj Obiekt kopiowany
+    CConfigurationResponse(const CConfigurationResponse& obj) = default;
+
+    //! \brief Domyslny operator przypisania.
+    //! \param[in] obj Obiekt przypisywany
+    CConfigurationResponse& operator=(const CConfigurationResponse& obj) = default;
+
+    //! \brief Zwraca status1 status paczki, ktorej obiekt jest odpowiedzia.
+    //! \return status1 status paczki, ktorej obiekt jest odpowiedzia
     EReceiveStatus getStatus() const noexcept
     {
       return status;
     }
 
+    //! \brief Zwraca id paczki, ktorej obiekt jest odpowiedzia
+    //! \return id paczki, ktorej obiekt jest odpowiedzia
     uint32_t getIdRequestPackage() const noexcept
     {
       return idRequestPackage;
     }
 
-    const CConfiguration getCurrentConfiguration() const noexcept
+    //! \brief Zwraca obecna konfiguracja
+    //! \return obecna konfiguracja
+    const CConfiguration& getCurrentConfiguration() const noexcept
     {
       return currentConfiguration;
     }
@@ -504,7 +618,8 @@ namespace NProtocol
     //! \brief Rozmiar samego naglowka
     const static uint32_t headerSize;
 
-    //! \brief Zwraca rozmiar calej struktury
+    //! \brief Zwraca dokladny, zalezny od danych w NProtocol::CData, rozmiar calej struktury
+    //! \return Dokladny rozmiar danych
     virtual uint32_t getSize() const noexcept
     {
       return headerSize + currentConfiguration.getSize();
@@ -519,19 +634,32 @@ namespace NProtocol
 
   public:
 
+    //!
+    //! \brief CRequest Konstruktor
+    //! \param idSensor1 id czujnika lub koncentrator
+    //! \param configurationType1 typ konfiguracji
     CRequest(const uint8_t idSensor1, const EConfigurationType& configurationType1)  noexcept:
       idSensor(idSensor1), configurationType(configurationType1)
     {
     }
 
-    CRequest(const CRequest&) = default;
-    CRequest& operator=(const CRequest&) = default;
+    //! \brief Domyslny konstruktor kopiujacy.
+    //! \param[in] obj Obiekt kopiowany
+    CRequest(const CRequest& obj) = default;
 
+    //! \brief Domyslny operator przypisania.
+    //! \param[in] obj Obiekt przypisywany
+    CRequest& operator=(const CRequest& obj) = default;
+
+    //! \brief Zwraca id czujnika lub koncentrator
+    //! \return id czujnika lub koncentrator
     uint8_t getIdSensor() const noexcept
     {
       return idSensor;
     }
 
+    //! \brief Zwraca typ konfiguracji
+    //! \return typ konfiguracji
     EConfigurationType getConfigurationType() const noexcept
     {
       return configurationType;
@@ -548,19 +676,30 @@ namespace NProtocol
 
   public:
 
+    //! \brief CServerRequest Konstruktor
+    //! \param requests1 wektor prosb przeslania konfiguracji
     CServerRequest(const std::vector<CRequest>& requests1) noexcept :
       requests(requests1)
     {
     }
 
-    CServerRequest(const CServerRequest&) = default;
-    CServerRequest& operator=(const CServerRequest&) = default;
+    //! \brief Domyslny konstruktor kopiujacy.
+    //! \param[in] obj Obiekt kopiowany
+    CServerRequest(const CServerRequest& obj) = default;
 
+    //! \brief Domyslny operator przypisania.
+    //! \param[in] obj Obiekt przypisywany
+    CServerRequest& operator=(const CServerRequest& obj) = default;
+
+    //! \brief Zwraca wielkosc wektora prosb o przeslanie konfiguracji
+    //! \return wielkosc wektora prosb o przeslanie konfiguracji
     uint8_t getRequestsSize() const noexcept
     {
       return static_cast<uint8_t>(requests.size());
     }
 
+    //! \brief Zwraca referencje do wektora prosb przeslania konfiguracji
+    //! \return referencja do wektora prosb przeslania konfiguracji
     const std::vector<CRequest>& getRequests() const noexcept
     {
       return requests;
@@ -569,7 +708,8 @@ namespace NProtocol
     //! \brief Rozmiar samego naglowka
     const static uint32_t headerSize;
 
-    //! \brief Zwraca rozmiar calej struktury
+    //! \brief Zwraca dokladny, zalezny od danych w NProtocol::CData, rozmiar calej struktury
+    //! \return Dokladny rozmiar danych
     virtual uint32_t getSize() const noexcept
     {
       return headerSize + CRequest::headerSize * requests.size();
@@ -589,6 +729,11 @@ namespace NProtocol
     //! \brief Rozmiar samego naglowka
     const static uint32_t headerSize;
 
+    //!
+    //! \brief CServerResponse Konstruktor
+    //! \param status1 status otrzymanej wiadomosci z koncentratora
+    //! \param idRequestPackage1 id otrzymanej wiadomosci z koncentratora
+    //! \param configuration1 konfiguracja do ustawiania na koncentratorze
     CServerResponse(const EReceiveStatus& status1,
                     const uint32_t& idRequestPackage1,
                     const CConfiguration& configuration1) noexcept :
@@ -598,25 +743,37 @@ namespace NProtocol
     {
     }
 
-    CServerResponse(const CServerResponse&) = default;
-    CServerResponse& operator=(const CServerResponse&) = default;
+    //! \brief Domyslny konstruktor kopiujacy.
+    //! \param[in] obj Obiekt kopiowany
+    CServerResponse(const CServerResponse& obj) = default;
 
+    //! \brief Domyslny operator przypisania.
+    //! \param[in] obj Obiekt przypisywany
+    CServerResponse& operator=(const CServerResponse& obj) = default;
+
+    //! \brief Zwraca status otrzymanej wiadomosci z koncentratora
+    //! \return status otrzymanej wiadomosci z koncentratora
     EReceiveStatus getStatus() const noexcept
     {
       return status;
     }
 
+    //! \brief Zwraca id otrzymanej wiadomosci z koncentratora
+    //! \return id otrzymanej wiadomosci z koncentratora
     uint32_t getIdRequestPackage() const noexcept
     {
       return idRequestPackage;
     }
 
+    //! \brief Zwraca konfiguracja do ustawiania na koncentratorze
+    //! \return konfiguracja do ustawiania na koncentratorze
     const CConfiguration getConfiguration() const noexcept
     {
       return configuration;
     }
 
-    //! \brief Zwraca rozmiar calej struktury
+    //! \brief Zwraca dokladny, zalezny od danych w NProtocol::CData, rozmiar calej struktury
+    //! \return Dokladny rozmiar danych
     virtual uint32_t getSize() const noexcept
     {
       return headerSize + configuration.getSize();
@@ -643,6 +800,15 @@ namespace NProtocol
 
   public:
 
+    //!
+    //! \brief CProtocol Konstruktor
+    //! \param version1 wersja protokolu
+    //! \param size1 dokladny, zalezny od danych w NProtocol::CData, rozmiar calej struktury;
+    //!              jesli 0 to jest obliczany w konstruktorze
+    //! \param idConcentrator1 ID koncentratora
+    //! \param idPackage1 id paczki
+    //! \param type1 typ danych
+    //! \param message1 wiadomosc
     CProtocol(const uint8_t& version1,
               const uint32_t& size1,
               const uint16_t& idConcentrator1,
@@ -663,48 +829,68 @@ namespace NProtocol
 
     }
 
-    CProtocol(const CProtocol&) = default;
-    CProtocol& operator=(const CProtocol&) = default;
+    //! \brief Domyslny konstruktor kopiujacy.
+    //! \param[in] obj Obiekt kopiowany
+    CProtocol(const CProtocol& obj) = default;
 
+    //! \brief Domyslny operator przypisania.
+    //! \param[in] obj Obiekt przypisywany
+    CProtocol& operator=(const CProtocol& obj) = default;
+
+    //! \brief Zwraca wersje protokolu
+    //! \return wersja protokolu
     uint8_t getVersion() const noexcept
     {
       return version;
     }
 
-
+    //! \brief Zwraca ID koncentratora
+    //! \return ID koncentratora
     uint16_t getIdConcentrator() const noexcept
     {
       return idConcentrator;
     }
 
+    //! \brief Zwraca id pakietu
+    //! \return id pakietu
     uint32_t getIdPackage() const noexcept
     {
       return idPackage;
     }
 
+    //! \brief Zwraca typ wiadomosci
+    //! \return typ wiadomosci
     EMessageType getType() const noexcept
     {
       return type;
     }
 
+    //! \brief Zwraca wiadomosc
+    //! \return wiadomosc
     const std::shared_ptr<IMessage> getMessage() const noexcept
     {
       return message;
     }
 
+    //! \brief Zwraca CRC pakietu
+    //! \return CRC pakietu
     uint16_t getCRC() const noexcept
     {
       return crc;
     }
 
+    //! \brief Ustawia CRC
+    //! \param[in] crc1
     void setCRC(uint16_t crc1)
     {
       crc = crc1;
     }
 
+    //! \brief Rozmiar samego naglowka
     const static uint32_t headerSize;
 
-    //! \brief Zwraca rozmiar calej struktury
+    //! \brief Zwraca dokladny, zalezny od danych w NProtocol::CData, rozmiar calej struktury
+    //! \return Dokladny rozmiar danych
     uint32_t getSize() const
     {
       if (size != 0){

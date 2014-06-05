@@ -7,6 +7,9 @@
 #include "communication/interfaces/IConnectionResult.h"
 
 namespace NProtocol{
+
+  //! \brief Smart pointer do obiektu, ktory zawiera dane zwrocone przez serwer oraz
+  //! ewentualnych bledow komunikacji.
   typedef std::shared_ptr<IConnectionResult> DConnectionResult;
 
   //!
@@ -44,6 +47,7 @@ namespace NProtocol{
     //! \brief Wylacza watek komunikacji z serwerem
     virtual void exit() = 0;
 
+    //! \brief Domyslny wirtualny destruktor.
     virtual ~IConnection() = default;
   };
 }

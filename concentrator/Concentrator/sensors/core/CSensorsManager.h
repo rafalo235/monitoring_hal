@@ -5,6 +5,8 @@
 #include "communication/interfaces/protocol.h"
 
 namespace NSensors{
+  //!
+  //! \brief The CSensorsManager class Menadzer czujnikow
   class CSensorsManager : public ISensorsManager
   {
   public:

@@ -7,6 +7,8 @@ namespace NSensors {
 
   using namespace NProtocol;
 
+  //!
+  //! \brief The ISensorsManager class klasa abstrakcyjna manadzera czujnikow
   class ISensorsManager
   {
   public:
