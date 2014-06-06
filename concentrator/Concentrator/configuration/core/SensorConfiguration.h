@@ -15,17 +15,30 @@ namespace NEngine {
   {
     friend class CConfiguration;
 
+    //! \brief id czujnika
     uint8_t idSensor;
+
+    //! \brief true jesli czujnik wlaczony; false jesli wylaczony
     bool turnOn;
+
+    //! \brief minimalna wartosc wymagajaca ostrzezenia
     CData warningLvl;
-    CData alarmLvl;
     std::string ipv4Address;
     int port;
 
+    //! \brief minimalna wartosc alarmowa
+    CData alarmLvl;
 
+    //! \brief domyslny koncentrator
     CSensorConfiguration() = default;
   protected:
 
+    //!
+    //! \brief CSensorConfiguration konstruktor wykorzystywany przez mock; pozniej mozna go usunac
+    //! \param idSensor1 id czujnika
+    //! \param turnOn1 wlaczony/wylaczony
+    //! \param warningLvl1 wartosc ostrzezenia
+    //! \param alarmLvl1 wartosci alarmowa
     CSensorConfiguration(uint8_t& idSensor1,
                          bool& turnOn1,
                          CData& warningLvl1,
@@ -47,24 +60,25 @@ namespace NEngine {
     CSensorConfiguration& operator=(const CSensorConfiguration&) = delete;
     CSensorConfiguration(const CSensorConfiguration&) = default;
 
-    //! \return true jesli wlaczony, false jesli nie
+    //! ISensorConfiguration::isTurnOn()
     virtual bool isTurnOn() const
     {
       return turnOn;
     }
 
-    //! \return poziom ostrzegawczy
+    //! ISensorConfiguration::getWarnigLvl()
     virtual const CData getWarnigLvl() const
     {
       return warningLvl;
     }
 
-    //! \return poziom alarmowy
+    //! ISensorConfiguration::getAlarmLvl()
     virtual const CData getAlarmLvl() const
     {
       return alarmLvl;
     }
 
+    //! ISensorConfiguration::getSensorId()
     virtual uint8_t getSensorId()
     {
       return idSensor;
@@ -80,16 +94,19 @@ namespace NEngine {
         return port;
     }
 
+    //! ISensorConfiguration::isTurnOn(bool)
     void setTurnOn(bool turnOn1)
     {
       turnOn = turnOn1;
     }
 
+    //! ISensorConfiguration::setWarningLvl(const CData&)
     void setWarningLvl(const CData& data)
     {
       warningLvl = data;
     }
 
+    //! ISensorConfiguration::setAlarmLvl(const CData& )
     void setAlarmLvl(const CData& data)
     {
       alarmLvl = data;

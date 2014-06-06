@@ -6,6 +6,7 @@
 
 namespace NUtil {
 
+  //! \brief The CQueueThread class jest c++owa wersja BlockingQueue z Javy
   template <typename T>
   class CQueueThread
   {
@@ -14,6 +15,10 @@ namespace NUtil {
     std::condition_variable d_condition;
     std::deque<T>           d_queue;
   public:
+
+    //!
+    //! \brief push dodaje dana do kolejki
+    //! \param value dana
     void push(T const& value) {
       {
         std::unique_lock<std::mutex> lock(this->d_mutex);
@@ -21,6 +26,10 @@ namespace NUtil {
       }
       this->d_condition.notify_one();
     }
+
+    //!
+    //! \brief pop pobiera dana z kolejki; jesli jej nie ma to czeka
+    //! \return dana z kolejki
     T pop() {
       std::unique_lock<std::mutex> lock(this->d_mutex);
       this->d_condition.wait(lock, [=]{ return !this->d_queue.empty(); });
@@ -28,6 +37,10 @@ namespace NUtil {
       this->d_queue.pop_back();
       return rc;
     }
+
+    //!
+    //! \brief size Zwraca rozmiar kolejki
+    //! \return rozmiar kolejki
     int size() const{
       return d_queue.size();
     }

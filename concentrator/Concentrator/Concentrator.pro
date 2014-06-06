@@ -20,7 +20,6 @@ SOURCES += main.cpp \
     util/Logger.cpp \
     util/Cryptography.cpp \
     configuration/core/Configuration.cpp \
-    tests/Test.cpp \
     communication/core/Connection.cpp \
     engine/core/CycleMonitor.cpp \
     engine/core/Engine.cpp \
@@ -36,7 +35,6 @@ HEADERS += \
     util/Cryptography.h \
     configuration/core/SensorConfiguration.h \
     configuration/core/Configuration.h \
-    tests/Test.h \
     util/QueueThread.h \
     communication/core/ConnectionResult.h \
     communication/core/ByteWrapper.h \

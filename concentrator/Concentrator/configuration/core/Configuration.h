@@ -16,6 +16,8 @@ namespace NEngine {
   using namespace NProtocol;
   class CConfigurationFactory;
 
+  //!
+  //! \brief The CConfiguration class Klasa konfiguracji
   class CConfiguration : public IConfiguration
   {
     friend class CConfigurationFactory;
@@ -34,20 +36,22 @@ namespace NEngine {
     //! \brief Konfiguracja dla poszczegolnych sensorow
     std::vector<DSensorConfiguration> sensors;
 
+    //! \brief czy zapisywac dane na SD nawet jesli jest polaczenie z serwerem
     bool saveSDCardIfOnlineEnable;
 
     //! \brief Wczytuje konfiguracje z pliku
     //! \return true jesli wszystko ok, false jesli nie
     bool saveConfiguration() const;
 
+    //! \brief adres serwera
     std::string serverUrl;
 
+    //! \brief sciezka pliku z konfiguracja
     static const char* fileName;
+
   public:
 
-    CConfiguration()
-    {
-    }
+    CConfiguration() = default;
 
     CConfiguration(const CConfiguration&) = delete;
     CConfiguration& operator=(const CConfiguration&) = delete;
@@ -56,35 +60,37 @@ namespace NEngine {
     //! \return true jesli wszystko ok, false jesli nie
     virtual bool readConfiguration();
 
-    //! \return Zwraca przerwe pomiedzy sprawdzaniem danych z czujnikow
+    //! IConfiguration::getCheckingSensorPeriod
     virtual uint16_t getCheckingSensorPeriod() const
     {
       return checkingSensorPeriod;
     }
 
-    //! \return Zwraca id koncentratora odczytane z pliku konfiguracyjnego
+    //! IConfiguration::getIdConcentrator()
     virtual uint16_t getIdConcentrator() const
     {
       return idConcentrator;
     }
 
-    //! \return Zwraca przerwe pomiedzy wysylanymi danymi
+    //! IConfiguration::getSendingPeriod()
     virtual uint16_t getSendingPeriod() const
     {
       return sendingPeriod;
     }
 
-    //! \return Zwraca konfiguracje czujnikow
+    //! IConfiguration::getSensorConfiguration()
     virtual const std::vector<DSensorConfiguration>& getSensorConfiguration() const
     {
       return sensors;
     }
 
+    //! IConfiguration::getServerUrl()
     virtual const std::string getServerUrl() const
     {
       return serverUrl;
     }
 
+    //! IConfiguration::setCheckingSensorPeriod(const uint16_t)
     virtual bool setCheckingSensorPeriod(const uint16_t checkingSensorPeriod1)
     {
       if (checkingSensorPeriod1 == checkingSensorPeriod){
@@ -94,6 +100,7 @@ namespace NEngine {
       return saveConfiguration();
     }
 
+    //! IConfiguration::setSendingPeriod(const uint16_t)
     virtual bool setSendingPeriod(const uint16_t sendingPeriod1)
     {
       if (sendingPeriod1 == sendingPeriod){
@@ -103,6 +110,7 @@ namespace NEngine {
       return saveConfiguration();
     }
 
+    //! IConfiguration::setWarningLevel(const int8_t, const CData&)
     virtual bool setWarningLevel(const int8_t idSensor,
                                  const CData& value)
     {
@@ -118,6 +126,7 @@ namespace NEngine {
       return saveConfiguration();
     }
 
+    //! IConfiguration::setAlarmLevel(const int8_t, const CData&)
     virtual bool setAlarmLevel(const int8_t idSensor,
                                const CData& value)
     {
@@ -133,6 +142,7 @@ namespace NEngine {
       return saveConfiguration();
     }
 
+    //! IConfiguration::setTurnOn(const int8_t, const bool)
     virtual bool setTurnOn(const int8_t idSensor,
                            const bool turnOn)
     {
@@ -148,12 +158,13 @@ namespace NEngine {
       return saveConfiguration();
     }
 
-    //! \return true, jesli dane maja byc ciagle zapisywane na karte SD nawet jeśli polaczenie z serwerem jest OK
+    //! IConfiguration::getSaveSDCardIfOnlineEnable()
     virtual bool getSaveSDCardIfOnlineEnable() const
     {
       return saveSDCardIfOnlineEnable;
     }
 
+    //! IConfiguration::setSaveSDCardIfOnlineEnable(bool)
     virtual bool setSaveSDCardIfOnlineEnable(bool enable)
     {
       saveSDCardIfOnlineEnable = enable;

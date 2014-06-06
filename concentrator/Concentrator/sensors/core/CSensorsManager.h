@@ -6,6 +6,8 @@
 #include "configuration/interfaces/IConfiguration.h"
 
 namespace NSensors{
+  //!
+  //! \brief The CSensorsManager class Menadzer czujnikow
   class CSensorsManager : public ISensorsManager
   {
   public:
