@@ -138,14 +138,14 @@ namespace NEngine{
       checkOnceAgain = false;
 
       for(const DSensorConfiguration& conf : sensorsConf){
+        CData data;
+        EDangerLevel dangerLvl;
+        ESensorState sensorState;
+        // jesli czujnik jest wlaczony
 
         if (conf->isTurnOn())
         {
-          //TODO: jak sprawdzic czy czujnik nie jest rozwalony?
-          CData data = sensors->getSensorData(conf->getSensorId());
-          EDangerLevel dangerLvl = EDangerLevel::NONE;
-          // czy dane z czujnikow sa powyzej danych alarmowych
-          if (conf->getAlarmLvl() < data)
+          if (sensors->getSensorData(conf, data))
           {
             dangerLvl = EDangerLevel::ALARM;
             warningLevel = true;

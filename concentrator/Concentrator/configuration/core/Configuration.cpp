@@ -39,14 +39,21 @@ namespace NEngine {
     bool turnOn;
     CData warning;
     CData alarm;
+    uint8_t ipv4Length;
 
     for(int i = 0; i < sensorsAmount; ++i){
+      int port;
+
       file.read(reinterpret_cast<char*>(&idSensor), sizeof(idSensor));
       file.read(reinterpret_cast<char*>(&turnOn), sizeof(turnOn));
       file.read(reinterpret_cast<char*>(&warning), sizeof(warning));
       file.read(reinterpret_cast<char*>(&alarm), sizeof(alarm));
+      file.read(reinterpret_cast<char*>(&ipv4Length), sizeof(ipv4Length));
+      std::string ipv4(ipv4Length, '\0');
+      file.read(&ipv4[0], ipv4Length);
+      file.read(reinterpret_cast<char*>(&port), sizeof(port));
 
-      DSensorConfiguration buf(new CSensorConfiguration(idSensor, turnOn, warning, alarm));
+      DSensorConfiguration buf(new CSensorConfiguration(idSensor, turnOn, warning, alarm, ipv4, port));
       sensors.push_back(buf);
     }
     file.close();
@@ -87,11 +94,16 @@ namespace NEngine {
                         bool turnOn = c->isTurnOn();
                         const CData warning = c->getWarnigLvl();
                         const CData alarm = c->getAlarmLvl();
+                        std::string ipv4 = c->getIpv4Address();
+                        uint8_t ipv4Length = static_cast<uint8_t>(ipv4.length());
+                        int port = c->getPort();
                         file.write(reinterpret_cast<const char*>(&idSensor), sizeof(idSensor));
                         file.write(reinterpret_cast<const char*>(&turnOn), sizeof(turnOn));
                         file.write(reinterpret_cast<const char*>(&warning), sizeof(warning));
                         file.write(reinterpret_cast<const char*>(&alarm), sizeof(alarm));
-
+                        file.write(reinterpret_cast<const char*>(&ipv4Length), sizeof(ipv4Length));
+                        file.write(ipv4.c_str(), ipv4Length);
+                        file.write(reinterpret_cast<const char*>(&port), sizeof(port));
                     });
 
     file.close();

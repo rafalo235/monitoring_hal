@@ -13,9 +13,10 @@ namespace NSensors{
       LOG_DEBUG("CSensorsManagerMock - constructor.");
     }
 
-    virtual CData getSensorData(const int8_t idSensor) const{
+    virtual bool getSensorData(const NEngine::DSensorConfiguration& conf, CData& value) const{
       int buf = 4;
-      return CData(EValueType::INT_32, &buf);
+      value.setValue(EValueType::INT_32, &buf);
+      return true;
     }
   };
 }

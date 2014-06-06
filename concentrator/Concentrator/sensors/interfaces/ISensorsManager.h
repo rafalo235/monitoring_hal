@@ -2,6 +2,7 @@
 #define ISENSORSMANAGER_H
 
 #include "communication/interfaces/protocol.h"
+#include "configuration/interfaces/IConfiguration.h"
 
 namespace NSensors {
 
@@ -12,7 +13,7 @@ namespace NSensors {
   public:
 
 
-    virtual CData getSensorData(const int8_t idSensor) const = 0 ;
+    virtual bool getSensorData(const NEngine::DSensorConfiguration& conf, CData& value) const = 0 ;
 
     virtual ~ISensorsManager() = default;
   };

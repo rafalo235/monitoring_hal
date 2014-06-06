@@ -3,6 +3,7 @@
 
 #include "sensors/interfaces/ISensorsManager.h"
 #include "communication/interfaces/protocol.h"
+#include "configuration/interfaces/IConfiguration.h"
 
 namespace NSensors{
   class CSensorsManager : public ISensorsManager
@@ -10,11 +11,7 @@ namespace NSensors{
   public:
     CSensorsManager() = default;
 
-    virtual CData getSensorData(const int8_t idSensor) const{
-
-      // TODO: kto to zrobi?
-      return CData();
-    }
+    virtual bool getSensorData(const NEngine::DSensorConfiguration& conf, CData& value) const;
   };
 }
 #endif // CSENSORSMANAGER_H
