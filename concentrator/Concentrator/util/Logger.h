@@ -68,15 +68,23 @@
 //!
 namespace NUtil{
 #ifdef LOGGER_ENABLE
-
+  //! \brief The CUnlogFile class zawiera pliki, ktorych logi sa wylaczone
   class CUnlogFile{
+    //! \brief wylaczone pliki z logowania
     static std::set<std::string> turnOffFiles;
 
   public:
+    //!
+    //! \brief CUnlogFile Konstruktor zapisujacy nazwe pliku do wektora plikow nielogowanych
+    //! \param file sciezka do pliku
     CUnlogFile(const char* file){
       turnOffFiles.insert(std::string(file));
     }
 
+    //!
+    //! \brief find Sprawdza czy plik znajduje sie w wektorze nielogowanych plikow
+    //! \param file sciez do pliku
+    //! \return true jesli podana sciezka do pliku znajduje sie w wektorz nielogowanych plikow
     static bool find(const char* file){
 
       return turnOffFiles.find(std::string(file)) != turnOffFiles.end();
@@ -84,7 +92,8 @@ namespace NUtil{
   };
 
 #endif // LOGGER_ENABLE
-
+  //!
+  //! \brief The CLogger class Odpowiada za logowanie. Wzorzec singleton
   class CLogger{
 
   private:
@@ -101,6 +110,9 @@ namespace NUtil{
 #endif
 
   public:
+    //!
+    //! \brief getInstance Zwraca instacje loggera
+    //! \return logger
     static std::shared_ptr<CLogger> getInstance(){
       static std::shared_ptr<CLogger> logger(new CLogger());
       static bool inited = false;

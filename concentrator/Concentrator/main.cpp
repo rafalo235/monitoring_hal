@@ -10,7 +10,7 @@
 
 using namespace NEngine;
 
-int secondInterval = 60;
+int programLifeTime = 60;
 int main(int argc, char *argv[])
 {
   QCoreApplication a(argc, argv);
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
       std::time_t curTime = std::chrono::system_clock::to_time_t(
                               std::chrono::system_clock::now());
       // ustala czas obudzenia
-      std::time_t wakeUpTime = curTime + secondInterval;
+      std::time_t wakeUpTime = curTime + programLifeTime;
 
       // usypia watek na okreslony czas
       std::this_thread::sleep_until(

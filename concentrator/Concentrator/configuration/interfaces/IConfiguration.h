@@ -35,7 +35,7 @@ namespace NEngine{
 
     //! \brief getSensorConfiguration Zwraca konfiguracje czujnikow
     //! \return konfiguracja czujnikow
-    virtual const std::vector<DSensorConfiguration>& getSensorConfiguration()const =0;
+    virtual const std::vector<DSensorConfiguration> getSensorConfiguration()const =0;
 
     //! \brief getSaveSDCardIfOnlineEnable Zwraca konfiguracje zapisu na karte SD
     //! \return true, jesli dane maja byc ciagle zapisywane na karte SD nawet jeśli polaczenie z serwerem jest OK
@@ -80,6 +80,10 @@ namespace NEngine{
     //! \param enable true walcza zapis na karte SD, false wylacza
     //! \return true jesli zapis sie udal; false jesli nie
     virtual bool setSaveSDCardIfOnlineEnable(bool enable) = 0;
+
+    //! \brief getDataPath zwraca sciezke do zapisu danych (do karty SD)
+    //! \return sciezka zapisu danych
+    virtual const std::string getDataPath() const = 0;
 
     //! \brief Domyslny dekonstruktor
     virtual ~IConfiguration() = default;

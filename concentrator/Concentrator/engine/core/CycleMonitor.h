@@ -39,13 +39,26 @@ namespace NEngine{
   public:
     CCycleMonitor();
 
+    //! \brief uruchamia watek silnika
     void runThread();
+
+    //! \brief wylacza watek silnika
     void exit();
+
   private:
+
+    //! \brief funkcja watku silnika
     void run();
 
+    //!
+    //! \brief checkSensors Sprawdza dane z czujnikow
+    //! \param[in] addToVector Jesli true, to zapisuj dane w CCycleMonitor::sensorsData
+    //! \return true jesli pomiary przekroczyly wartosc ostrzegawcza
     bool checkSensors(bool addToVector);
-    void saveSensorsData();
+
+
+    bool saveSensorDataToFile(const bool warning, const std::vector<CSensorData>& sData);
+    bool saveSensorDataToNewFile(const bool warning, const std::vector<CSensorData>& sData);
 
     void operateReceivedProtocol(const DConnectionResult& result);
   };

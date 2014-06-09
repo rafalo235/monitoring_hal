@@ -111,6 +111,10 @@ namespace NProtocol
     //! \param[in] obj Obiekt przypisywany
     CData& operator=(const CData& obj) = default;
 
+    bool operator>(const CData& data2) const;
+    bool operator<(const CData& data2) const;
+    bool operator==(const CData& data2) const;
+
     //! \brief Zmienia wartosc
     //! \param[in] type1 Typ wartosci
     //! \param[in] value1 Wskaznik do wartosci
@@ -264,6 +268,7 @@ namespace NProtocol
 
   public:
 
+    CSensorData() = default;
     //!
     //! \brief CSensorData Konstruktor
     //! \param[in] idData1 ID pomiaru

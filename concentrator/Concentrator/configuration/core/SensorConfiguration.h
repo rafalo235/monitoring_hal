@@ -79,7 +79,7 @@ namespace NEngine {
     }
 
     //! ISensorConfiguration::isTurnOn(bool)
-    void setTurnOn(bool turnOn1)
+    void setTurnOn(const bool turnOn1)
     {
       turnOn = turnOn1;
     }
