@@ -11,3 +11,4 @@ build-*-Desktop_Qt_*_GCC_*bit-Release/
 *.user.*
 *.orig
 concentrator/build*
+server/target/*
