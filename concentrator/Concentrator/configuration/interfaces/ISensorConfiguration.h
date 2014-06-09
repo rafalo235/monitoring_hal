@@ -34,6 +34,8 @@ namespace NEngine{
     //! \brief getAlarmLvl Zwraca minimalna wartosc alarmowa
     //! \return  minimalna wartosc alarmaowa
     virtual const CData getAlarmLvl() const = 0;
+    virtual std::string getIpv4Address() const = 0;
+    virtual int getPort() const = 0;
 
     //! \brief domyslny dekonstruktor
     virtual ~ISensorConfiguration() = default;

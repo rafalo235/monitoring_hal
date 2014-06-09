@@ -277,8 +277,8 @@ namespace NEngine{
     std::time_t curTime = std::chrono::system_clock::to_time_t(
                             std::chrono::system_clock::now());
 
-    // jesli funkcja ma nie dodawac do wektora danych z czujnikow, lecz dane sa nie pokojace,
-    // zostanie petla powrotrnie uruchomi sprawdzanie czujnikow z zapisem do wektora.
+    // jesli funkcja ma nie dodawac do wektora danych z czujnikow, lecz jesli dane sa niepokojace,
+    // petla zostanie powrotrnie uruchomiona ze sprawdzaniem czujnikow i zapisem do wektora.
     bool checkOnceAgain;
     do
     {
@@ -292,7 +292,7 @@ namespace NEngine{
         if (conf->isTurnOn())
         {
           // pobierz dane i sprawdz czy czujnik nie jest popsuty
-          if (sensors->getSensorData(conf->getSensorId(), data))
+          if (sensors->getSensorData(conf, data))
           {
             // czujnik dziala poprawnie
             sensorState = ESensorState::OK;

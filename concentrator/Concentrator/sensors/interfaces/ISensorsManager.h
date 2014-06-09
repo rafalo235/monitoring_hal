@@ -2,6 +2,7 @@
 #define ISENSORSMANAGER_H
 
 #include "communication/interfaces/protocol.h"
+#include "configuration/interfaces/IConfiguration.h"
 
 namespace NSensors {
 
@@ -19,7 +20,7 @@ namespace NSensors {
     //! \param value odczytana wartosc
     //! \return true jesli odczyt sie udal, false jesli czujnik jest rozwalony
     //!
-    virtual bool getSensorData(const int8_t idSensor, CData& value) = 0;
+    virtual bool getSensorData(const NEngine::DSensorConfiguration& conf, CData& value) const = 0 ;
 
     virtual ~ISensorsManager() = default;
   };

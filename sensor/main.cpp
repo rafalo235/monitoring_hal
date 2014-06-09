@@ -13,7 +13,7 @@
 
 #include <signal.h>
 
-#define PORT 1502
+#define DEFAULT_PORT 1502
 
 #define REG_ADDRESS 0
 #define REG_VALS_AMOUNT 256
@@ -29,22 +29,37 @@ uint16_t *register_values;
 
 void on_sigint(int);
 void initialize_register_values();
+int setup_unix_signal_handlers();
 
 int main(int argc, char *argv[])
 {
-    int pointer = 0;
+    int pointer = 0; // która wartość teraz powinna być podana na wyjściu
+    int port = DEFAULT_PORT;
     QCoreApplication a(argc, argv);
 
-    signal(SIGINT, on_sigint);
+    /* Jeżeli podano port to zmieniamy z domyślnego */
+    if (argc > 1) {
+        port = atoi(argv[1]);
+    }
+
+    /* Rejestracja obsługi sygnału (CTRL+C) przez on_sigint */
+    if (setup_unix_signal_handlers() != 0) {
+        fprintf(stderr, "Could not initialize SIGINT handler\n");
+        return 1;
+    }
+
+    /* Ustawienie tablicy z wartościami zwracanymi */
     initialize_register_values();
 
-    if ( (ctx = modbus_new_tcp("127.0.0.1", PORT)) == NULL ) {
+    /* Utworzenie kontekstu przypisanego do localhosta i podanego portu */
+    if ( (ctx = modbus_new_tcp("127.0.0.1", port)) == NULL ) {
         fprintf(stderr, "Could not create context: %s\n",
             modbus_strerror(errno));
         return -1;
     }
-    modbus_set_debug(ctx, TRUE);
+    modbus_set_debug(ctx, TRUE); // wyświetlanie informacji w konsoli
 
+    /* Zarezerwowanie pamięci na jeden rejestr */
     if ( (mb_mapping = modbus_mapping_new(0, 0, 1, 0)) == NULL ) {
         fprintf(stderr, "Failed to allocate the mapping: %s\n",
             modbus_strerror(errno));
@@ -52,6 +67,7 @@ int main(int argc, char *argv[])
         return -2;
     }
 
+    /* Rozpoczęcie nasłuchiwania */
     if ( (socket = modbus_tcp_listen(ctx, 1)) == -1) {
         fprintf(stderr, "Failed to open socket: %s\n",
             modbus_strerror(errno));
@@ -70,7 +86,7 @@ int main(int argc, char *argv[])
                 /* rc is the query size */
                 modbus_reply(ctx, query, rc, mb_mapping);
 
-                /* Change register value */
+                /* Zmiana wartości rejestru na następny z tablicy, przesunięcie pointera */
                 mb_mapping->tab_registers[REG_ADDRESS] = register_values[pointer];
                 pointer++;
                 pointer %= REG_VALS_AMOUNT;
@@ -81,13 +97,13 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("Quit the loop: %s\n", modbus_strerror(errno));
+    fprintf(stderr, "Quit the loop: %s\n", modbus_strerror(errno));
 
+    /* Porządki */
+    free(register_values);
     modbus_mapping_free(mb_mapping);
     modbus_close(ctx);
     modbus_free(ctx);
-
-    free(register_values);
 
     return a.exec();
 }
@@ -108,6 +124,20 @@ void initialize_register_values() {
     register_values = (uint16_t*) malloc(sizeof(uint16_t) * REG_VALS_AMOUNT);
     for (int i = 0 ; i < REG_VALS_AMOUNT ; i++) {
         register_values[i] = (uint16_t) normal_dist(rng);
-        //register_values[i] = MEAN_REG_VAL + (MEAN_REG_VAL_DEVIATION * (rand() / RAND_MAX) - (MEAN_REG_VAL_DEVIATION / 2));
     }
 }
+
+int setup_unix_signal_handlers() {
+    struct sigaction sigint_struct;
+
+    sigint_struct.sa_handler = on_sigint;
+    sigemptyset(&sigint_struct.sa_mask);
+    sigint_struct.sa_flags = 0;
+    //sigint_struct.sa_flags |= SA_RESTART;
+
+    if (sigaction(SIGINT, &sigint_struct, 0) > 0)
+       return 1;
+
+    return 0;
+}
+

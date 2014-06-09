@@ -20,15 +20,19 @@ namespace NEngine{
 
     CData alarm(EValueType::INT_32, &alarmValue);
 
-    for (int8_t i = 0; i < 3; ++i)
+    std::string sensorAddr = "127.0.0.1";
+    int port = 1502;
+
+    for (int8_t i = 0; i < 1; ++i)
     {
 
       uint8_t idSensor1 = i;
       bool turnOn = true;
 
       DSensorConfiguration s(
-                  new CSensorConfigurationMock(idSensor1, turnOn, warning, alarm));
+                  new CSensorConfigurationMock(idSensor1, turnOn, warning, alarm, sensorAddr, port));
       this->sensors.push_back(s);
+      port = port + 1;
 
     }
     serverUrl = "http://localhost:8080/HallMonitorServer/rest/concentrator/post";

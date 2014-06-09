@@ -23,6 +23,8 @@ namespace NEngine {
 
     //! \brief minimalna wartosc wymagajaca ostrzezenia
     CData warningLvl;
+    std::string ipv4Address;
+    int port;
 
     //! \brief minimalna wartosc alarmowa
     CData alarmLvl;
@@ -40,11 +42,15 @@ namespace NEngine {
     CSensorConfiguration(uint8_t& idSensor1,
                          bool& turnOn1,
                          CData& warningLvl1,
-                         CData& alarmLvl1) :
+                         CData& alarmLvl1,
+                         std::string& ipv4Address1,
+                         int& port1) :
                             idSensor(idSensor1),
                             turnOn(turnOn1),
                             warningLvl(warningLvl1),
-                            alarmLvl(alarmLvl1)
+                            alarmLvl(alarmLvl1),
+                            ipv4Address(ipv4Address1),
+                            port(port1)
     {
 
     }
@@ -76,6 +82,16 @@ namespace NEngine {
     virtual uint8_t getSensorId()
     {
       return idSensor;
+    }
+
+    virtual std::string getIpv4Address() const
+    {
+        return ipv4Address;
+    }
+
+    virtual int getPort() const
+    {
+        return port;
     }
 
     //! ISensorConfiguration::isTurnOn(bool)

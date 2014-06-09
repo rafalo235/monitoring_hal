@@ -1,7 +1,7 @@
 #ifndef CSENSORSFACTORY_H
 #define CSENSORSFACTORY_H
 
-#define SENSOR_MOCK
+//#define SENSOR_MOCK
 
 #include <memory>
 
