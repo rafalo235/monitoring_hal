@@ -22,7 +22,7 @@ namespace NEngine{
     std::string sensorAddr = "127.0.0.1";
     int port = 1502;
 
-    for (int8_t i = 0; i < 3; ++i)
+    for (int8_t i = 0; i < 1; ++i)
     {
 
       uint8_t idSensor1 = i;
