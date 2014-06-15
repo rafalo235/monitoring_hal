@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+	<session-factory>
+		<!-- Database connection settings -->
+		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+		<property name="connection.url">jdbc:mysql://localhost:3306/monitor_hall?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8</property>
+		<property name="connection.username">root</property>
+		<property name="connection.password">saga99</property>
+
+		<property name="connection.pool_size">1</property>
+		<property name="dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
+		<property name="current_session_context_class">thread</property>
+		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+		<property name="show_sql">true</property>
+		<property name="hbm2ddl.auto">validate</property>
+		<property name="hbm2ddl.auto">create-drop</property>
+        <property name="hibernate.connection.CharSet">utf8</property>
+        <property name="hibernate.connection.characterEncoding">utf8</property>
+        <property name="hibernate.connection.useUnicode">true</property>
+        <property name="hibernate.current_session_context_class">thread</property>
+        
+		<mapping class="com.monitoring.hall.beans.Company" />
+		<mapping class="com.monitoring.hall.beans.Concentrator" />
+		<mapping class="com.monitoring.hall.beans.ConcentratorConf" />
+		<mapping class="com.monitoring.hall.beans.Hall" />
+		<mapping class="com.monitoring.hall.beans.MonitorData" />
+		<mapping class="com.monitoring.hall.beans.Request" />
+		<mapping class="com.monitoring.hall.beans.RequestConf" />
+		<mapping class="com.monitoring.hall.beans.Sensor" />
+		<mapping class="com.monitoring.hall.beans.SensorConf" />
+		<mapping class="com.monitoring.hall.beans.SensorData" />
+		<mapping class="com.monitoring.hall.beans.User" />
+
+
+	</session-factory>
+</hibernate-configuration>

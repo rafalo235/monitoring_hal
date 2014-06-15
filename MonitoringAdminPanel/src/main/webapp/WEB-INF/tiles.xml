@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+    <definition name="bazowa.definicja"
+        template="/WEB-INF/views/template.jsp">
+        <put-attribute name="title" value="Hall Monitoring Administration Panel" />
+        <put-attribute name="header" value="/WEB-INF/views/header.jsp" />
+        <put-attribute name="menu" value="/WEB-INF/views/menu.jsp" />
+        <put-attribute name="body" value="" />
+    </definition>
+ 
+    <definition name="home" extends="bazowa.definicja">
+        <put-attribute name="body" value="/WEB-INF/views/home.jsp" />
+    </definition>
+
+	<definition name="companies" extends="bazowa.definicja">
+		<put-attribute name="title" value="Companies" />
+		<put-attribute name="body" value="/WEB-INF/views/companies.jsp" />
+	</definition>
+	
+	<definition name="halls" extends="bazowa.definicja">
+		<put-attribute name="title" value="Halls" />
+		<put-attribute name="body" value="/WEB-INF/views/halls.jsp" />
+	</definition>
+	
+	<definition name="concentrators" extends="bazowa.definicja">
+		<put-attribute name="title" value="Concentrators" />
+		<put-attribute name="body" value="/WEB-INF/views/concentrators.jsp" />
+	</definition>
+	
+	
+</tiles-definitions>
