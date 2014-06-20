@@ -20,6 +20,7 @@ namespace NEngine{
     sensors = CSensorFactory::getInstance();
     configuration = CConfigurationFactory::getInstance();
     connection = CConnectionFactory::getInstance();
+    DSensorDataFileManager::init();
   }
 
   void CCycleMonitor::runThread()
@@ -55,8 +56,6 @@ namespace NEngine{
           //TODO: blad protokolu otrzymanego
           break;
         case EConnectionStatus::NONE:
-
-
           operateReceivedProtocol(result);
           break;
         }
@@ -104,7 +103,31 @@ namespace NEngine{
 
   void CCycleMonitor::operateReceivedProtocol(const DConnectionResult& result)
   {
-    // TODO: sprawdzic CRC
+    //TODO: sprawdzic CRC
+    std::shared_ptr<CProtocol> receivedProtocol = result->getReceivedProtocol();
+    if (receivedProtocol->getIdConcentrator() != configuration->getIdConcentrator())
+    {
+      LOG_ERROR("Wrong id of concentrator in received package");
+      //TODO
+    }
+    else
+    {
+      std::shared_ptr<CServerResponse> responseMessage =
+          std::dynamic_pointer_cast<CServerResponse>(receivedProtocol->getMessage());
+
+      // potwierdz wyslany pakiet
+      const uint32_t idRequestPackage = responseMessage->getIdRequestPackage();
+      std::map<uint32_t, SSavedSensorData>::iterator it = sensorSeries.find(idRequestPackage);
+      if (it != sensorSeries.end())
+      {
+        STime dif = CTime::now() - it->second.time;
+        std::vector<int> idSeries{it->second.idSeries};
+        DSensorDataFileManager::confirm(dif.getDay(), idSeries);
+        sensorSeries.erase(it);
+        LOG_OUTPUT(DSensorDataFileManager::coutFiles(0));
+      }
+    }
+
   }
 
   void CCycleMonitor::exit(){
@@ -209,7 +232,8 @@ namespace NEngine{
     if (savedSensorData.sensorDatas.size() > 0)
     {
       savedSensorData.idSeries = DSensorDataFileManager::saveData(warningLevel, savedSensorData.sensorDatas);
-
+      savedSensorData.time = CTime::now();
+      LOG_OUTPUT(DSensorDataFileManager::coutFiles(0));
     }
     return warningLevel;
   }

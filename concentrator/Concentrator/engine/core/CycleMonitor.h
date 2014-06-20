@@ -52,6 +52,7 @@ namespace NEngine{
     struct SSavedSensorData{
       int idSeries;
       std::vector<CSensorData> sensorDatas;
+      STime time;
     };
 
     SSavedSensorData savedSensorData;
@@ -77,10 +78,6 @@ namespace NEngine{
     //! \param[in] addToVector Jesli true, to zapisuj dane w CCycleMonitor::sensorsData
     //! \return true jesli pomiary przekroczyly wartosc ostrzegawcza
     bool checkSensors(bool addToVector);
-
-
-    bool saveSensorDataToFile(const bool warning, const std::vector<CSensorData>& sData);
-    bool saveSensorDataToNewFile(const bool warning, const std::vector<CSensorData>& sData);
 
     void operateReceivedProtocol(const DConnectionResult& result);
   };

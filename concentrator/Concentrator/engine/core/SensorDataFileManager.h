@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <cstring>
 #include <cstdio>
+#include <QDir>
 #include "configuration/interfaces/ConfigurationFactory.h"
 #include "util/Time.h"
 #include "util/Logger.h"
@@ -276,7 +277,7 @@ namespace NEngine
       {
         // plik nie istnieje wiec stworz nowy
         std::string fileStr = getDateListFilePath();
-        std::cerr<<fileStr<<std::endl;
+
         std::ofstream newFile(getDateListFilePath(), std::fstream::out | std::fstream::binary);
         if (newFile.is_open())
         {
@@ -1163,6 +1164,17 @@ namespace NEngine
 
   public:
 
+    static void init()
+    {
+      std::string dataPath = CConfigurationFactory::getInstance()->getDataPath();
+
+      QDir qdir(QString(dataPath.c_str()));
+      if (!qdir.exists("data"))
+      {
+        qdir.mkdir("data");
+      }
+    }
+
     //!
     //! \brief The SToConfirm struct serie do potwierdzenia czy dane zapisane na serwerze
     struct SToConfirm
@@ -1200,8 +1212,6 @@ namespace NEngine
     //! \return  id serii
     static int saveData(const bool warning, const std::vector<T>& sData)
     {
-
-      LOG_DEBUG("saveData: ", getBufferFilePath(0));
       std::fstream bufferFile(getBufferFilePath(0),
           std::fstream::in | std::fstream::out | std::fstream::binary);
 
@@ -1542,18 +1552,18 @@ namespace NEngine
                 + i * (sizeof(int) + info.sensors * sizeof(T)));
 
             // confirmed
-            int conf = -1;
+            const char* conf = nullptr;
             if (std::find_if(confirmed.begin(), confirmed.end(),
                 [&](const SWarningIndex& index)
                 { return index.id == *id;}) != confirmed.end())
             {
-              conf = 1;
+              conf = "confirmed";
             }
             else if (std::find_if(unconfirmed.begin(), unconfirmed.end(),
                 [&](const SWarningIndex& index)
                 { return index.id == *id;}) != unconfirmed.end())
             {
-              conf = 0;
+              conf = "unconfirmed";
             }
             else
             {
@@ -1567,7 +1577,7 @@ namespace NEngine
                   { std::cerr<<i.id<<" offset: "<<i.offset<<"\t";});
               std::cerr << "\n";
             }
-            std::cerr << *id << " conf: " << conf << std::endl;
+            std::cerr <<"series id: "<< *id << ": " << conf << std::endl;
           }
         }
         else
@@ -1611,16 +1621,16 @@ namespace NEngine
                 + i * (sizeof(int) + info.sensors * sizeof(T)));
 
             // confirmed
-            int conf = -1;
+            const char* conf = nullptr;
             if (std::find(confirmed.begin(), confirmed.end(), *id)
                 != confirmed.end())
             {
-              conf = 1;
+              conf = "confirmed";
             }
             else if (std::find(unconfirmed.begin(), unconfirmed.end(), *id)
                 != unconfirmed.end())
             {
-              conf = 0;
+              conf = "unconfirmed";
             }
             else
             {
@@ -1633,7 +1643,7 @@ namespace NEngine
                   { std::cerr<<i<<"\t";});
               std::cerr << "\n";
             }
-            std::cerr << *id << " conf: " << conf << std::endl;
+            std::cerr <<"series id: "<< *id << ": " << conf << std::endl;
           }
         }
         else

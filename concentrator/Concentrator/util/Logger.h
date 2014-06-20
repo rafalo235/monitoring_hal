@@ -28,8 +28,6 @@
 #endif
 
 
-
-
 #ifdef LOGGER_ENABLE
 
 #define LOG_DEBUG(...) NUtil::CLogger::getInstance()->logDebug(__FILE_NAME__, __FUNCTION__, __LINE__, __VA_ARGS__);
@@ -53,6 +51,11 @@
 
 #define LOG_ERROR(...) NUtil::CLogger::getInstance()->logError(__FILE_NAME__, __FUNCTION__, __LINE__, __VA_ARGS__);
 
+#ifdef LOGGER_ENABLE
+#define LOG_OUTPUT(A) A;
+#else
+#define LOG_OUTPUT(A)
+#endif
 
 //! \brief Logger do prostychy logow (do pliku tez).
 //! Wlaczenie logowania nastepuje po zdefinioawniu LOGGER_ENABLE. Wlacznie logowania do pliku LOGGER_FILE_ENABLE.
