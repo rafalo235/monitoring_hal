@@ -23,11 +23,12 @@ namespace NEngine {
 
     //! \brief minimalna wartosc wymagajaca ostrzezenia
     CData warningLvl;
-    std::string ipv4Address;
-    int port;
 
     //! \brief minimalna wartosc alarmowa
     CData alarmLvl;
+
+    std::string ipv4Address;
+    int port;
 
     //! \brief domyslny koncentrator
     CSensorConfiguration() = default;

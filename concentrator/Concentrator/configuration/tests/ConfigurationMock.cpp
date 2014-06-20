@@ -12,7 +12,7 @@ namespace NEngine{
     sendingPeriod = 10;
     checkingSensorPeriod = 2;
     saveSDCardIfOnlineEnable = false;
-    dataPath = "sdcard/";
+    dataPath = ".";
 
     int warningValue = 10;
     int alarmValue = 12;

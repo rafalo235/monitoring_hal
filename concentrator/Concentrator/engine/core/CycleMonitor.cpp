@@ -1,25 +1,22 @@
 #include "CycleMonitor.h"
 
-#include <ctime>
-#include <chrono>
 #include <vector>
 #include <cstdint>
 
 #include "util/Logger.h"
+#include "util/Time.h"
+#include "engine/core/SensorDataFileManager.h"
 
 namespace NEngine{
   using namespace NProtocol;
+  using namespace NUtil;
+
+  const int CCycleMonitor::secondInterval = 1;
 
 
   CCycleMonitor::CCycleMonitor():
-    threadExit(false),
-    secondInterval(1),
-    checkingSensorsTime(0),
-    sendingDataTime(0),
-    idSensorBase(0)
-
+    threadExit(false)
   {
-
     sensors = CSensorFactory::getInstance();
     configuration = CConfigurationFactory::getInstance();
     connection = CConnectionFactory::getInstance();
@@ -36,20 +33,11 @@ namespace NEngine{
     LOG_DEBUG("Engine thread was lunched");
     do{
 
-      // pobiera aktualny czas
-      std::time_t curTime = std::chrono::system_clock::to_time_t(
-                              std::chrono::system_clock::now());
-      // ustala czas obudzenia
-      std::time_t wakeUpTime = curTime + secondInterval;
-
       // usypia watek na okreslony czas
-      std::this_thread::sleep_until(
-            std::chrono::system_clock::from_time_t(wakeUpTime));
+      std::this_thread::sleep_for(std::chrono::seconds(secondInterval));
 
-      //LOG_DEBUG("Engine thread woke up.");
       // pobiera aktualny czas
-      curTime = std::chrono::system_clock::to_time_t(
-                  std::chrono::system_clock::now());
+      STime curTime = CTime::now();
 
       // sprawdza czy przyszly jakies dane z serwera
       if (connection->isAnyResult())
@@ -68,7 +56,7 @@ namespace NEngine{
           break;
         case EConnectionStatus::NONE:
 
-          sensorsData.clear();
+
           operateReceivedProtocol(result);
           break;
         }
@@ -78,9 +66,10 @@ namespace NEngine{
       // czas sprawdzic czujniki
       if (curTime - checkingSensorsTime >= configuration->getCheckingSensorPeriod())
       {
-        //LOG_DEBUG("Engine thread checks sensors.");
+        LOG_DEBUG("Engine thread checks sensors.");
         warning = checkSensors(false);
-       // LOG_DEBUG("Engine thread checked sensors.");
+        checkingSensorsTime = curTime;
+        LOG_DEBUG("Engine thread checked sensors.");
       }
       // czas wyslac dane z czujnikow lub dane byly niepokojace i trzeba je wyslac
       if ((curTime - sendingDataTime >= configuration->getSendingPeriod()) || warning)
@@ -90,15 +79,19 @@ namespace NEngine{
         {
           checkSensors(true);
         }
-        if (sensorsData.size() > 0)
+        if (savedSensorData.sensorDatas.size() > 0)
         {
 
             uint8_t amount =
                     static_cast<uint8_t>(configuration->getSensorConfiguration().size());
 
-            CMonitorData* monitorData = new CMonitorData(curTime, amount, sensorsData);
+            CMonitorData* monitorData = new CMonitorData(
+                                          curTime.getTime(),
+                                          amount,
+                                          savedSensorData.sensorDatas);
             std::shared_ptr<CMonitorData> monitor(monitorData);
-            connection->sendMonitorData(monitor);
+            uint32_t sendIdPackage = connection->sendMonitorData(monitor);
+            sensorSeries[sendIdPackage] = savedSensorData;
         }
       }
       else{
@@ -113,156 +106,6 @@ namespace NEngine{
   {
     // TODO: sprawdzic CRC
   }
-  bool CCycleMonitor::saveSensorDataToFile(const bool warning, const std::vector<CSensorData>& sData)
-  {
-    // format pliku:
-    // | series1 | ... | seriesN | oldSeries1 | ... | oldSeries2 | oldSeriesSize | SeriesSize | warningSeries | sensors
-    // seriesX - dane z pomiarow - kazdy czujnik daje ciagle taki sam typ danych, wiec kazda seria ma taki sam rozmiar
-    // oldSeriesX - stare dane z pomiarow - zapisywane sa wszystkie pomiary, lecz dane nic nie wnoszace sa nadpisywywane
-    //              oldSeries to pomiary ktore moga byc nadpisane
-    // oldSeriesSize - ilosc serii oldSeries
-    // seriesSize - ilosc serii, wraz z oldSeries
-    // warningSeries - ile serii bylo od ostatniej niebezpiecznej wartosci; -1 oznacza, ze nie bylo takich wartosci
-    // sensors - ilosc czujnikow
-
-    // seriesAround - tyle pomiarow przed i po pomiarach niebezpiecznych bedzie zapisane
-    const int seriesAround = 10;
-
-    const std::string dir = configuration->getDataPath();
-    std::fstream file(dir + "data.dat",
-        std::fstream::in | std::fstream::out | std::fstream::binary);
-
-    if (!file.is_open())
-    {
-      // nie bylo pliku
-      return saveSensorDataToNewFile(warning, sData);
-    }
-    else
-    {
-      // plik juz byl
-      // wczytaj dane na koncu pliku
-      int info[4];
-      file.seekg(-sizeof(info), std::fstream::end);
-      file.read(reinterpret_cast<char*>(info), sizeof(info));
-      int oldSeries = info[0];
-      int series = info[1];
-      int warningSeries = info[2];
-      int sensors = info[3];
-
-      if (warning || // niebezpieczne dane
-          series < seriesAround || // pierwsze pomiary
-          (warningSeries < 2 * seriesAround && // tuz po niebezpiecznych danych
-              warningSeries != -1))
-      {
-        // dopisanie danych
-        int oldSeriesSize = oldSeries * sizeof(CSensorData);
-        file.seekg(-sizeof(info) - oldSeriesSize, std::fstream::end);
-        const int dataSize = sizeof(CSensorData) * sData.size();
-        file.write(reinterpret_cast<const char*>(sData.data()), dataSize);
-
-        if (warning)
-        {
-          // obecny pomiar jest niebezpieczny
-          warningSeries = 0;
-        }
-        else if (warningSeries != -1)
-        {
-          // byl jakis niebezpieczny wczesniej, wiec zwieksz ilosc pomiarow do niego
-          ++warningSeries;
-        }
-        // jesli byly nieaktualne serie
-        if (oldSeries != 0)
-        {
-          // ile pozostalo pustych offsetow
-          if (dataSize <= oldSeriesSize)
-          {
-            // dane nadpisaly puste offsety
-            oldSeries = 0;
-          }
-          else
-          {
-            // dane czesciowo nadpisaly puste offsety
-            oldSeriesSize = (oldSeriesSize - dataSize);
-            file.seekg(-sizeof(info) - oldSeriesSize, std::fstream::end);
-            oldSeries = oldSeriesSize / sizeof(int);
-          }
-        }
-        else
-        {
-          // nie bylo nadpisywania
-          ++series;
-        }
-        int newInfo[] =
-        { oldSeries, series, warningSeries, sensors };
-
-        file.write(reinterpret_cast<const char*>(newInfo), sizeof(newInfo));
-        file.flush();
-        file.close();
-        return true;
-      }
-      else
-      {
-        // pozycja seriesAround danych ostatnich
-        const int appendPosition = sizeof(info)
-            + (seriesAround + oldSeries) * sizeof(CSensorData) * sensors;
-        file.seekg(-appendPosition, std::fstream::end);
-        // jedno wiecej miejsce na nowy wpis
-        char buffer[sizeof(CSensorData) * (seriesAround + 1) * sensors];
-        // wypelnij buffer danymi bez ostatniej pozycji
-        file.read(buffer, sizeof(CSensorData) * seriesAround * sensors);
-        // dopisz dane z pomiaru
-        memcpy(buffer + sizeof(CSensorData) * seriesAround * sensors,
-            reinterpret_cast<const char*>(sData.data()),
-            sizeof(CSensorData) * sensors);
-        // zapisz dane do pliku
-        file.seekg(-appendPosition, std::fstream::end);
-        file.write(
-            reinterpret_cast<const char*>(buffer + sizeof(CSensorData) * sensors),
-            sizeof(CSensorData) * seriesAround * sensors);
-        // puste offsety - nastapilo nadpisanie danych, czyli ilosc serii sie nie zmienila
-        if (warningSeries != -1)
-        {
-          ++warningSeries;
-        }
-        int newInfo[] =
-        { oldSeries, series, warningSeries};
-
-        file.write(reinterpret_cast<const char*>(newInfo), sizeof(newInfo));
-        file.flush();
-        file.close();
-        return true;
-      }
-    }
-  }
-
-  bool CCycleMonitor::saveSensorDataToNewFile(const bool warning, const std::vector<CSensorData>& sData)
-  {
-    const std::string dir = configuration->getDataPath();
-    std::ofstream newFile(dir + "data.dat", std::fstream::out | std::fstream::binary);
-    if (newFile.is_open())
-    {
-      newFile.write(reinterpret_cast<const char*>(sData.data()),
-                    sizeof(CSensorData) * sData.size());
-
-      const int oldSeries = 0;
-      const int allSeries = 1;
-      const int warningSeriesOffset = warning ? 0 : -1;
-      const int sensors = sData.size();
-      int info[] =
-      { oldSeries, allSeries, warningSeriesOffset, sensors };
-
-      newFile.write(reinterpret_cast<const char*>(info), sizeof(info));
-      newFile.flush();
-      newFile.close();
-      return true;
-    }
-    else
-    {
-      return false;
-    }
-  }
-
-
 
   void CCycleMonitor::exit(){
     threadExit.store(true, std::memory_order_consume);
@@ -273,10 +116,11 @@ namespace NEngine{
   bool CCycleMonitor::checkSensors(bool addToVector){
     bool warningLevel = false;
     const std::vector<DSensorConfiguration> sensorsConf = configuration->getSensorConfiguration();
+    savedSensorData.sensorDatas.clear();;
 
-    std::time_t curTime = std::chrono::system_clock::to_time_t(
-                            std::chrono::system_clock::now());
+    STime curTime = CTime::now();
 
+    // dane do zapisu do pliku
     // jesli funkcja ma nie dodawac do wektora danych z czujnikow, lecz jesli dane sa niepokojace,
     // petla zostanie powrotrnie uruchomiona ze sprawdzaniem czujnikow i zapisem do wektora.
     bool checkOnceAgain;
@@ -343,10 +187,10 @@ namespace NEngine{
         if (addToVector)
         {
 
-          sensorsData.emplace_back(
-                ++idSensorBase,
+          savedSensorData.sensorDatas.emplace_back(
+                ++idSensorDataBase,
                             conf->getSensorId(),
-                            curTime,
+                            curTime.getTime(),
                             sensorState,
                             dangerLvl,
                             data);
@@ -361,6 +205,12 @@ namespace NEngine{
       }
     }while(checkOnceAgain);
 
+    // jesli sa jakies dane, to je zapisz
+    if (savedSensorData.sensorDatas.size() > 0)
+    {
+      savedSensorData.idSeries = DSensorDataFileManager::saveData(warningLevel, savedSensorData.sensorDatas);
+
+    }
     return warningLevel;
   }
 

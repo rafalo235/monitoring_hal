@@ -259,12 +259,12 @@ namespace NProtocol
   //! \brief Dane pojedynczego pomiaru.
   class CSensorData
   {
-    const uint32_t idData;           //!< id pomiaru
-    const uint8_t idSensor;          //!< id czujnika
-    const uint64_t timeStamp;        //!< czas pomiaru
-    const ESensorState sensorState;  //!< stan czujnika
-    const EDangerLevel dangerLevel;  //!< stopien niebezpieczenstwa
-    const CData data; //!< dane pomiaru; dla CSensorData::sensorState != ESensorState::OK pole data przechowuje wartosc NProtocol::cVoidValue
+    uint32_t idData;           //!< id pomiaru
+    uint8_t idSensor;          //!< id czujnika
+    uint64_t timeStamp;        //!< czas pomiaru
+    ESensorState sensorState;  //!< stan czujnika
+    EDangerLevel dangerLevel;  //!< stopien niebezpieczenstwa
+    CData data; //!< dane pomiaru; dla CSensorData::sensorState != ESensorState::OK pole data przechowuje wartosc NProtocol::cVoidValue
 
   public:
 
@@ -368,9 +368,9 @@ namespace NProtocol
   //! \brief Dane z czujnikow wysylane z koncentrator do serwera (CProtocol::type = EMessageType::MONITOR_DATA)
   class CMonitorData : public IMessage
   {
-    const uint64_t sendTime;        //!< czas pierwszej proby wyslania pakietu
-    const uint8_t sensorsAmount;    //!< ilosc czujnikow
-    const std::vector<CSensorData> sensorsData; //!< wektor z danymi z czujnikow
+    uint64_t sendTime;        //!< czas pierwszej proby wyslania pakietu
+    uint8_t sensorsAmount;    //!< ilosc czujnikow
+    std::vector<CSensorData> sensorsData; //!< wektor z danymi z czujnikow
 
   public:
     //! \brief Rozmiar samego naglowka
@@ -445,9 +445,9 @@ namespace NProtocol
   //! \brief Pojedyncza wartosc konfigurowalna.
   class CConfigurationValue
   {
-    const uint8_t idSensor;        //!< id czujnika lub koncentratora (NProtocol::cIdConcentrator)
-    const EConfigurationType configurationType;  //!< opcja konfiguracji
-    const CData data;                            //!< wartosc dla danej opcji
+    uint8_t idSensor;        //!< id czujnika lub koncentratora (NProtocol::cIdConcentrator)
+    EConfigurationType configurationType;  //!< opcja konfiguracji
+    CData data;                            //!< wartosc dla danej opcji
 
   public:
 
@@ -570,9 +570,9 @@ namespace NProtocol
   //! \brief Potwierdzenie zmiany konfiguracji koncentratora do serwera (SProtocol.type = EMessageType.CONFIGURATION_RESPONSE)
   class CConfigurationResponse : public IMessage
   {
-    const EReceiveStatus status;               //!< Status otrzymanego pakietu konfiguracyjnego lub status zmiany konfiguracji
-    const uint32_t idRequestPackage;           //!< ID pakietu, ktory zglosil zmiane konfiguracji - pole SProtocol.idPackage
-    const CConfiguration currentConfiguration; //!< Konfiguracja koncentratora
+    EReceiveStatus status;               //!< Status otrzymanego pakietu konfiguracyjnego lub status zmiany konfiguracji
+    uint32_t idRequestPackage;           //!< ID pakietu, ktory zglosil zmiane konfiguracji - pole SProtocol.idPackage
+    CConfiguration currentConfiguration; //!< Konfiguracja koncentratora
 
   public:
 
@@ -634,8 +634,8 @@ namespace NProtocol
   //! \brief Pojedyncze zadanie opcji konfigurowalnej
   class CRequest
   {
-    const uint8_t idSensor;                      //!< id czujnika lub koncentratora (cIdConcentrator)
-    const EConfigurationType configurationType; //!< opcja konfiguracji
+    uint8_t idSensor;                      //!< id czujnika lub koncentratora (cIdConcentrator)
+    EConfigurationType configurationType; //!< opcja konfiguracji
 
   public:
 
@@ -677,7 +677,7 @@ namespace NProtocol
   //! Prosba koncentratora o wyslanie konfiguracji (SProtocol.type = EMessageType.SERVER_REQUEST)
   class CServerRequest : public IMessage
   {
-    const std::vector<CRequest> requests;   //!< tablica o wielkosci requestsSize zadan konfiguracji
+    std::vector<CRequest> requests;   //!< tablica o wielkosci requestsSize zadan konfiguracji
 
   public:
 
@@ -725,9 +725,9 @@ namespace NProtocol
   //! \brief Odpowiedz serwera po otrzymaniu danych z czujnikow (SProtocol.type = EMessageType.SERVER_RESPONSE).
   class CServerResponse : public IMessage
   {
-    const EReceiveStatus status;        //!< Status otrzymanego pakietu z danymi z czujnikow
-    const uint32_t idRequestPackage;    //!< ID pakietu, ktory wyslal dane z czujnikow
-    const CConfiguration configuration; //!< Zadanie zmiany konfiguracji koncentratora
+    EReceiveStatus status;        //!< Status otrzymanego pakietu z danymi z czujnikow
+    uint32_t idRequestPackage;    //!< ID pakietu, ktory wyslal dane z czujnikow
+    CConfiguration configuration; //!< Zadanie zmiany konfiguracji koncentratora
 
   public:
 
@@ -789,17 +789,17 @@ namespace NProtocol
   class CProtocol
   {
     //! \brief Wersja protkolu
-    const uint8_t version;
+    uint8_t version;
     //! \brief Rozmiar laczny danych przesylanych protokolem.
     uint32_t size;
     //! \brief ID koncentratora
-    const uint16_t idConcentrator;
+    uint16_t idConcentrator;
     //! \brief ID danych pakietu danych.
-    const uint32_t idPackage;
+    uint32_t idPackage;
     //! \brief Typ pakietu danych wysylanych protokolem
-    const EMessageType type;
+    EMessageType type;
     //! \brief Dane wysylane protokolem. Typ danych zalezny do wartoci idPackage.
-    const std::shared_ptr<IMessage> message;
+    std::shared_ptr<IMessage> message;
     //! \brief Cykliczny kod nadmiarowy dla calej struktury
     uint16_t crc;
 
