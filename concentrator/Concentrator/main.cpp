@@ -7,14 +7,14 @@
 #include <chrono>
 
 #include "engine/interfaces/EngineFactory.h"
-
+#include "engine/test/SensorDateFileManagerTest.h"
 using namespace NEngine;
 
 int programLifeTime = 60;
 int main(int argc, char *argv[])
 {
   QCoreApplication a(argc, argv);
-
+/*
   DEngine engine = CEngineFactory::getInstance();
   if(!engine->init())
   {
@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
       std::this_thread::sleep_until(
             std::chrono::system_clock::from_time_t(wakeUpTime));
       engine->exit();
-  }
+  }*/
+
   return a.exec();
 }

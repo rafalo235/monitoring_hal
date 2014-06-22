@@ -278,10 +278,10 @@ namespace NProtocol
     //! \param[in] dangerLevel1 Stopien zagozenia
     //! \param[in] data1 Dana pomiaru
     CSensorData(const uint32_t idData1,
-                const uint8_t& idSensor1,
+                const uint8_t idSensor1,
                 const uint64_t timeStamp1,
-                const ESensorState& sensorState1,
-                const EDangerLevel& dangerLevel1,
+                const ESensorState sensorState1,
+                const EDangerLevel dangerLevel1,
                 const CData& data1) :
       idData(idData1),
       idSensor(idSensor1),

@@ -34,11 +34,11 @@
 
 // wylaczenie logowania
 // unikatowe nazwy
-#define COMBINE1(X,Y) X##Y  // helper macro
-#define COMBINE(X,Y) COMBINE1(X,Y)
-#define UNIQUE_NAME COMBINE(x,__LINE__) (__FILE_NAME__);
+#define CONCAT(a, b) a ## b
+#define CONCAT2(a, b) CONCAT(a, b)
+#define UNIQUE_NAME(prefix) CONCAT2(prefix, __LINE__)
 // makro wylaczajace debug log w pliku
-#define LOG_OFF NUtil::CUnlogFile UNIQUE_NAME;
+#define LOG_OFF NUtil::CUnlogFile UNIQUE_NAME(turnOffLog);
 
 // makro do logowania protokolu
 #define LOG_PROTOCOL(prot) NUtil::CLogger::getInstance()->logProtocol(prot);

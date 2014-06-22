@@ -27,7 +27,9 @@ SOURCES += main.cpp \
     sensors/tests/CSensorsManagerMock.cpp \
     configuration/tests/ConfigurationMock.cpp \
     communication/interfaces/protocol.cpp \
-    util/Time.cpp
+    util/Time.cpp \
+    engine/test/SensorDateFileManagerTest.cpp \
+    util/test/Test.cpp
 
 HEADERS += \
     communication/core/protocol.h \
@@ -60,7 +62,9 @@ HEADERS += \
     configuration/tests/ConfigurationMock.h \
     configuration/tests/SensorConfigurationMock.h \
     engine/core/SensorDataFileManager.h \
-    util/Time.h
+    util/Time.h \
+    engine/test/SensorDateFileManagerTest.h \
+    util/test/Test.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 

@@ -75,7 +75,7 @@ namespace NEngine
     struct SBufferInfo
     {
       static const int noWarning = -1;
-      int series;   //!< ilosc serii w pliku
+      int size;   //!< ilosc serii w pliku
       int warning;  //!< ilosc serii od warninga; -1 (SBufferInfo::noWarning), czyli nie bylo warninga
       int sensors;  //!< ilosc czujnikow
     };
@@ -396,14 +396,14 @@ namespace NEngine
       {
         bufferInfo.sensors = sensors;
         // zapis od razu do .warnings, wiec jest 0 serii w .buffer
-        bufferInfo.series = 0;
+        bufferInfo.size = 0;
         // byl ostatnio warning
         bufferInfo.warning = 0;
       }
       else
       {
         bufferInfo.sensors = sensors;
-        bufferInfo.series = 1;
+        bufferInfo.size = 1;
         bufferInfo.warning = SBufferInfo::noWarning;
       }
 
@@ -737,7 +737,7 @@ namespace NEngine
       // ustawienie pozycji
       bufferFile.seekg(sizeof(bufferInfo), std::fstream::beg);
       // odczytane dane: ilosc serii * (ilosc czujnikow * rozmiar danych + rozmiar id)
-      const int allBufferSeriesSize = bufferInfo.series
+      const int allBufferSeriesSize = bufferInfo.size
           * (bufferInfo.sensors * sizeof(T) + sizeof(int));
 
       std::shared_ptr<char> array = getArray<char>(allBufferSeriesSize);
@@ -761,7 +761,7 @@ namespace NEngine
       std::vector<SWarningIndex> newUnconfirmed;
       std::vector<SWarningIndex> newConfirmed;
       int idOffsetWarnings = warningFile.tellg();
-      for (int i = 0; i < bufferInfo.series; ++i)
+      for (int i = 0; i < bufferInfo.size; ++i)
       {
         idPointer = reinterpret_cast<int*>(&*array + i * seriesSize);
         // utworz strukture wpisu (id, offset w .warnings)
@@ -798,7 +798,7 @@ namespace NEngine
       writeIndexFile(warningConfirmedFile, newConfirmed, true);
 
       // uaktualnij ilosc w pliku .warnings
-      changeSizeInFile(warningFile, bufferInfo.series, true);
+      changeSizeInFile(warningFile, bufferInfo.size, true);
       // zapisz dane do .warnings
       warningFile.seekg(0, std::fstream::end);
       warningFile.write(&*array, allBufferSeriesSize);
@@ -813,13 +813,13 @@ namespace NEngine
       {
         // jesli warning bedzie dodawany, to odrazu uzupelnil dane
         // ustaw rozmiar na 0 - bo .buffer bedzie pusty
-        bufferInfo.series = 0;
+        bufferInfo.size = 0;
         // flage warningu
         bufferInfo.warning = 0;
       }
       else
       {
-        bufferInfo.series = 1;
+        bufferInfo.size = 1;
         // flage warningu na SBufferInfo::noWarning, czyli nie bylo warningu
         bufferInfo.warning = SBufferInfo::noWarning;
       }
@@ -903,7 +903,7 @@ namespace NEngine
         id = lastId + 1;
         // dane zostaly przeniesione wiec uaktualnij bufferIno
         // 1 od razu przygotuj do zapisu
-        bufferInfo.series = 1;
+        bufferInfo.size = 1;
         bufferInfo.warning = SBufferInfo::noWarning;
 
         warningFile.flush();
@@ -916,7 +916,7 @@ namespace NEngine
         // przejdz do miejsca zapisu
         bufferFile.seekg(
             sizeof(bufferInfo)
-                + (bufferInfo.series - 1) * (sizeof(int) + sizeof(T)),
+                + (bufferInfo.size - 1) * (sizeof(int) + sizeof(T)),
             std::fstream::beg);
         bufferFile.write(reinterpret_cast<const char*>(&id), sizeof(id));
         bufferFile.write(reinterpret_cast<const char*>(sData.data()),
@@ -928,7 +928,7 @@ namespace NEngine
             sizeof(bufferInfo));
 
         // uaktualnij _unconfirmed.buffer
-        changeSizeInFile(bufferUnconfirmedFile, bufferInfo.series, false);
+        changeSizeInFile(bufferUnconfirmedFile, bufferInfo.size, false);
         bufferUnconfirmedFile.write(reinterpret_cast<const char*>(&id),
             sizeof(id));
       }
@@ -937,17 +937,17 @@ namespace NEngine
 
         int lastId = getLastId(bufferFile);
         id = lastId + 1;
-        if (bufferInfo.series < SeriesAround)
+        if (bufferInfo.size < SeriesAround)
         {
           // czyli zapis do nowego pliku lub zapis do pliku po danych tuz za warningiem
-          ++bufferInfo.series;
+          ++bufferInfo.size;
           if (bufferInfo.warning != SBufferInfo::noWarning)
           {
             ++bufferInfo.warning;
           }
           // przejdz do miejsca zapisu
           const int savingOffset = sizeof(bufferInfo)
-              + (bufferInfo.series - 1)
+              + (bufferInfo.size - 1)
                   * (sizeof(int) + bufferInfo.sensors * sizeof(T));
           bufferFile.seekg(savingOffset, std::fstream::beg);
 
@@ -962,10 +962,10 @@ namespace NEngine
               sizeof(bufferInfo));
 
           // uaktualnij _unconfirmed.buffer
-          const int sizeUnconfirmed = bufferInfo.series;
+          const int sizeUnconfirmed = bufferInfo.size;
           changeSizeInFile(bufferUnconfirmedFile, sizeUnconfirmed, false);
           const int savingUnconfirmedOffset = sizeof(sizeUnconfirmed)
-              + (bufferInfo.series - 1) * sizeof(id);
+              + (bufferInfo.size - 1) * sizeof(id);
           bufferUnconfirmedFile.seekg(savingUnconfirmedOffset,
               std::fstream::beg);
           bufferUnconfirmedFile.write(reinterpret_cast<const char*>(&id),
@@ -978,7 +978,7 @@ namespace NEngine
           // trzeba zamienic na
           // info | dane2 | dane3 | nowe dane |
           // odczytane dane: ilosc serii * (ilosc czujnikow * rozmiar danych + rozmiar id)
-          const int savedBufferSeriesSize = bufferInfo.series
+          const int savedBufferSeriesSize = bufferInfo.size
               * (bufferInfo.sensors * sizeof(T) + sizeof(int));
           // dodatkowe miejsca na nowa serie
           const int bufferSize = savedBufferSeriesSize + sizeof(int)
@@ -1091,7 +1091,7 @@ namespace NEngine
         SBufferInfo info;
         bufferFile.seekg(0, std::fstream::beg);
         bufferFile.read(reinterpret_cast<char*>(&info), sizeof(info));
-        if (info.series == 0)
+        if (info.size == 0)
         {
           // w buforze nie ma wpisu, ale moze jest w .warnings
           // ta sytuacja ma miejsce gdy poprzedni wpis byl warningiem
@@ -1123,7 +1123,7 @@ namespace NEngine
         else
         {
           const int offset = sizeof(info)
-              + (info.series - 1) * (sizeof(int) + info.sensors * sizeof(T));
+              + (info.size - 1) * (sizeof(int) + info.sensors * sizeof(T));
           bufferFile.seekg(offset, std::fstream::beg);
           int id;
           bufferFile.read(reinterpret_cast<char*>(&id), sizeof(id));
@@ -1471,12 +1471,22 @@ namespace NEngine
     }
 
 #ifdef DEBUG_SENSOR_DATA
+
+    struct SSeriesDataTest
+    {
+      int seriesId;
+      std::vector<CSensorData> sensorData;
+      int confirmed;
+    };
+
     //!
     //! \brief coutFiles wyswietla pliki z danego dnia
     //! \param dayBeforeNow ile dni od dzisiaj
-    static void coutFiles(const int dayBeforeNow)
+    static void readFiles(const int dayBeforeNow,
+                          std::vector<SSeriesDataTest>& outBuffer,
+                          std::vector<SSeriesDataTest>& outWarning)
     {
-      std::cerr << "-----------------------------------------\n";
+
       std::vector<int> bufferConfirmed;
       std::fstream bufferConfirmedFile(getConfirmedBufferFilePath(dayBeforeNow),
           std::fstream::in);
@@ -1494,9 +1504,12 @@ namespace NEngine
         readIndexFile(bufferUnconfirmedFile, bufferUnconfirmed, false);
         bufferUnconfirmedFile.close();
       }
+      std::string bufferPath = getBufferFilePath(dayBeforeNow);
+      int (*bufferConverter)(const int& ind) = [](const int& ind){ return ind;};
 
-      coutBufferFile(dayBeforeNow, bufferUnconfirmed, bufferConfirmed);
+      readDataFile<SBufferInfo, int>(bufferPath, bufferUnconfirmed, bufferConfirmed, bufferConverter, outBuffer);
 
+      // warnings
       std::vector<SWarningIndex> warningConfirmed;
       std::fstream warningConfirmedFile(
           getConfirmedWarningFilePath(dayBeforeNow), std::fstream::in);
@@ -1514,143 +1527,88 @@ namespace NEngine
         readIndexFile(warningUnconfirmedFile, warningUnconfirmed, false);
         warningUnconfirmedFile.close();
       }
-      coutWarningFile(dayBeforeNow, warningUnconfirmed, warningConfirmed);
-      std::cerr << "-----------------------------------------\n";
+
+      std::string warningPath = getWarningFilePath(dayBeforeNow);
+      int (*warningConverter)(const SWarningIndex& ind) = [](const SWarningIndex& ind){ return ind.id;};
+
+      readDataFile<SWarningsInfo, SWarningIndex>(warningPath, warningUnconfirmed, warningConfirmed, warningConverter, outWarning);
     }
 
-    //!
-    //! \brief coutWarningFile
-    //! \param dayBeforeNow
-    //! \param unconfirmed
-    //! \param confirmed
-    static void coutWarningFile(const int dayBeforeNow,
-        const std::vector<SWarningIndex>& unconfirmed,
-        const std::vector<SWarningIndex>& confirmed)
+    template<typename TInfoType, typename TIndexType>
+    static void readDataFile(const std::string& filePath,
+                                const std::vector<TIndexType>& unconfirmed,
+                                const std::vector<TIndexType>& confirmed,
+                                int (*converter)(const TIndexType&),
+                                std::vector<SSeriesDataTest>& out)
     {
-      std::cerr << "WARNINGS: \n";
-      std::fstream warningFile(getWarningFilePath(dayBeforeNow),
-          std::fstream::in | std::fstream::binary);
-      if (warningFile.is_open())
-      {
-        SWarningsInfo info;
 
-        warningFile.read(reinterpret_cast<char*>(&info), sizeof(info));
+      std::fstream file(filePath,
+          std::fstream::in | std::fstream::binary);
+      if (file.is_open())
+      {
+        TInfoType info;
+
+        file.read(reinterpret_cast<char*>(&info), sizeof(info));
         const int bufferSize = info.size
-            * (sizeof(int) + info.sensors * sizeof(T));
+                               * (sizeof(int) + info.sensors * sizeof(T));
 
         std::shared_ptr<char> array = getArray<char>(bufferSize);
 
-        if (info.size > 0)
+        char* buf = &*array;
+        file.read(reinterpret_cast<char*>(buf), bufferSize);
+        for (int i = 0; i < info.size; ++i)
         {
-          char* buf = &*array;
-          warningFile.read(reinterpret_cast<char*>(buf), bufferSize);
-          warningFile.close();
+          int* id = reinterpret_cast<int*>(buf
+                                           + i * (sizeof(int) + info.sensors * sizeof(T)));
+          T* datas = reinterpret_cast<T*>(buf + sizeof(int)
+                                          + i * (sizeof(int) + info.sensors * sizeof(T)));
 
-          for (int i = 0; i < info.size; ++i)
+          SSeriesDataTest seriesDataTest;
+
+          seriesDataTest.seriesId = *id;
+          // confirmed czy unconfirmed
+          seriesDataTest.confirmed = -1;
+          if (std::find_if(confirmed.begin(), confirmed.end(),
+                           [&](const TIndexType& ind){ return *id = converter(ind);})
+              != confirmed.end())
           {
-            int* id = reinterpret_cast<int*>(buf
-                + i * (sizeof(int) + info.sensors * sizeof(T)));
-
-            // confirmed
-            const char* conf = nullptr;
-            if (std::find_if(confirmed.begin(), confirmed.end(),
-                [&](const SWarningIndex& index)
-                { return index.id == *id;}) != confirmed.end())
-            {
-              conf = "confirmed";
-            }
-            else if (std::find_if(unconfirmed.begin(), unconfirmed.end(),
-                [&](const SWarningIndex& index)
-                { return index.id == *id;}) != unconfirmed.end())
-            {
-              conf = "unconfirmed";
-            }
-            else
-            {
-              std::cerr << "confirms\n";
-              std::for_each(confirmed.begin(), confirmed.end(),
-                  [](const SWarningIndex& i)
-                  { std::cerr<<i.id<<" offset: "<<i.offset<<"\t";});
-              std::cerr << "\nunconfirms\n";
-              std::for_each(unconfirmed.begin(), unconfirmed.end(),
-                  [](const SWarningIndex& i)
-                  { std::cerr<<i.id<<" offset: "<<i.offset<<"\t";});
-              std::cerr << "\n";
-            }
-            std::cerr <<"series id: "<< *id << ": " << conf << std::endl;
+            seriesDataTest.confirmed = 1;
           }
-        }
-        else
-        {
-          warningFile.close();
+          else if (std::find_if(unconfirmed.begin(), unconfirmed.end(),
+                                [&](const TIndexType& ind){ return *id = converter(ind);})
+                   != unconfirmed.end())
+          {
+            seriesDataTest.confirmed = 0;
+          }
 
+          std::for_each(datas, datas + info.sensors, [&](T& d){seriesDataTest.sensorData.push_back(d);});
+          out.push_back(seriesDataTest);
         }
-
+        file.close();
       }
     }
 
-    //!
-    //! \brief coutBufferFile
-    //! \param dayBeforeNow
-    //! \param unconfirmed
-    //! \param confirmed
-    static void coutBufferFile(const int dayBeforeNow,
-        const std::vector<int>& unconfirmed, const std::vector<int>& confirmed)
+    static void coutFiles(const int dayBeforeNow)
     {
-      std::cerr << "BUFFER: \n";
-      std::fstream bufferFile(getBufferFilePath(dayBeforeNow),
-          std::fstream::in | std::fstream::binary);
-      if (bufferFile.is_open())
+
+      void (*fun)(const SSeriesDataTest&) = [](const SSeriesDataTest& data)
       {
-        SBufferInfo info;
-        bufferFile.read(reinterpret_cast<char*>(&info), sizeof(info));
-        const int bufferSize = info.series
-            * (sizeof(int) + info.sensors * sizeof(T));
+        const char* txt[3] = {"confirmed error", "confirmed", "unconfirmed"};
+        std::cerr<<"SERIES ID: "<<data.seriesId <<" confirmed: "<<txt[data.confirmed + 1]<<" dataSize; "<<data.sensorData.size()<<std::endl;
+      };
 
-        std::shared_ptr<char> array = getArray<char>(bufferSize);
+      std::vector<SSeriesDataTest> outBuffer;
+      std::vector<SSeriesDataTest> outWarning;
 
-        if (info.series > 0)
-        {
-          char* buf = &*array;
-          bufferFile.read(reinterpret_cast<char*>(buf), bufferSize);
-          bufferFile.close();
+      readFiles(dayBeforeNow, outBuffer, outWarning);
+      std::cerr<<"---------------------------------------------\n";
+      std::cerr<<"-------------------- BUFFERS ----------------\n";
+      std::for_each(outBuffer.begin(), outBuffer.end(), fun);
+      std::cerr<<"------------------- WARNINGS ----------------\n";
+      std::for_each(outWarning.begin(), outWarning.end(), fun);
+      std::cerr<<"---------------------------------------------\n";
 
-          for (int i = 0; i < info.series; ++i)
-          {
-            int* id = reinterpret_cast<int*>(buf
-                + i * (sizeof(int) + info.sensors * sizeof(T)));
 
-            // confirmed
-            const char* conf = nullptr;
-            if (std::find(confirmed.begin(), confirmed.end(), *id)
-                != confirmed.end())
-            {
-              conf = "confirmed";
-            }
-            else if (std::find(unconfirmed.begin(), unconfirmed.end(), *id)
-                != unconfirmed.end())
-            {
-              conf = "unconfirmed";
-            }
-            else
-            {
-              std::cerr << "confirms\n";
-              std::for_each(confirmed.begin(), confirmed.end(), [](const int& i)
-              { std::cerr<<i<<"\t";});
-              std::cerr << "\nunconfirms\n";
-              std::for_each(unconfirmed.begin(), unconfirmed.end(),
-                  [](const int& i)
-                  { std::cerr<<i<<"\t";});
-              std::cerr << "\n";
-            }
-            std::cerr <<"series id: "<< *id << ": " << conf << std::endl;
-          }
-        }
-        else
-        {
-          bufferFile.close();
-        }
-      }
     }
 
 #endif //DEBUG_SENSOR_DATA
