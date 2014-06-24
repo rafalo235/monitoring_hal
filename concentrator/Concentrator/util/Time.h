@@ -60,7 +60,8 @@ namespace NUtil
       {}
 
     //! \brief STime konstruktor
-    //! \param time struktura czasu z std
+    //! \param timeStd1 czas zgodny z SDT
+    //! \param time1 struktura czasu z std
     STime(long timeStd1, const tm* time1) :
       time(timeStd1),
       year(time1->tm_year + 1900),
@@ -71,6 +72,13 @@ namespace NUtil
       second(time1->tm_sec)
     {}
 
+    //! \brief STime konstruktor
+    //! \param year1 rok
+    //! \param month1 miesiac
+    //! \param day1 dzien
+    //! \param hour1 godzina
+    //! \param minute1 minuty
+    //! \param second1 sekondy
     STime(const int year1,
           const int month1,
           const int day1,
@@ -99,77 +107,131 @@ namespace NUtil
 
     }
 
+    //!
+    //! \brief STime konstruktor
+    //! \param t czas zgodny z std
     STime (const std::time_t& t) : STime(t, localtime(&t))
     {
 
     }
-    long getTime() const
+
+    //!
+    //! \brief getTime zwraca czas
+    //! \return czas z STD
+    inline long getTime() const
     {
         return time;
     }
 
-    int getYear() const
+    //!
+    //! \brief getYear zwraca lata
+    //! \return lata
+    inline int getYear() const
     {
         return year;
     }
 
-    int getMonth() const
+    //!
+    //! \brief getMonth zwraca miesiace
+    //! \return miesiace
+    inline int getMonth() const
     {
         return month;
     }
 
-    int getDay() const
+    //!
+    //! \brief getDay zwraca dni
+    //! \return dni
+    inline int getDay() const
     {
         return day;
     }
 
-    int getHour() const
+    //!
+    //! \brief getHour zwraca godzinny
+    //! \return godziny
+    inline int getHour() const
     {
         return hour;
     }
 
-    int getMinute() const
+    //!
+    //! \brief getMinute zwraca minuty
+    //! \return minuty
+    inline int getMinute() const
     {
         return minute;
     }
 
-    int getSecond() const
+    //!
+    //! \brief getSecond zwraca sekundy
+    //! \return sekundy
+    inline int getSecond() const
     {
         return second;
     }
+
+    //!
+    //! \brief operator - odejmuje czasy
+    //! \param time1 czas do odjecia
+    //! \return roznica czasow
     STime operator-(const STime& time1)
     {
       auto timeBuf = time - time1.time;
       return convertDuration(timeBuf);
     }
 
+    //!
+    //! \brief operator + dodaje czas
+    //! \param time1 czas do doawnia
+    //! \return suma czasu
     STime operator+(const STime& time1)
     {
       auto timeBuf = time - time1.time;
       return convertDuration(timeBuf);
     }
 
+    //!
+    //! \brief operator < porownuje czasy
+    //! \param time1 prawa strona
+    //! \return true jesli lewa strona jest wczesniejsza
     bool operator<(const STime& time1)
     {
       return time < time1.time;
     }
 
+    //!
+    //! \brief operator <= porownuje czasy
+    //! \param time1 prawa strona
+    //! \return true jesli lewa strona jest wczesniejsza badz rowna
     bool operator<=(const STime& time1)
     {
       return time <= time1.time;
     }
 
+    //!
+    //! \brief operator > porownuje czasy
+    //! \param time1 prawa strona
+    //! \return true jesli lewa strona jest pozniejsza
     bool operator>(const STime& time1)
     {
       return time > time1.time;
     }
 
+    //!
+    //! \brief operator >= porownuje czasy
+    //! \param time1 prawa strona
+    //! \return true jesli lewa strona jest pozniejsza badz rowna
     bool operator>=(const STime& time1)
     {
       return time >= time1.time;
     }
 
   private:
+    //!
+    //! \brief convertDuration konwertuje sekundy na dni, godziny, minuty, sekundy - nie uwzglednia miesiacy
+    //! \param time sekudny
+    //! \return struktura czasu
     STime convertDuration(const long time)
     {
       auto timeBuf2 = time;
@@ -272,6 +334,7 @@ namespace NUtil
 #endif
 
   public:
+
     //!
     //! \brief now zwraca aktualny czas
     //! \return aktualny czas
@@ -305,9 +368,6 @@ namespace NUtil
 
       return STime(in_time_t, aTime);
     }
-
-
-
 
   };
 }

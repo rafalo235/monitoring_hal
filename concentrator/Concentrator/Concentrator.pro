@@ -68,6 +68,8 @@ HEADERS += \
 
 QMAKE_CXXFLAGS += -std=c++0x
 
+# Wlaczenie/wylaczenie testow
+#DEFINES += TEST_ENABLE
 
 unix: PKGCONFIG += libmodbus
 

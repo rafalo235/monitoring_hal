@@ -1,7 +1,9 @@
+#ifdef TEST_ENABLE
 #include "Test.h"
 
 namespace NTest
 {
-std::vector<CTestIndex> CTestBase::testClasses;
+std::shared_ptr<std::vector<CTestIndex>> CTestBase::testClasses;
 
 }
+#endif //TEST_ENABLE

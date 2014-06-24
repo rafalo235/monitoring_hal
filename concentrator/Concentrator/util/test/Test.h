@@ -1,6 +1,8 @@
 #ifndef TEST_H_
 #define TEST_H_
 
+#ifdef TEST_ENABLE
+
 #include <vector>
 #include <memory>
 #include <cstring>
@@ -9,7 +11,7 @@
 #include <string>
 #include <cstring>
 #include <algorithm>
-
+#include <thread>
 //! tworza unikatowa nazwy z prefiksem
 #define CONCAT(a, b) a ## b
 #define CONCAT2(a, b) CONCAT(a, b)
@@ -21,7 +23,7 @@
 #define ADD_TEST(className) std::shared_ptr<NTest::CTestHelper<className>> UNIQUE_NAME(className) (new NTest::CTestHelper<className>(__FILE__, #className));
 
 //! \brief AsertEQ
-#define assertEq(t1, t2) assertFun(t1, t2, __FILE__, __LINE__);
+#define assertEq(t1, t2) assertEqFun(t1, t2, __FILE__, __LINE__);
 
 //! \brief namespace testow
 //! Przyklad uzycia
@@ -119,8 +121,8 @@ namespace NTest
 
   protected:
     //! \brief Wektor wskaznikow do wszystkich klas testowych
-    static std::vector<CTestIndex> testClasses;
-
+    //static std::vector<CTestIndex> testClasses;
+    static std::shared_ptr<std::vector<CTestIndex>> testClasses;
     //!
     //! \brief beforeClass funkcja uruchamiania na samym poczatku klasy testowej przed testwami (adnotacja BeforeClass)
     virtual void beforeClass()
@@ -148,6 +150,11 @@ namespace NTest
 
     //! \brief runTest uruchamia testy z klasy testowej
     virtual void runTests() = 0;
+
+
+  public:
+
+    virtual ~CTestBase() = default;
 
     //!
     //! \brief print wyswietla podane teksty
@@ -212,28 +219,27 @@ namespace NTest
       std::cout << signs;
 
     }
-
-  public:
-
-    virtual ~CTestBase() = default;
-
     //!
     //! \brief addInstance dodaje klase testowa do listy
     //! \param ptr wskaznik do klasy testowej
     static void addInstance(const CTestIndex& ptr)
     {
-      testClasses.push_back(ptr);
+      if (testClasses.use_count() == 0)
+      {
+        testClasses.reset(new std::vector<CTestIndex>());
+      }
+      testClasses->push_back(ptr);
     }
 
     //!
     //! \brief runAllTests uruchamia wszystkie testy
     static void runAllTests()
     {
-      static const char sep = '*';
-      static const char sep2 = ' ';
-      static const std::string fileTxt("FILE");
-      static const std::string classNameTxt("ClassName");
-      for (CTestIndex& i : testClasses)
+      const char sep = '*';
+      const char sep2 = ' ';
+      const std::string fileTxt("FILE");
+      const std::string classNameTxt("ClassName");
+      for (CTestIndex& i : *testClasses)
       {
         print(sep);
         std::string filePath = i.getFilePath();
@@ -250,15 +256,14 @@ namespace NTest
       }
     }
 
-
     //!
     //! \brief assertFun asertEquals
     //! \param t1 wartosc lewa - expected
     //! \param t2 wartosc prawa - actual
     //! \param file sciezka do pliku, gdzie uzyto asercji
     //! \param line nr linie, w ktorej uzyto asercji
-    template<typename T>
-    static void assertFun(const T& t1, const T& t2, const char* file,
+    template<typename T1, typename T2>
+    static void assertEqFun(const T1& t1, const T2& t2, const char* file,
         const int line)
     {
       if (t1 != t2)
@@ -360,4 +365,5 @@ namespace NTest
     }
   };
 }
+#endif // TEST_ENABLE
 #endif /* TEST_H_ */

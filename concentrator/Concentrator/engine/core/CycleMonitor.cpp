@@ -124,7 +124,7 @@ namespace NEngine{
         std::vector<int> idSeries{it->second.idSeries};
         DSensorDataFileManager::confirm(dif.getDay(), idSeries);
         sensorSeries.erase(it);
-        LOG_OUTPUT(DSensorDataFileManager::coutFiles(0));
+        //LOG_OUTPUT(DSensorDataFileManager::coutFiles(0));
       }
     }
 
@@ -233,7 +233,7 @@ namespace NEngine{
     {
       savedSensorData.idSeries = DSensorDataFileManager::saveData(warningLevel, savedSensorData.sensorDatas);
       savedSensorData.time = CTime::now();
-      LOG_OUTPUT(DSensorDataFileManager::coutFiles(0));
+      //LOG_OUTPUT(DSensorDataFileManager::coutFiles(0));
     }
     return warningLevel;
   }

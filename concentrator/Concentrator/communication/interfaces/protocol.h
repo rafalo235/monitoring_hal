@@ -40,7 +40,7 @@ namespace NProtocol
 
   typedef float float32_t;    //!< 32 bitowy float
   typedef double double64_t;  //!< 64 bitowy double
-  typedef unsigned long long uint64_t; //!< 64 bitowy int bez znaku - przenosnosc dla time_t
+ // typedef unsigned long long uint64_t; //!< 64 bitowy int bez znaku - przenosnosc dla time_t
 
   //! \brief Typ danej przechowywanej w UValue
   enum class EValueType : int8_t
