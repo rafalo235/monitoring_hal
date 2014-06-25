@@ -98,7 +98,7 @@ namespace NProtocol
     //! \param[in] type1 Typ wartosci
     //! \param[in] value1 Wskaznik do wartosci
     //!
-    CData(const EValueType& type1, void* value1) noexcept
+    CData(const EValueType& type1, const void* value1) noexcept
     {
       setValue(type1, value1);
     }
@@ -118,38 +118,38 @@ namespace NProtocol
     //! \brief Zmienia wartosc
     //! \param[in] type1 Typ wartosci
     //! \param[in] value1 Wskaznik do wartosci
-    void setValue(const EValueType& type1, void* value1) noexcept{
+    void setValue(const EValueType& type1, const void* value1) noexcept{
       type = type1;
       switch(type){
       case EValueType::INT_8:
-        value.vInt8 = *(reinterpret_cast<int8_t*>(value1));
+        value.vInt8 = *(reinterpret_cast<const int8_t*>(value1));
         break;
       case EValueType::UINT_8:
-        value.vUInt8 = *(reinterpret_cast<uint8_t*>(value1));
+        value.vUInt8 = *(reinterpret_cast<const uint8_t*>(value1));
         break;
       case EValueType::INT_16:
-        value.vInt16 = *(reinterpret_cast<int16_t*>(value1));
+        value.vInt16 = *(reinterpret_cast<const int16_t*>(value1));
         break;
       case EValueType::UINT_16:
-        value.vUInt16 = *(reinterpret_cast<uint16_t*>(value1));
+        value.vUInt16 = *(reinterpret_cast<const uint16_t*>(value1));
         break;
       case EValueType::INT_32:
-        value.vInt32 = *(reinterpret_cast<int32_t*>(value1));
+        value.vInt32 = *(reinterpret_cast<const int32_t*>(value1));
         break;
       case EValueType::UINT_32:
-        value.vUInt32 = *(reinterpret_cast<uint32_t*>(value1));
+        value.vUInt32 = *(reinterpret_cast<const uint32_t*>(value1));
         break;
       case EValueType::INT_64:
-        value.vInt64 = *(reinterpret_cast<int64_t*>(value1));
+        value.vInt64 = *(reinterpret_cast<const int64_t*>(value1));
         break;
       case EValueType::UINT_64:
-        value.vUInt64 = *(reinterpret_cast<uint64_t*>(value1));
+        value.vUInt64 = *(reinterpret_cast<const uint64_t*>(value1));
         break;
       case EValueType::FLOAT_32:
-        value.vFloat32 = *(reinterpret_cast<float32_t*>(value1));
+        value.vFloat32 = *(reinterpret_cast<const float32_t*>(value1));
         break;
       case EValueType::DOUBLE_64:
-        value.vDouble64 = *(reinterpret_cast<double64_t*>(value1));
+        value.vDouble64 = *(reinterpret_cast<const double64_t*>(value1));
         break;
       case EValueType::VOID:
         value.vVoid8 = cVoidValue;

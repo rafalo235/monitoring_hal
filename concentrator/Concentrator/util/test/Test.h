@@ -118,11 +118,20 @@ namespace NTest
   //! \brief The CTestBase class klasa bazowa wszystkich testow. Zawiera liste wskaznikow do wszystkich klas testowych
   class CTestBase
   {
+    struct SAssertValue
+    {
+      std::string testCaseName;
+      int assertsTrue;
+      int assertsFalse;
+    };
+
+    static SAssertValue currectTestCaseAsserts;
 
   protected:
+
     //! \brief Wektor wskaznikow do wszystkich klas testowych
-    //static std::vector<CTestIndex> testClasses;
     static std::shared_ptr<std::vector<CTestIndex>> testClasses;
+
     //!
     //! \brief beforeClass funkcja uruchamiania na samym poczatku klasy testowej przed testwami (adnotacja BeforeClass)
     virtual void beforeClass()
@@ -258,23 +267,41 @@ namespace NTest
 
     //!
     //! \brief assertFun asertEquals
-    //! \param t1 wartosc lewa - expected
-    //! \param t2 wartosc prawa - actual
+    //! \param expected wartosc lewa - expected
+    //! \param actual wartosc prawa - actual
     //! \param file sciezka do pliku, gdzie uzyto asercji
     //! \param line nr linie, w ktorej uzyto asercji
     template<typename T1, typename T2>
-    static void assertEqFun(const T1& t1, const T2& t2, const char* file,
+    static void assertEqFun(const T1& expected, const T2& actual, const char* file,
         const int line)
     {
-      if (t1 != t2)
+      if (expected != actual)
       {
         std::cout << "assert failed. File: " << file << " line: " << line
             << std::endl;
-        ;
+        std::cout<<"expected: "<<expected<<" actual: "<<actual<<std::endl;
+        ++currectTestCaseAsserts.assertsFalse;
+      }
+      else
+      {
+        ++currectTestCaseAsserts.assertsTrue;
       }
     }
-  };
 
+    static void resetAssertsValues(const std::string& testCaseName1)
+    {
+      currectTestCaseAsserts.testCaseName = testCaseName1;
+      currectTestCaseAsserts.assertsFalse = 0;
+      currectTestCaseAsserts.assertsTrue = 0;
+    }
+
+    static void coutAssertsValues()
+    {
+      std::cout<<"ASSERTS: "<<currectTestCaseAsserts.testCaseName<<std::endl;
+      std::cout<<"true: "<<currectTestCaseAsserts.assertsTrue<<std::endl;
+      std::cout<<"false: "<<currectTestCaseAsserts.assertsFalse<<std::endl;
+    }
+  };
 
   //!
   //! \brief The CTest class klasa bazowa testow jednostkowych, ktora zawiera lista wskazniko do funkcji realizujacych testCase'y
@@ -319,6 +346,7 @@ namespace NTest
       for (const STestCase& j : testCases)
       {
         print(sep, &testCaseTxt, &j.caseName);
+        CTestBase::resetAssertsValues(j.caseName);
         setUp();
         T* buf = reinterpret_cast<T*>(this);
         try
@@ -333,6 +361,7 @@ namespace NTest
         }
 
         tearDown();
+        CTestBase::coutAssertsValues();
         print(sep);
       }
     }

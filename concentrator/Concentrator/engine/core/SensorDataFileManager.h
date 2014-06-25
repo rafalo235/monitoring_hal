@@ -494,7 +494,7 @@ namespace NEngine
       {
         // rozmiar
         const int size = 1;
-        warningUnconfirmedFile.write(reinterpret_cast<const char*>(size),
+        warningUnconfirmedFile.write(reinterpret_cast<const char*>(&size),
             sizeof(size));
         //  offset do nowego
         const int offset = 0;
@@ -684,10 +684,29 @@ namespace NEngine
       bufferFile.read(reinterpret_cast<char*>(&bufferInfo), sizeof(bufferInfo));
 
       // skopiuj zwartosc .buffer do .warnings
-      const int lastId = moveDataToWarnings(bufferInfo, warningFile,
-          warningConfirmedFile, warningUnconfirmedFile, bufferFile,
-          bufferConfirmedFile, bufferUnconfirmedFile, true);
-
+      int lastId;
+      if (bufferInfo.size != 0)
+      {
+        lastId = moveDataToWarnings(bufferInfo, warningFile,
+            warningConfirmedFile, warningUnconfirmedFile, bufferFile,
+            bufferConfirmedFile, bufferUnconfirmedFile, true);
+      }
+      else
+      {
+        SWarningsInfo warningInfo;
+        warningFile.seekg(0, std::fstream::beg);
+        warningFile.read(reinterpret_cast<char*>(&warningInfo), sizeof(warningInfo));
+        if (warningInfo.size == 0)
+        {
+          lastId = -1;
+        }
+        else
+        {
+          int offsetEnd = warningInfo.sensors * sizeof(T) + sizeof(int);
+          warningFile.seekg(-offsetEnd, std::fstream::end);
+          warningFile.read(reinterpret_cast<char*>(&lastId), sizeof(lastId));
+        }
+      }
       warningFile.seekg(0, std::fstream::end);
       warningUnconfirmedFile.seekg(0, std::fstream::end);
       // id nowego
@@ -697,6 +716,7 @@ namespace NEngine
       { id, warningFile.tellg() };
       warningUnconfirmedFile.write(reinterpret_cast<const char*>(&index),
           sizeof(index));
+      changeSizeInFile(warningUnconfirmedFile, 1, true);
       // dopisz aktualne dane do .warnings - id, dane
       warningFile.write(reinterpret_cast<const char*>(&id), sizeof(id));
       warningFile.write(reinterpret_cast<const char*>(sData.data()),
@@ -752,7 +772,7 @@ namespace NEngine
       std::vector<int> confirmed;
       readIndexFile(bufferConfirmedFile, confirmed, warning);
 
-      // rzygotowanie pliku .warnings do zapisu - przejscie na koniec pliku
+      // przygotowanie pliku .warnings do zapisu - przejscie na koniec pliku
       warningFile.seekg(0, std::fstream::end);
 
       const int seriesSize = sizeof(int) + bufferInfo.sensors * sizeof(T);
@@ -802,12 +822,6 @@ namespace NEngine
       // zapisz dane do .warnings
       warningFile.seekg(0, std::fstream::end);
       warningFile.write(&*array, allBufferSeriesSize);
-
-      // uaktualnij ._confirmed.warnings
-      changeSizeInFile(warningConfirmedFile, confirmed.size(), true);
-
-      // uaktualnij ._unconfirmed.warnings
-      changeSizeInFile(warningUnconfirmedFile, unconfirmed.size(), true);
 
       if (warning)
       {
@@ -881,56 +895,48 @@ namespace NEngine
       std::fstream bufferUnconfirmedFile(getUnconfirmedBufferFilePath(0),
           std::fstream::in | std::fstream::out | std::fstream::binary);
       int id;
-      if (bufferInfo.warning == SeriesAround)
+      if (bufferInfo.warning <= SeriesAround && bufferInfo.warning != SBufferInfo::noWarning) /// CHECK
       {
         // .buffer znajduja sie serie tuz po warningu
         // nalezy je przenies
         // najpier otworz wszystkie pliki
         std::fstream warningFile(getWarningFilePath(0),
             std::fstream::in | std::fstream::out | std::fstream::binary);
-        std::fstream warningConfirmedFile(getWarningFilePath(0),
+        std::fstream warningUnconfirmedFile(getUnconfirmedWarningFilePath(0),
             std::fstream::in | std::fstream::out | std::fstream::binary);
-        std::fstream warningUnconfirmedFile(getWarningFilePath(0),
-            std::fstream::in | std::fstream::out | std::fstream::binary);
-        std::fstream bufferConfirmedFile(getWarningFilePath(0),
-            std::fstream::in | std::fstream::out | std::fstream::binary);
-        // skopiuj zwartosc .buffer do .warnings
-        const int lastId = moveDataToWarnings(bufferInfo, warningFile,
-            warningConfirmedFile, warningUnconfirmedFile, bufferFile,
-            bufferConfirmedFile, bufferUnconfirmedFile, true);
 
+        int lastId;
+        SWarningsInfo warningInfo;
+        warningFile.seekg(0, std::fstream::beg);
+        warningFile.read(reinterpret_cast<char*>(&warningInfo), sizeof(warningInfo));
+        int offsetEnd = warningInfo.sensors * sizeof(T) + sizeof(int);
+        warningFile.seekg(-offsetEnd, std::fstream::end);
+        warningFile.read(reinterpret_cast<char*>(&lastId), sizeof(lastId));
         // id nowego
         id = lastId + 1;
-        // dane zostaly przeniesione wiec uaktualnij bufferIno
-        // 1 od razu przygotuj do zapisu
-        bufferInfo.size = 1;
-        bufferInfo.warning = SBufferInfo::noWarning;
 
-        warningFile.flush();
-        warningFile.close();
+        warningFile.seekg(0, std::fstream::end);
+        // uaktualnij _unconfirmed.warning
+        SWarningIndex index;
+        index.id = id;
+        index.offset = warningFile.tellg();
+        warningUnconfirmedFile.seekg(0, std::fstream::end);
+        warningUnconfirmedFile.write(reinterpret_cast<const char*>(&index), sizeof(index));
+        changeSizeInFile(warningUnconfirmedFile, 1, true);
         warningUnconfirmedFile.flush();
         warningUnconfirmedFile.close();
-        warningConfirmedFile.close();
-        bufferConfirmedFile.close();
 
-        // przejdz do miejsca zapisu
-        bufferFile.seekg(
-            sizeof(bufferInfo)
-                + (bufferInfo.size - 1) * (sizeof(int) + sizeof(T)),
-            std::fstream::beg);
-        bufferFile.write(reinterpret_cast<const char*>(&id), sizeof(id));
-        bufferFile.write(reinterpret_cast<const char*>(sData.data()),
+        warningFile.write(reinterpret_cast<const char*>(&id), sizeof(id));
+        warningFile.write(reinterpret_cast<const char*>(sData.data()),
             sizeof(T) * sData.size());
+        changeSizeInFile(warningFile, 1, true);
+        warningFile.flush();
+        warningFile.close();
+        ++bufferInfo.warning;
 
-        // uaktualnij info
         bufferFile.seekg(0, std::fstream::beg);
-        bufferFile.write(reinterpret_cast<const char*>(&bufferInfo),
-            sizeof(bufferInfo));
+        bufferFile.write(reinterpret_cast<const char*>(&bufferFile), sizeof(bufferFile));
 
-        // uaktualnij _unconfirmed.buffer
-        changeSizeInFile(bufferUnconfirmedFile, bufferInfo.size, false);
-        bufferUnconfirmedFile.write(reinterpret_cast<const char*>(&id),
-            sizeof(id));
       }
       else
       {
@@ -1569,16 +1575,20 @@ namespace NEngine
           // confirmed czy unconfirmed
           seriesDataTest.confirmed = -1;
           if (std::find_if(confirmed.begin(), confirmed.end(),
-                           [&](const TIndexType& ind){ return *id = converter(ind);})
+                           [&](const TIndexType& ind){ return *id == converter(ind);})
               != confirmed.end())
           {
             seriesDataTest.confirmed = 1;
           }
           else if (std::find_if(unconfirmed.begin(), unconfirmed.end(),
-                                [&](const TIndexType& ind){ return *id = converter(ind);})
+                                [&](const TIndexType& ind){ return *id == converter(ind);})
                    != unconfirmed.end())
           {
             seriesDataTest.confirmed = 0;
+          }
+          else
+          {
+            std::cout<<"CONFIRMED ERROR: ";
           }
 
           std::for_each(datas, datas + info.sensors, [&](T& d){seriesDataTest.sensorData.push_back(d);});
@@ -1593,7 +1603,7 @@ namespace NEngine
 
       void (*fun)(const SSeriesDataTest&) = [](const SSeriesDataTest& data)
       {
-        const char* txt[3] = {"confirmed error", "confirmed", "unconfirmed"};
+        const char* txt[3] = {"confirmed error", "unconfirmed", "confirmed"};
         std::cerr<<"SERIES ID: "<<data.seriesId <<" confirmed: "<<txt[data.confirmed + 1]<<" dataSize; "<<data.sensorData.size()<<std::endl;
       };
 
