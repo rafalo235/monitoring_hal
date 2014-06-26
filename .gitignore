@@ -5,8 +5,7 @@
 *.o
 *.a
 *.so
-build-*-Desktop_Qt_*_GCC_*bit-Debug/
-build-*-Desktop_Qt_*_GCC_*bit-Release/
+build-*/
 *.user
 *.user.*
 *.orig
