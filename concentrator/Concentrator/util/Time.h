@@ -369,6 +369,12 @@ namespace NUtil
       return STime(in_time_t, aTime);
     }
 
+    static STime getChangedTime(const STime& time, const bool future, const ETimeUnit unit, const int value)
+    {
+      long timeL = time.getTime();
+      moveTime(timeL, future, unit, value);
+      return STime(timeL);
+    }
   };
 }
 

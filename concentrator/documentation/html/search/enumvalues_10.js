@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['warning',['WARNING',['../namespace_n_protocol.html#a011d99bdc2e4d96bec8a78774acaf2c0a059e9861e0400dfbe05c98a841f3f96b',1,'NProtocol']]]
+  ['void',['VOID',['../namespaceNProtocol.html#aa98c473b81ada5bbb825af86564d6e56a6d0c9fc747131795e6e5d0c5119f12cb',1,'NProtocol']]]
 ];

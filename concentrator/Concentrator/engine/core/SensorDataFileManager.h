@@ -70,7 +70,6 @@ namespace NEngine
   class CSensorDataFileManager
   {
 
-
     //! \brief Pierwsze bajty pliku .buffer z informacjami
     struct SBufferInfo
     {
@@ -94,10 +93,24 @@ namespace NEngine
       int offset; //!< offset w .warnings
     };
 
+    //!
+    //! \brief lastTimeSaved zwraca i opcjonalnie ustawia czas zapisu
+    //! \param time1 czas zapisu do ustawienia
+    //! \return  czas zapisu
+    inline static STime lastTimeSaved(const STime* time1 = nullptr)
+    {
+      static STime lastTime;
+      if (time1 != nullptr)
+      {
+        lastTime = *time1;
+      }
+      return lastTime;
+    }
+
     //! \brief folder z plikami
     inline static std::string getFolder()
     {
-      const static std::string folder("data");
+      const std::string folder("data");
       return folder;
     }
 
@@ -114,7 +127,10 @@ namespace NEngine
     //! \return string z data
     static std::string getDateString(const int daysBeforeNow)
     {
-      NUtil::STime time = NUtil::CTime::getDateTime(false, NUtil::CTime::ETimeUnit::DAY, daysBeforeNow);
+      //NUtil::STime time = NUtil::CTime::getDateTime(false, NUtil::CTime::ETimeUnit::DAY, daysBeforeNow);
+
+      NUtil::STime time = NUtil::CTime::getChangedTime(lastTimeSaved(), false, NUtil::CTime::ETimeUnit::DAY, daysBeforeNow);
+
       return std::to_string(time.getDay()) + "_" + std::to_string(time.getMonth()) + "_" + std::to_string(time.getYear());
     }
 
@@ -256,7 +272,6 @@ namespace NEngine
     }
 
     //! \brief dodaje date do pliku z lista wszystkich dat
-    //! \param[in] fileName
     //! \return true jesli wszystko ok
     static bool addDateToDateListFile()
     {
@@ -276,8 +291,6 @@ namespace NEngine
       else
       {
         // plik nie istnieje wiec stworz nowy
-        std::string fileStr = getDateListFilePath();
-
         std::ofstream newFile(getDateListFilePath(), std::fstream::out | std::fstream::binary);
         if (newFile.is_open())
         {
@@ -376,7 +389,7 @@ namespace NEngine
     //! \param[in] actualWarning czy dopisywana bedzie seria niebezpieczna
     //! \param[in] sData pomiary
     //! \return ID serii
-    static int saveNewFile(const bool yesterdayWarning,
+    static int saveNewFile(const int yesterdayWarning,
         const bool actualWarning, const std::vector<T>& sData)
     {
       // id
@@ -392,17 +405,21 @@ namespace NEngine
       // info; ustaw flage jesli ostatnia seria byla niebezpieczna lub obecna;
       // obecna niebezpieczna jest od razu zapisywana do .warnings
       SBufferInfo bufferInfo;
-      if (yesterdayWarning || actualWarning)
+      bufferInfo.sensors = sensors;
+      if (actualWarning)
       {
-        bufferInfo.sensors = sensors;
         // zapis od razu do .warnings, wiec jest 0 serii w .buffer
         bufferInfo.size = 0;
         // byl ostatnio warning
         bufferInfo.warning = 0;
       }
+      else if (yesterdayWarning < SeriesAround && yesterdayWarning != SBufferInfo::noWarning)
+      {
+        bufferInfo.size = 1;
+        bufferInfo.warning = yesterdayWarning + 1;
+      }
       else
       {
-        bufferInfo.sensors = sensors;
         bufferInfo.size = 1;
         bufferInfo.warning = SBufferInfo::noWarning;
       }
@@ -562,9 +579,8 @@ namespace NEngine
     }
     //!
     //! \brief wasWarning sprawdza czy ostatnie serie danego dnia byla niebezpiecznia
-    //! \param[in] daysBeforeNow ile dni od dzisiaj
-    //! \return true jesli serie byly niezbezpieczne
-    static bool wasWarning()
+    //! \return zwraca wartosc SBufferInfo::warnigs ostatniego wpisu
+    static int wasWarning()
     {
       STime now = CTime::now();
       std::vector<std::time_t> fileList;
@@ -580,9 +596,9 @@ namespace NEngine
               std::fstream::in | std::fstream::binary);
           bufferFile.read(reinterpret_cast<char*>(&bufferInfo), sizeof(bufferInfo));
           bufferFile.close();
-          return (bufferInfo.warning != SBufferInfo::noWarning) && (bufferInfo.warning < SeriesAround);
+          return bufferInfo.warning;
       }
-      return false;
+      return SBufferInfo::noWarning;
     }
 
     //!
@@ -683,6 +699,13 @@ namespace NEngine
       SBufferInfo bufferInfo;
       bufferFile.read(reinterpret_cast<char*>(&bufferInfo), sizeof(bufferInfo));
 
+      if (bufferInfo.size < SeriesAround)
+      {
+        // serie pomiarowe .buffer z poprzednich dni powinny byc przesuniete do .warning.
+        // Czesc z SeriesAround serii przed warningiem znajdauja sie w starych plikach
+
+      }
+      //////////////////////////////////////////////////////////////
       // skopiuj zwartosc .buffer do .warnings
       int lastId;
       if (bufferInfo.size != 0)
@@ -736,7 +759,7 @@ namespace NEngine
       return id;
     }
 
-    //!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! trzeba umozliwisc przenoszenie okreslonej ilosc serii
     //! \brief moveDataToWarnings przenosi dane z buffer do warning
     //! \param bufferInfo info z .buffer
     //! \param warningFile plik .warning
@@ -1224,15 +1247,16 @@ namespace NEngine
     //! \return  id serii
     static int saveData(const bool warning, const std::vector<T>& sData)
     {
+      STime now = CTime::now();
+      lastTimeSaved(&now);
       std::fstream bufferFile(getBufferFilePath(0),
           std::fstream::in | std::fstream::out | std::fstream::binary);
 
       // sprawdz czy plik istnieje
       if (!bufferFile.is_open())
       {
-        // plik nie istnieje
-        // zdefragmentuj wczorajsze pliki
-        const bool warningYesterday = wasWarning();
+        // dzisiejszy plik nie istnieje
+        const int warningYesterday = wasWarning();
         // utworz nowe
         return saveNewFile(warningYesterday, warning, sData);
       }
@@ -1493,7 +1517,11 @@ namespace NEngine
 
     //!
     //! \brief coutFiles wyswietla pliki z danego dnia
-    //! \param dayBeforeNow ile dni od dzisiaj
+    //! \param[in] dayBeforeNow ile dni od dzisiaj
+    //! \param[out] outBuffer wektor danych bufora
+    //! \param[out] outWarning wektor danych niebezpiecznych
+    //! \param[in] displayBufferInfo wskaznik do funkcji wyswietlajacej SBufferInfo
+    //! \param[in] displayWarningInfo wskaznik do funkcji wyswietlajacej SWarningsInfo
     static void readFiles(const int dayBeforeNow,
                           std::vector<SSeriesDataTest>& outBuffer,
                           std::vector<SSeriesDataTest>& outWarning,

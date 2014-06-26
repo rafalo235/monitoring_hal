@@ -16,7 +16,7 @@ namespace NSensors {
 
     //!
     //! \brief getSensorData odczytuje dane z czujnikow
-    //! \param idSensor id czujnika
+    //! \param conf konfiguracja czujnika
     //! \param value odczytana wartosc
     //! \return true jesli odczyt sie udal, false jesli czujnik jest rozwalony
     //!

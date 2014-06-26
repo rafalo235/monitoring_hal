@@ -25,7 +25,6 @@ namespace NProtocol {
 
   //!
   //! \brief operator> Operator wiekszosci przyjmujacy ze parametry maja dane tego samego typu
-  //! \param data1 lewa strona
   //! \param data2 prawa strona
   //! \return true gdy lewa strona > prawa strona
   bool CData::operator>(const CData& data2) const
@@ -59,7 +58,6 @@ namespace NProtocol {
   }
 
   //! \brief operator< Operator mniejszosci przyjmujacy ze parametry maja dane tego samego typu
-  //! \param data1 lewa strona
   //! \param data2 prawa strona
   //! \return true gdy lewa strona < prawa strona
   bool CData::operator<(const CData& data2) const
@@ -92,6 +90,9 @@ namespace NProtocol {
     return true;
   }
 
+  //! \brief operator== Operator porownania przyjmujacy ze parametry maja dane tego samego typu
+  //! \param data2 prawa strona
+  //! \return true gdy lewa strona == prawa strona
   bool CData::operator==(const CData& data2) const
   {
 
