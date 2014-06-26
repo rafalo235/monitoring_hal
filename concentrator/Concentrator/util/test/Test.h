@@ -12,6 +12,9 @@
 #include <cstring>
 #include <algorithm>
 #include <thread>
+#include <cstdlib>
+#include <sstream>
+
 //! tworza unikatowa nazwy z prefiksem
 #define CONCAT(a, b) a ## b
 #define CONCAT2(a, b) CONCAT(a, b)
@@ -297,9 +300,25 @@ namespace NTest
 
     static void coutAssertsValues()
     {
-      std::cout<<"ASSERTS: "<<currectTestCaseAsserts.testCaseName<<std::endl;
-      std::cout<<"true: "<<currectTestCaseAsserts.assertsTrue<<std::endl;
-      std::cout<<"false: "<<currectTestCaseAsserts.assertsFalse<<std::endl;
+      const std::string assertTxt("ASSERT");
+      const std::string trueTxt("TRUE");
+      const std::string falseTxt("FALSE");
+      const char background = '.';
+      std::stringstream textNameBuf;
+      textNameBuf<<currectTestCaseAsserts.testCaseName;
+      std::stringstream assertTrueBuf;
+      assertTrueBuf<<currectTestCaseAsserts.assertsTrue;
+      std::stringstream assertFalseBuf;
+      assertFalseBuf<<currectTestCaseAsserts.assertsFalse;
+
+      std::string testName = textNameBuf.str();
+      std::string assertsTrue = assertTrueBuf.str();
+      std::string assertsFalse = assertFalseBuf.str();
+
+      print(background, &assertTxt, &testName);
+      print(background, &trueTxt, &assertsTrue);
+      print(background, &falseTxt, &assertsFalse);
+
     }
   };
 

@@ -895,7 +895,7 @@ namespace NEngine
       std::fstream bufferUnconfirmedFile(getUnconfirmedBufferFilePath(0),
           std::fstream::in | std::fstream::out | std::fstream::binary);
       int id;
-      if (bufferInfo.warning <= SeriesAround && bufferInfo.warning != SBufferInfo::noWarning) /// CHECK
+      if (bufferInfo.warning < SeriesAround && bufferInfo.warning != SBufferInfo::noWarning) /// CHECK
       {
         // .buffer znajduja sie serie tuz po warningu
         // nalezy je przenies
@@ -932,10 +932,16 @@ namespace NEngine
         changeSizeInFile(warningFile, 1, true);
         warningFile.flush();
         warningFile.close();
+
+
+        if (bufferInfo.warning == SBufferInfo::noWarning)
+        {
+          ++bufferInfo.warning;
+        }
         ++bufferInfo.warning;
 
         bufferFile.seekg(0, std::fstream::beg);
-        bufferFile.write(reinterpret_cast<const char*>(&bufferFile), sizeof(bufferFile));
+        bufferFile.write(reinterpret_cast<const char*>(&bufferInfo), sizeof(bufferInfo));
 
       }
       else
@@ -1490,7 +1496,9 @@ namespace NEngine
     //! \param dayBeforeNow ile dni od dzisiaj
     static void readFiles(const int dayBeforeNow,
                           std::vector<SSeriesDataTest>& outBuffer,
-                          std::vector<SSeriesDataTest>& outWarning)
+                          std::vector<SSeriesDataTest>& outWarning,
+                          void (*displayBufferInfo)(const SBufferInfo&) = nullptr,
+                          void (*displayWarningInfo)(const SWarningsInfo&) = nullptr)
     {
 
       std::vector<int> bufferConfirmed;
@@ -1513,7 +1521,7 @@ namespace NEngine
       std::string bufferPath = getBufferFilePath(dayBeforeNow);
       int (*bufferConverter)(const int& ind) = [](const int& ind){ return ind;};
 
-      readDataFile<SBufferInfo, int>(bufferPath, bufferUnconfirmed, bufferConfirmed, bufferConverter, outBuffer);
+      readDataFile<SBufferInfo, int>(bufferPath, bufferUnconfirmed, bufferConfirmed, bufferConverter, outBuffer, displayBufferInfo);
 
       // warnings
       std::vector<SWarningIndex> warningConfirmed;
@@ -1537,7 +1545,7 @@ namespace NEngine
       std::string warningPath = getWarningFilePath(dayBeforeNow);
       int (*warningConverter)(const SWarningIndex& ind) = [](const SWarningIndex& ind){ return ind.id;};
 
-      readDataFile<SWarningsInfo, SWarningIndex>(warningPath, warningUnconfirmed, warningConfirmed, warningConverter, outWarning);
+      readDataFile<SWarningsInfo, SWarningIndex>(warningPath, warningUnconfirmed, warningConfirmed, warningConverter, outWarning, displayWarningInfo);
     }
 
     template<typename TInfoType, typename TIndexType>
@@ -1545,7 +1553,8 @@ namespace NEngine
                                 const std::vector<TIndexType>& unconfirmed,
                                 const std::vector<TIndexType>& confirmed,
                                 int (*converter)(const TIndexType&),
-                                std::vector<SSeriesDataTest>& out)
+                                std::vector<SSeriesDataTest>& out,
+                                void (*displayInfo)(const TInfoType&))
     {
 
       std::fstream file(filePath,
@@ -1555,6 +1564,10 @@ namespace NEngine
         TInfoType info;
 
         file.read(reinterpret_cast<char*>(&info), sizeof(info));
+        if (displayInfo != nullptr)
+        {
+          displayInfo(info);
+        }
         const int bufferSize = info.size
                                * (sizeof(int) + info.sensors * sizeof(T));
 
@@ -1604,13 +1617,19 @@ namespace NEngine
       void (*fun)(const SSeriesDataTest&) = [](const SSeriesDataTest& data)
       {
         const char* txt[3] = {"confirmed error", "unconfirmed", "confirmed"};
-        std::cerr<<"SERIES ID: "<<data.seriesId <<" confirmed: "<<txt[data.confirmed + 1]<<" dataSize; "<<data.sensorData.size()<<std::endl;
+        std::cerr<<"SERIES ID: "<<data.seriesId <<" confirmed: "<<txt[data.confirmed + 1]<<" dataSize: "<<data.sensorData.size()<<std::endl;
       };
 
       std::vector<SSeriesDataTest> outBuffer;
       std::vector<SSeriesDataTest> outWarning;
+      void (*displayBufferInfo)(const SBufferInfo&) = [](const SBufferInfo& info){
+        std::cerr<<"Size: "<<info.size<<" warnings: "<<info.warning<<" sensors: "<<info.sensors<<std::endl;
+      };
 
-      readFiles(dayBeforeNow, outBuffer, outWarning);
+      void (*displayWarningInfo)(const SWarningsInfo&) = [](const SWarningsInfo& info){
+        std::cerr<<"Size: "<<info.size<<" sensors: "<<info.sensors<<std::endl;
+      };
+      readFiles(dayBeforeNow, outBuffer, outWarning, displayBufferInfo, displayWarningInfo);
       std::cerr<<"---------------------------------------------\n";
       std::cerr<<"-------------------- BUFFERS ----------------\n";
       std::for_each(outBuffer.begin(), outBuffer.end(), fun);

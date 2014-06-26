@@ -121,7 +121,6 @@ namespace NTest
 
       for (int i = 0; i < size; ++i)
       {
-        std::cerr<<"%%%%%% i = "<<i <<" %%% \n";
         bool warning = false;
 
         for(; it != end && i > *it; ++it);
@@ -148,7 +147,6 @@ namespace NTest
         }
 
         DSensorDataFileManager::SSeriesDataTest data = createData(warning);
-        DSensorDataFileManager::coutFiles(0);
         if (seriesAfterLastWarning > 10 || seriesAfterLastWarning == -1)
         {
           buffersAll.push_back(data);
@@ -171,11 +169,10 @@ namespace NTest
       }
       else
       {
-        bufferSize = (seriesAfterLastWarning - 10);
+        bufferSize = (seriesAfterLastWarning - 11);
         bufferSize = bufferSize < 0 ? 0 : bufferSize;
       }
 
-      DSensorDataFileManager::coutFiles(0);
       assertData(buffersAll.end() - bufferSize, buffersAll.end(), warningsAll.begin(), warningsAll.end());
     }
 
@@ -212,11 +209,11 @@ namespace NTest
     CSensorDateFileManagerTest()
     {
       configuration = CConfigurationFactory::getInstance();
-      //addTestCase("lessThanSeriesAround_notWarning", &CSensorDateFileManagerTest::lessThanSeriesAround_notWarning);
-      //addTestCase("moreThanSeriesAround_notWarning", &CSensorDateFileManagerTest::moreThanSeriesAround_notWarning);
-      //addTestCase("lessThanSeriesAround_warning", &CSensorDateFileManagerTest::lessThanSeriesAround_warning);
-      //addTestCase("moreThanSeriesAround_warning", &CSensorDateFileManagerTest::moreThanSeriesAround_warning);
-      //addTestCase("lessThanSeriesAround_5warning", &CSensorDateFileManagerTest::lessThanSeriesAround_5warning);
+      addTestCase("lessThanSeriesAround_notWarning", &CSensorDateFileManagerTest::lessThanSeriesAround_notWarning);
+      addTestCase("moreThanSeriesAround_notWarning", &CSensorDateFileManagerTest::moreThanSeriesAround_notWarning);
+      addTestCase("lessThanSeriesAround_warning", &CSensorDateFileManagerTest::lessThanSeriesAround_warning);
+      addTestCase("moreThanSeriesAround_warning", &CSensorDateFileManagerTest::moreThanSeriesAround_warning);
+      addTestCase("lessThanSeriesAround_5warning", &CSensorDateFileManagerTest::lessThanSeriesAround_5warning);
       addTestCase("moreThanSeriesAround_8warning", &CSensorDateFileManagerTest::moreThanSeriesAround_8warning);
 
 
