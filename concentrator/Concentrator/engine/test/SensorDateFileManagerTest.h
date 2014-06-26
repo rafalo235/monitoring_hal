@@ -67,10 +67,17 @@ namespace NTest
       }
     }
 
+
+    //!
+    //! \brief assertData sprawdza podane dane z zapisynami
+    //! \param bufferStart1 poczatek danych bufora
+    //! \param bufferStop koniec danych bufora
+    //! \param warningStart1 poczatek danych niebezpiecznych
+    //! \param warningStop koneic danych niebezpiecznych
     template<typename T>
-    static void assertData(const T& bufferSize1, const T& bufferStop, const T& warningStart1, const T& warningStop)
+    static void assertData(const T& bufferStart1, const T& bufferStop, const T& warningStart1, const T& warningStop)
     {
-      T bufferStart = bufferSize1;
+      T bufferStart = bufferStart1;
       T warningStart = warningStart1;
 
       std::vector<DSeriesDataTest> actualBuffer;
@@ -108,6 +115,10 @@ namespace NTest
 
     }
 
+    //!
+    //! \brief simulate simuluje
+    //! \param size ilosc serii
+    //! \param warnings wektor pozycji serii niebezpiecznych
     void simulate(const int size, std::vector<int>& warnings)
     {
       std::sort(warnings.end(), warnings.end());
@@ -176,6 +187,10 @@ namespace NTest
       assertData(buffersAll.end() - bufferSize, buffersAll.end(), warningsAll.begin(), warningsAll.end());
     }
 
+    //!
+    //! \brief createData tworzy dane SSeriesDataTest i wywoluje DSensorDataFileManager::saveData
+    //! \param warning true dla tworzenie danych niebezpiecznych
+    //! \return zwraca SSeriesDataTest, ktory zawiera dane o serii
     DSensorDataFileManager::SSeriesDataTest createData(const bool warning)
     {
       static uint32_t idData = 0;
@@ -215,6 +230,8 @@ namespace NTest
       addTestCase("moreThanSeriesAround_warning", &CSensorDateFileManagerTest::moreThanSeriesAround_warning);
       addTestCase("lessThanSeriesAround_5warning", &CSensorDateFileManagerTest::lessThanSeriesAround_5warning);
       addTestCase("moreThanSeriesAround_8warning", &CSensorDateFileManagerTest::moreThanSeriesAround_8warning);
+      addTestCase("moreThanSeriesAround_8_33warning", &CSensorDateFileManagerTest::moreThanSeriesAround_8_33warning);
+      addTestCase("moreThanSeriesAround_12_43warning", &CSensorDateFileManagerTest::moreThanSeriesAround_12_43warning);
 
 
     }
@@ -259,6 +276,7 @@ namespace NTest
       simulate(size, warnings);
     }
 
+    //! \brief lessThanSeriesAround_5warning sprawdza przypadek, gdy 5 pierwszych serii jest niebezpiecznych, a razem jest 8 serii
     void lessThanSeriesAround_5warning()
     {
       std::vector<int> warnings;
@@ -270,11 +288,34 @@ namespace NTest
       simulate(size, warnings);
     }
 
+    //! \brief moreThanSeriesAround_8warning sprawdza przypadek 20 serii, 8 seria jest niebezpieczna
     void moreThanSeriesAround_8warning()
     {
       std::vector<int> warnings;
       const int size = 20;
       warnings.push_back(8);
+      simulate(size, warnings);
+    }
+
+    //! \brief moreThanSeriesAround_8_33warning sprawdza przypadek 40 serii, 8 i 33 seria sa niebezpieczna
+    void moreThanSeriesAround_8_33warning()
+    {
+      std::vector<int> warnings;
+      const int size = 40;
+      warnings.push_back(8);
+      warnings.push_back(33);
+
+      simulate(size, warnings);
+    }
+
+    //! \brief moreThanSeriesAround_12_43warning sprawdza przypadek 50 serii, 12, 33 seria sa niebezpieczna
+    void moreThanSeriesAround_12_43warning()
+    {
+      std::vector<int> warnings;
+      const int size = 50;
+      warnings.push_back(12);
+      warnings.push_back(33);
+
       simulate(size, warnings);
     }
   };
