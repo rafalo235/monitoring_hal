@@ -2,6 +2,8 @@
 #define CRYPTOGRAPHY_H
 
 #include <cstdint>
+#include <cstdlib>
+#include <cstring>
 
 //! \brief Namespace przydatnych klas.
 namespace NUtil {
@@ -18,6 +20,9 @@ namespace NUtil {
     //! \param dataSize rozmiar danych
     //! \return  CRC16
     static uint16_t crc16(const char* data, const int dataSize);
+
+  private:
+    static void shift(char* data, int length);
 
   };
 }
