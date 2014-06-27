@@ -19,9 +19,12 @@ public:
     void setGenerator(ValueGenerator *);
     void setPortNumber(int);
     void setValueRange();
+    void setValue(int);
+    void setSliderValue(int);
 
 private slots:
-    void on_sensorRegValueSldr_actionTriggered(int action);
+
+    void on_sensorRegValueSldr_valueChanged(int value);
 
 private:
     Ui::MainWindow *ui;

@@ -25,12 +25,22 @@ void MainWindow::setValueRange() {
     ui->sensorRegValueSldr->setRange(_generator->getMinValue(), _generator->getMaxValue());
 }
 
-void MainWindow::on_sensorRegValueSldr_actionTriggered(int value) {
-    _generator->setValue(value);
+void MainWindow::setValue(int value) {
     ui->regValueOutput->setText(QString("%1").arg(value));
     if (value > _generator->getAlarmValue()) {
         ui->regValueOutput->setStyleSheet("QLabel { color : red; }");
     } else {
         ui->regValueOutput->setStyleSheet("QLabel { color : black; }");
     }
+}
+
+void MainWindow::setSliderValue(int value) {
+    ui->sensorRegValueSldr->setValue(value);
+}
+
+void MainWindow::on_sensorRegValueSldr_valueChanged(int value)
+{
+    uint16_t v = (uint16_t) value;
+    _generator->setValue(v);
+    this->setValue(value);
 }

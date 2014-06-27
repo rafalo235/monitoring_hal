@@ -4,6 +4,9 @@
 #include "valuegenerator.h"
 #include "sensor.h"
 
+//
+// sensor <PORT> <MINIMUM_SENSOR_VALUE> <MAXIMUM> <ALARM_SENSOR_VALUE> <INITIAL_VALUE>
+//
 int main(int argc, char *argv[])
 {
     int port = 1024;
@@ -36,6 +39,8 @@ int main(int argc, char *argv[])
     w.setGenerator(&generator); // musi być przed value range
     w.setPortNumber(port);
     w.setValueRange();
+    w.setValue(init);
+    w.setSliderValue(init);
     w.show();
 
     sensor.start();
