@@ -1,17 +1,22 @@
 #ifndef SENSOR_H
 #define SENSOR_H
 
-#include <modbus.h>
 #include "valuegenerator.h"
 
-class Sensor
+#include <cstdio>
+#include <modbus.h>
+#include <QThread>
+
+class Sensor : public QThread
 {
+    Q_OBJECT
 public:
     Sensor(int, ValueGenerator *);
-    void listen();
-    void loop();
     void close();
+    void run();
 private:
+    void reportError();
+
     int _socket;
     modbus_t *_ctx;
     modbus_mapping_t *_mb_mapping;

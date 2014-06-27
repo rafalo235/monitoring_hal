@@ -28,7 +28,6 @@ unix: PKGCONFIG += libmodbus
 FORMS += \
     mainwindow.ui
 
-HEADERS += \
-    mainwindow.h \
+HEADERS += mainwindow.h \
     sensor.h \
     valuegenerator.h
