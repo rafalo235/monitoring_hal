@@ -13,7 +13,6 @@ namespace NUtil {
 
     do {
         for (int i = 0 ; i < 8 ; i++ ) {
-            //print(copy, bufferLength);
             if (copy[0] & 0x80) { // jeżeli najstarszy bit jest 1 oblicz XOR
                 copy[0] ^= divisor[0];
                 copy[1] ^= divisor[1];
