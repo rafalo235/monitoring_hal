@@ -176,6 +176,10 @@ public class ProtocolConverter
     
     DataByteInputStream stream = new DataByteInputStream(bytes);
     
+    if (!stream.isValid()) {
+    	throw new ParserException("CRC16 sum mismatch", 0, 0, 0);
+    }
+    
     char version = stream.readUInt8();
     if (version != SProtocol.VERSION){
       throw new ParserException("Unsupported version of protocol", 0, 0, 0);
