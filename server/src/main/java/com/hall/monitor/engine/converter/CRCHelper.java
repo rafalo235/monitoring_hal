@@ -9,16 +9,19 @@ public class CRCHelper
    * @param data
    * @return
    */
-  public static char countCrc16(byte data[]) {
-    
+  public static byte[] countCrc16(byte data[]) {
+    byte[] r = new byte[2];
+	  
     byte[] divisor =
     { (byte) 0xFE, (byte) 0xEF, (byte) 0x80 }; // TODO
-    char crc = 0x0000;
+    //char crc = 0x0000;
     
     xorBytes(data, data.length - 2, divisor);
-    crc = (char) ((data[1] << 8) + data[0]);
+    //crc = (char) ((data[1] << 8) + data[0]);
+    r[0] = data[0];
+    r[1] = data[1];
     
-    return crc;
+    return r;
   }
   
   /**
@@ -75,5 +78,19 @@ public class CRCHelper
       }
       array[i] = (byte) (array[i] << 1);
     }
+  }
+  
+  public static void main(String[] args) {
+		DataByteOutputStream stream = new DataByteOutputStream(7);
+		stream.writeUInt8((char) 0xFF);
+		stream.writeUInt8((char) 0xFF);
+		stream.writeUInt8((char) 0xFF);
+		stream.writeUInt8((char) 0xFF);
+		stream.writeUInt8((char) 0xFF);
+		stream.writeByteArray(stream.calcCRC16());
+
+		//byte[] array = { (byte) 0x31, (byte) 0x32, (byte) 0x33, (byte) 0x34, (byte) 0x35, (byte) 0x09, (byte) 0x17};
+		DataByteInputStream str = new DataByteInputStream(stream.getBytes());
+		System.out.println(str.isValidCRC());
   }
 }

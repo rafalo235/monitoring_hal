@@ -417,9 +417,9 @@ public class ProtocolConverter
     
     // oblicz CRC
     data.writeUInt16(protocol.getCrc());
-    char crc = data.calcCRC16();
+    byte[] crc = data.calcCRC16();
     data.setPosition(data.getPosiotion() - Character.SIZE / 8);
-    data.writeUInt16(crc);
+    data.writeByteArray(crc);
     return data.getBytes();
   }
   

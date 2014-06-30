@@ -30,6 +30,10 @@ public class DataByteOutputStream
     buffer.putChar(value);
   }
   
+  public void writeByteArray(byte[] array) {
+	  buffer.put(array);
+  }
+  
   public void writeInt32(int value) {
     buffer.putInt(value);
   }
@@ -70,7 +74,7 @@ public class DataByteOutputStream
     return buffer.array();
   }
   
-  public char calcCRC16()
+  public byte[] calcCRC16()
   {
     return CRCHelper.countCrc16(buffer.array().clone());
   }
