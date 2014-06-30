@@ -19,7 +19,8 @@ namespace NSensors{
     }
 
     virtual bool getSensorData(const NEngine::DSensorConfiguration& conf, CData& value) const{
-      int buf = 4;
+      static int buf = 1;
+      ++buf;
       value.setValue(EValueType::INT_32, &buf);
       return true;
     }

@@ -65,7 +65,8 @@ HEADERS += \
     util/Time.h \
     engine/test/SensorDateFileManagerTest.h \
     util/test/Test.h \
-    util/Memory.h
+    util/Memory.h \
+    util/FileHelper.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 

@@ -3,13 +3,13 @@
 
 #ifdef TEST_ENABLE
 
-#include <QDir>
 #include <string>
 #include <cstdint>
 #include "configuration/interfaces/ConfigurationFactory.h"
 #include "engine/core/SensorDataFileManager.h"
 #include "util/test/Test.h"
 #include "util/Time.h"
+#include "util/FileHelper.h"
 
 namespace NTest
 {
@@ -27,47 +27,6 @@ namespace NTest
     typedef CSensorDataFileManager<CSensorData, 10> DSensorDataFileManager;
 
     typedef DSensorDataFileManager::SSeriesDataTest DSeriesDataTest;
-
-    //!
-    //! \brief removeDir funkcja usuwa katalog i rekurencyjnie wszystko co w nim jest
-    //! \param dirName sciezka do katalogu
-    //! \return true jesli katalog podany zostal usuniety
-    static bool removeDir(const QString& dirName)
-    {
-      bool result = true;
-      QDir dir(dirName);
-
-      if (dir.exists(dirName)) {
-        Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
-          if (info.isDir()) {
-            result = removeDir(info.absoluteFilePath());
-          }
-          else {
-            result = QFile::remove(info.absoluteFilePath());
-          }
-
-          if (!result) {
-            return result;
-          }
-        }
-        result = dir.rmdir(dirName);
-      }
-      return result;
-    }
-
-    //!
-    //! \brief recreateDataDirectiory usuwa i tworzy katalog dla danych
-    static void recreateDataDirectiory()
-    {
-      std::string dataPath = CConfigurationFactory::getInstance()->getDataPath();
-      QDir qdir(QString(dataPath.c_str()));
-      removeDir(qdir.absoluteFilePath("data"));
-      if (!qdir.exists("data"))
-      {
-        qdir.mkdir("data");
-      }
-    }
-
 
     //!
     //! \brief assertData sprawdza podane dane z zapisynami
@@ -219,7 +178,7 @@ namespace NTest
     //! \brief setUp przygotowywuje folder dla danych
     virtual void setUp()
     {
-      recreateDataDirectiory();
+      NUtil::CFileHelper::recreateDataDirectiory();
     }
 
 

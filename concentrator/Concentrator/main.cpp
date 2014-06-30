@@ -13,6 +13,8 @@
 
 #include "engine/interfaces/EngineFactory.h"
 #include "engine/test/SensorDateFileManagerTest.h"
+#include "util/FileHelper.h"
+
 int programLifeTime = 60;
 using namespace NEngine;
 
@@ -32,6 +34,8 @@ int main(int argc, char *argv[])
 
 #else //TEST_ENABLE
 
+  // usunmy stare pliki z danymi
+  NUtil::CFileHelper::recreateDataDirectiory();
   DEngine engine = CEngineFactory::getInstance();
   if(!engine->init())
   {
