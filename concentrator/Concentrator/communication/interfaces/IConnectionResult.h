@@ -12,7 +12,7 @@ namespace NProtocol{
     CONNECTION_ERROR,             //!< Blad polaczenia
     INPUT_PROTOCOL_FORMAT_ERROR,  //!< Niepoprawny format protokolu wysylanego
     OUTPUT_PROTOCOL_FORMAT_ERROR, //!< Niepoprawny format protokolu odebranego
-
+    CRC_ERROR                     //!< Niepoprawny CRC
   };
 
   //!

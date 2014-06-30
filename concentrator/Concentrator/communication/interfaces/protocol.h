@@ -212,18 +212,11 @@ namespace NProtocol
     SENDING_FREQUENCY = 0,
     //! \brief Wylaczenie/wlaczenie czujnika
     SENSOR_TURN_ON = 1,
-    //! \brief Wylaczenie/wlaczenie zapisu na karte pamieci
-    CARD_SAVE = 2,
     //! \brief Wartosc czujnika powodujaca poziom niebezpieczenstwa NProtocol::EDangerLevel = NProtocol::EDangerLevel::WARNING
-    DANGER_LEVEL = 3,
+    WARNING_LEVEL = 3,
     //! \brief Wartosc czujnika powodujaca poziom niebezpieczenstwa NProtocol:EDangerLevel = NProtocol::EDangerLevel::ALARM
     ALARM_LEVEL = 4,
-    //! \brief Resetowanie koncentratora
-    RESET = 5,
-    //! \brief zmiana klucza
-    KEY_CHANGE = 6,
-    //! \brief czas wygasniecia klucza
-    KEY_LIFETIME = 7
+
   };
 
   //! \brief Typ wiadomosci przekazywanej przez pekiet. Definiuje wartosc IMessage

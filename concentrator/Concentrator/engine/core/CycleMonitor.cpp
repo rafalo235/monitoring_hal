@@ -2,10 +2,13 @@
 
 #include <vector>
 #include <cstdint>
+#include <map>
 
 #include "util/Logger.h"
 #include "util/Time.h"
 #include "engine/core/SensorDataFileManager.h"
+#include "configuration/interfaces/ConfigurationFactory.h"
+#include "communication/interfaces/protocol.h"
 
 namespace NEngine{
   using namespace NProtocol;
@@ -47,13 +50,18 @@ namespace NEngine{
         switch(result->getStatus())
         {
         case EConnectionStatus::CONNECTION_ERROR:
-
+          // nie ma internetu
           break;
         case EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR:
-          //TODO: blad protokolu wysylanego
+          // blad formatu z serwera
+          ////////////////////////////////////////////////////////////////// TODO
+          break;
+        case EConnectionStatus::CRC_ERROR:
+          sendConfigurationChangeResponse(EReceiveStatus::CRC_ERROR, result->getReceivedProtocol()->getIdPackage());
           break;
         case EConnectionStatus::OUTPUT_PROTOCOL_FORMAT_ERROR:
-          //TODO: blad protokolu otrzymanego
+          // blad protokolu wysylanego niemozliwa opcja - ale zostaje
+          LOG_ERROR("Output protocol format error - probably server's type of message used by concentrator");
           break;
         case EConnectionStatus::NONE:
           operateReceivedProtocol(result);
@@ -71,7 +79,7 @@ namespace NEngine{
       // czas wyslac dane z czujnikow lub dane byly niepokojace i trzeba je wyslac
       if ((curTime - sendingDataTime >= configuration->getSendingPeriod()) || warning)
       {
-       // LOG_DEBUG("Engine thread sends data.");
+
         if (!warning)
         {
           checkSensors(true);
@@ -101,12 +109,12 @@ namespace NEngine{
 
   void CCycleMonitor::operateReceivedProtocol(const DConnectionResult& result)
   {
-    //TODO: sprawdzic CRC
+
     std::shared_ptr<CProtocol> receivedProtocol = result->getReceivedProtocol();
     if (receivedProtocol->getIdConcentrator() != configuration->getIdConcentrator())
     {
       LOG_ERROR("Wrong id of concentrator in received package");
-      //TODO
+
     }
     else
     {
@@ -122,10 +130,105 @@ namespace NEngine{
         std::vector<int> idSeries{it->second.idSeries};
         DSensorDataFileManager::confirm(dif.getDay(), idSeries);
         sensorSeries.erase(it);
-        //LOG_OUTPUT(DSensorDataFileManager::coutFiles(0));
+
+      }
+      // zmiana konfiguracji
+      const NProtocol::CConfiguration conf = responseMessage->getConfiguration();
+      if(!setConfiguration(conf))
+      {
+        // blad ustawienia konfiguracji
+        sendConfigurationChangeResponse(EReceiveStatus::OPERATION_FAILED, receivedProtocol->getIdPackage());
+      }
+      else
+      {
+        sendConfigurationChangeResponse(EReceiveStatus::OK, receivedProtocol->getIdPackage());
       }
     }
 
+  }
+
+  NProtocol::CConfiguration CCycleMonitor::getCurrentConfiguration()
+  {
+    std::vector<CConfigurationValue> configurations;
+
+    DConfiguration concentratorConf = CConfigurationFactory::getInstance();
+    uint16_t sendingPeriod = concentratorConf->getSendingPeriod();
+    NProtocol::CData sdataSendingPeriod(EValueType::INT_16, &sendingPeriod);
+
+    configurations.push_back(CConfigurationValue(
+                               NProtocol::cIdConcentrator,
+                               EConfigurationType::SENDING_FREQUENCY,
+                               sdataSendingPeriod));
+
+    std::vector<DSensorConfiguration> sensorConfs = concentratorConf->getSensorConfiguration();
+
+    for(DSensorConfiguration sensConf : sensorConfs)
+    {
+      configurations.push_back(CConfigurationValue(
+                                 sensConf->getSensorId(),
+                                 EConfigurationType::ALARM_LEVEL,
+                                 sensConf->getAlarmLvl()));
+      configurations.push_back(CConfigurationValue(
+                                 sensConf->getSensorId(),
+                                 EConfigurationType::WARNING_LEVEL,
+                                 sensConf->getWarnigLvl()));
+
+      char turnOn = sensConf->isTurnOn();
+      NProtocol::CData sdataTurnOn(EValueType::INT_8, &turnOn);
+      configurations.push_back(CConfigurationValue(
+                                 sensConf->getSensorId(),
+                                 EConfigurationType::SENSOR_TURN_ON,
+                                 sdataTurnOn));
+
+    }
+    return NProtocol::CConfiguration(configurations);
+  }
+
+  void CCycleMonitor::sendConfigurationChangeResponse(const EReceiveStatus status,
+                                                      const uint32_t idRequestPackage)
+  {
+    NProtocol::CConfiguration currentConf = getCurrentConfiguration();
+
+
+    std::shared_ptr<CConfigurationResponse> ptr(new CConfigurationResponse(status, idRequestPackage, currentConf));
+
+    connection->sendConfigurationResponse(ptr);
+  }
+
+  bool CCycleMonitor::setConfiguration(const NProtocol::CConfiguration& conf)
+  {
+
+    if(conf.getConfigurationsSize() > 0)
+    {
+      const std::vector<CConfigurationValue> confs = conf.getConfigurations();
+      DConfiguration concentratorConf = CConfigurationFactory::getInstance();
+      for(CConfigurationValue value : confs)
+      {
+        bool res;
+        const int8_t idSensor = value.getIdSensor();
+        switch(value.getConfigurationType())
+        {
+        case EConfigurationType::ALARM_LEVEL:
+          res = concentratorConf->setAlarmLevel(idSensor, value.getData());
+          break;
+        case EConfigurationType::WARNING_LEVEL:
+          res = concentratorConf->setAlarmLevel(idSensor, value.getData());
+        break;
+        case EConfigurationType::SENDING_FREQUENCY:
+          res = concentratorConf->setSendingPeriod(value.getData().getValue().vUInt16);
+          break;
+        case EConfigurationType::SENSOR_TURN_ON:
+          res = concentratorConf->setTurnOn(idSensor, value.getData().getValue().vInt8 == 1);
+          break;
+        }
+        if (!res)
+        {
+          // niepoprawny identyfikator czujnika lub inna bledna konfiguracja
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   void CCycleMonitor::exit(){

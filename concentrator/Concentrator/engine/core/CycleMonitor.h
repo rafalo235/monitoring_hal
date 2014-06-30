@@ -70,6 +70,18 @@ namespace NEngine{
 
   private:
 
+    //!
+    //! \brief getCurrentConfiguration zwraca aktualna konfiguracje koncentratora w formacie zgodnym do wyslania
+    //! \return aktualna konfiguracja koncentratora
+    NProtocol::CConfiguration getCurrentConfiguration();
+
+    //!
+    //! \brief sendConfigurationChangeResponse wysyla odpowiedz zmiany konfiguracji
+    //! \param status status otrzymanego pakietu
+    //! \param idRequestPackage id pakietu konfiguracja do zmiany (pakiety wyslanego z serwera)
+    void sendConfigurationChangeResponse(const EReceiveStatus status,
+                                         const uint32_t idRequestPackage);
+
     //! \brief funkcja watku silnika
     void run();
 
@@ -79,7 +91,16 @@ namespace NEngine{
     //! \return true jesli pomiary przekroczyly wartosc ostrzegawcza
     bool checkSensors(bool addToVector);
 
+    //!
+    //! \brief operateReceivedProtocol obsluguje rezultat wyslanych danych (wywoluje funkcji zapisujace potwierdzenie, odczytuje konfiguracje)
+    //! \param result pakiety wysylany, odebrany i status
     void operateReceivedProtocol(const DConnectionResult& result);
+
+    //!
+    //! \brief setConfiguration zmienia konfiguracje koncentratora
+    //! \param conf nowa konfiguracja
+    //! \return true jesli konfiguracja zostala zmieniona
+    bool setConfiguration(const NProtocol::CConfiguration& conf);
   };
 }
 

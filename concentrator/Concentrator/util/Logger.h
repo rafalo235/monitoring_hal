@@ -221,12 +221,8 @@ namespace NUtil{
 
       configurationTypeEnums[NProtocol::EConfigurationType::SENDING_FREQUENCY] = "SENDING_FREQUENCY";
       configurationTypeEnums[NProtocol::EConfigurationType::SENSOR_TURN_ON] = "SENSOR_TURN_ON";
-      configurationTypeEnums[NProtocol::EConfigurationType::CARD_SAVE] = "CARD_SAVE";
-      configurationTypeEnums[NProtocol::EConfigurationType::DANGER_LEVEL] = "DANGER_LEVEL";
+      configurationTypeEnums[NProtocol::EConfigurationType::WARNING_LEVEL] = "WARNING_LEVEL";
       configurationTypeEnums[NProtocol::EConfigurationType::ALARM_LEVEL] = "ALARM_LEVEL";
-      configurationTypeEnums[NProtocol::EConfigurationType::RESET] = "RESET";
-      configurationTypeEnums[NProtocol::EConfigurationType::KEY_CHANGE] = "KEY_CHANGE";
-      configurationTypeEnums[NProtocol::EConfigurationType::KEY_LIFETIME] = "KEY_LIFETIME";
 
       messageTypeEnums[NProtocol::EMessageType::MONITOR_DATA] = "MONITOR_DATA";
       messageTypeEnums[NProtocol::EMessageType::CONFIGURATION_RESPONSE] = "CONFIGURATION_RESPONSE";

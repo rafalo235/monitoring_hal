@@ -71,7 +71,7 @@ namespace NProtocol {
     {
 
       uint16_t crc = NUtil::CCryptography::crc16(postData.constData(), postData.size());
-      postData.replace(postData.size() - sizeof(crc), sizeof(crc), reinterpret_cast<char*>(&crc));
+      postData.replace(postData.size() - sizeof(crc), sizeof(crc), reinterpret_cast<char*>(&crc), sizeof(crc));
 
       // tworzy tymczasowa petle komunikatow
       QEventLoop eventLoop;
@@ -98,7 +98,7 @@ namespace NProtocol {
         if (!wrapper.isCRCValid())
         {
           LOG_ERROR("Received protocol error - CRC. idPackage:", protocol.getIdPackage());
-          DConnectionResult res(new CConnectionResult(protocol, EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR));
+          DConnectionResult res(new CConnectionResult(protocol, EConnectionStatus::CRC_ERROR));
           resultsQueue.push(res);
         }
         std::shared_ptr<CProtocol> responseProtocol =
