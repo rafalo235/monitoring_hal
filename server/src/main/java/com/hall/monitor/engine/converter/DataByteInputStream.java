@@ -2,6 +2,7 @@ package com.hall.monitor.engine.converter;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.security.InvalidParameterException;
 
 /**
  * Java nie ma wbudowanego stream'a z narzuconym Little Endian.
@@ -68,23 +69,8 @@ public class DataByteInputStream
   public boolean isValid() {
 	  byte[] copy = buffer.array().clone();
 	  byte[] divisor = { (byte) 0xFE, (byte) 0xEF, (byte) 0x80 }; //TODO
-	  byte tmp;
-	  int pointer = copy.length * 8;
 	  
-	  do {
-		  for (int i = 0 ; i < 8 ; i++) {
-			  if ( (copy[0] & 0x80) > 0) { // jeżeli najstarszy bit jest 1 oblicz XOR
-	                copy[0] ^= divisor[0];
-	                copy[1] ^= divisor[1];
-	                tmp = copy[2];
-	                copy[2] ^= divisor[2];
-	                copy[2] &= 0x80;
-	                copy[2] |= tmp & 0x7F;
-	            }
-	            shift(copy); // przesuń bity danych o 1
-	            pointer--;
-		  }
-	  } while (pointer > 0);
+	  xorBytes(copy, copy.length, divisor);
 	  
 	  for (byte b : copy) {
 		  if (b != 0) {
@@ -93,6 +79,29 @@ public class DataByteInputStream
 	  }
 	  
 	  return true;
+  }
+  
+  protected static void xorBytes(byte[] array, int length, byte[] divisor) {
+	  byte tmp;
+	  int pointer = length * 8;
+	  if (divisor.length < 3) {
+		  throw new InvalidParameterException("Divisor must have 3 bytes");
+	  }
+	  
+	  do {
+		  for (int i = 0 ; i < 8 ; i++) {
+			  if ( (array[0] & 0x80) > 0) { // jeżeli najstarszy bit jest 1 oblicz XOR
+				  	array[0] ^= divisor[0];
+				  	array[1] ^= divisor[1];
+	                tmp = array[2];
+	                array[2] ^= divisor[2];
+	                array[2] &= 0x80;
+	                array[2] |= tmp & 0x7F;
+	            }
+	            shift(array); // przesuń bity danych o 1
+	            pointer--;
+		  }
+	  } while (pointer > 0);
   }
   
   protected static void shift(byte[] array) {
@@ -106,8 +115,16 @@ public class DataByteInputStream
   }
   
   public static void main(String[] args) {
-	  byte[] array = { (byte) 0x31, (byte) 0x32, (byte) 0x33, (byte) 0x34, (byte) 0x35, (byte) 0x09, (byte) 0x17};
-	  DataByteInputStream str = new DataByteInputStream(array);
+	  DataByteOutputStream stream = new DataByteOutputStream(7);
+	  stream.writeUInt8((char) 0x31);
+	  stream.writeUInt8((char) 0x32);
+	  stream.writeUInt8((char) 0x33);
+	  stream.writeUInt8((char) 0x34);
+	  stream.writeUInt8((char) 0x35);
+	  stream.writeUInt16(stream.countCrc16());
+	  
+	  //byte[] array = { (byte) 0x31, (byte) 0x32, (byte) 0x33, (byte) 0x34, (byte) 0x35, (byte) 0x09, (byte) 0x17};
+	  DataByteInputStream str = new DataByteInputStream(stream.getBytes());
 	  System.out.println(str.isValid());
   }
   

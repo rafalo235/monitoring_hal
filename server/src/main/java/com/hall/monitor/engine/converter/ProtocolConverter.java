@@ -330,7 +330,7 @@ public class ProtocolConverter
       convertToBytes(data, (SServerRequest) protocol.getMessage());
       break;
     }
-    data.writeUInt16(protocol.getCrc());
+    data.writeUInt16(data.countCrc16());
     return data.getBytes();
   }
   

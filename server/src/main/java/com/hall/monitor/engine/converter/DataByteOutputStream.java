@@ -69,4 +69,15 @@ public class DataByteOutputStream
   public byte[] getBytes(){
     return buffer.array();
   }
+  
+  public char countCrc16() {
+	  byte[] copy = buffer.array().clone();
+	  byte[] divisor = { (byte) 0xFE, (byte) 0xEF, (byte) 0x80 }; //TODO
+	  char crc = 0x0000;
+	  
+	  DataByteInputStream.xorBytes(copy, copy.length - 2, divisor);
+	  crc = (char) ((copy[1] << 8) + copy[0]);
+	  
+	  return crc;
+  }
 }
