@@ -29,7 +29,6 @@ public class CRCHelper
   public static boolean isValid(byte data[]) {
     
     //////////////////////////////////////////////////////////////////// RAFAL TUTAJ ////
-    /*
     byte[] divisor =
     { (byte) 0xFE, (byte) 0xEF, (byte) 0x80 }; // TODO
     
@@ -39,7 +38,7 @@ public class CRCHelper
       if (b != 0) {
         return false;
       }
-    }*/
+    }
     
     return true;
   }

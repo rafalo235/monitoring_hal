@@ -71,7 +71,7 @@ namespace NProtocol {
     {
 
       uint16_t crc = NUtil::CCryptography::crc16(postData.constData(), postData.size());
-      postData.replace(postData.size() - sizeof(crc), sizeof(crc), reinterpret_cast<char*>(&crc));
+      postData.replace(postData.size() - sizeof(crc), sizeof(crc), reinterpret_cast<char*>(&crc), sizeof(crc));
 
       // tworzy tymczasowa petle komunikatow
       QEventLoop eventLoop;
