@@ -64,12 +64,13 @@ HEADERS += \
     engine/core/SensorDataFileManager.h \
     util/Time.h \
     engine/test/SensorDateFileManagerTest.h \
-    util/test/Test.h
+    util/test/Test.h \
+    util/Memory.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 
 # Wlaczenie/wylaczenie testow
-DEFINES += TEST_ENABLE
+#DEFINES += TEST_ENABLE
 
 unix: PKGCONFIG += libmodbus
 

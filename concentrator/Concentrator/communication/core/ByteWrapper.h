@@ -3,7 +3,7 @@
 
 #include <QByteArray>
 #include <cstring>
-
+#include "util/Cryptography.h"
 namespace NProtocol{
 
   //! \brief Klasa pomocnicza w konwertowaniu tablicy bajtow na protokol
@@ -15,13 +15,19 @@ namespace NProtocol{
     //! \brief Wskaznik w tablicy bajtow
     int pointer;
 
+    const int size;
   public:
 
     //!
     //! \brief CByteWrapper
     //! \param array
-    CByteWrapper(const QByteArray& array) : src(array.constData()), pointer(0){
+    CByteWrapper(const QByteArray& array) : src(array.constData()), pointer(0), size(array.size()){
 
+    }
+
+    bool isCRCValid()
+    {
+      return NUtil::CCryptography::checkCrc16(src, size);
     }
 
     //! \brief Odczytuje obiekt typu T z tablicy bajtow

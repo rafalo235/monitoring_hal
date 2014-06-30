@@ -65,10 +65,8 @@ namespace NEngine{
       // czas sprawdzic czujniki
       if (curTime - checkingSensorsTime >= configuration->getCheckingSensorPeriod())
       {
-        LOG_DEBUG("Engine thread checks sensors.");
         warning = checkSensors(false);
         checkingSensorsTime = curTime;
-        LOG_DEBUG("Engine thread checked sensors.");
       }
       // czas wyslac dane z czujnikow lub dane byly niepokojace i trzeba je wyslac
       if ((curTime - sendingDataTime >= configuration->getSendingPeriod()) || warning)

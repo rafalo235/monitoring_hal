@@ -63,5 +63,9 @@ public class DataByteInputStream
   public int getPosiotion() {
     return buffer.position();
   }
-  
+
+  public boolean isValidCRC()
+  {
+    return CRCHelper.isValid(buffer.array().clone());
+  }
 }

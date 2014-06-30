@@ -19,6 +19,7 @@
 #include "configuration/interfaces/ConfigurationFactory.h"
 #include "util/Time.h"
 #include "util/Logger.h"
+#include "util/Memory.h"
 
 #define DEBUG_SENSOR_DATA
 
@@ -558,7 +559,7 @@ namespace NEngine
       file.read(reinterpret_cast<char*>(&size), sizeof(size));
 
       // przeczytaj dane wszystkie
-      std::shared_ptr<std::time_t> array = getArray<std::time_t>(size);
+      std::shared_ptr<std::time_t> array = CMemory::getArray<std::time_t>(size);
       std::time_t* buf = &*array;
       file.read(reinterpret_cast<char*>(buf), size * sizeof(std::time_t));
 
@@ -602,17 +603,6 @@ namespace NEngine
       return SBufferInfo::noWarning;
     }
 
-    //!
-    //! \brief getArray Funkcja zwraca smart pointera do dynamicznej tablicy typow T2
-    //! \param[in] size rozmian dynamicznej tablicy podanych w ilosci typow T2
-    //! \return smart pointer do tablicy
-    template<typename T2>
-    inline static std::shared_ptr<T2> getArray(int size)
-    {
-      std::shared_ptr<T2> p(new T2[size], [](T2* a)
-      { delete[] a;});
-      return p;
-    }
 
     //!
     //! \brief readIndexFile wczytuje pliki indeksow
@@ -631,7 +621,7 @@ namespace NEngine
       if (size > 0)
       {
         data.reserve(size);
-        std::shared_ptr<T2> p = getArray<T2>(size);
+        std::shared_ptr<T2> p = CMemory::getArray<T2>(size);
         // odczytaj dane
         file.read(reinterpret_cast<char*>(&*p), sizeof(T2) * size);
         // skopiuj do vectora
@@ -851,7 +841,7 @@ namespace NEngine
             * (bufferInfo.sensors * sizeof(T) + sizeof(int));
       }
 
-      std::shared_ptr<char> array = getArray<char>(allBufferSeriesSize);
+      std::shared_ptr<char> array = CMemory::getArray<char>(allBufferSeriesSize);
       bufferFile.seekg(-allBufferSeriesSize, std::fstream::end);
       bufferFile.read(reinterpret_cast<char*>(&*array), allBufferSeriesSize);
 
@@ -1087,7 +1077,7 @@ namespace NEngine
           const int bufferSize = savedBufferSeriesSize + sizeof(int)
               + bufferInfo.sensors * sizeof(T);
 
-          std::shared_ptr<char> array = getArray<char>(bufferSize);
+          std::shared_ptr<char> array = CMemory::getArray<char>(bufferSize);
 
           char* buf = &*array;
           bufferFile.seekg(sizeof(bufferInfo), std::fstream::beg);
@@ -1473,7 +1463,7 @@ namespace NEngine
             int indicesToRead = size < maxIdsToConfirm ? size : maxIdsToConfirm;
 
             // sa jakies dane do potwierdzenia
-            std::shared_ptr<SWarningIndex> array = getArray<SWarningIndex>(
+            std::shared_ptr<SWarningIndex> array = CMemory::getArray<SWarningIndex>(
                 indicesToRead);
 
             SWarningIndex* buf = &*array;
@@ -1531,7 +1521,7 @@ namespace NEngine
             // zaalokuj miejsce na na najwiekszy odczyt
             const int readArrayToConfirmSize = maxOneAfterAnother
                 * (sizeof(int) + warningInfo.sensors * sizeof(T));
-            std::shared_ptr<char> arrayToConfirm = getArray<char>(
+            std::shared_ptr<char> arrayToConfirm = CMemory::getArray<char>(
                 readArrayToConfirmSize);
 
             char* bufToConfirm = &*arrayToConfirm;
@@ -1667,7 +1657,7 @@ namespace NEngine
         const int bufferSize = info.size
                                * (sizeof(int) + info.sensors * sizeof(T));
 
-        std::shared_ptr<char> array = getArray<char>(bufferSize);
+        std::shared_ptr<char> array = CMemory::getArray<char>(bufferSize);
 
         char* buf = &*array;
         file.read(reinterpret_cast<char*>(buf), bufferSize);
