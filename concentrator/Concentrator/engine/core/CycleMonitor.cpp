@@ -54,7 +54,7 @@ namespace NEngine{
           break;
         case EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR:
           // blad formatu z serwera
-          ////////////////////////////////////////////////////////////////// TODO
+          //  TODO
           break;
         case EConnectionStatus::CRC_ERROR:
           sendConfigurationChangeResponse(EReceiveStatus::CRC_ERROR, result->getReceivedProtocol()->getIdPackage());
@@ -99,7 +99,8 @@ namespace NEngine{
             sensorSeries[sendIdPackage] = savedSensorData;
         }
       }
-      else{
+      else
+      {
           LOG_DEBUG("Engine thread didn't send data.");
       }
     }while(!threadExit.load(std::memory_order_consume));
