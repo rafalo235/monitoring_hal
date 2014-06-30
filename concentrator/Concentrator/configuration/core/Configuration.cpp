@@ -8,7 +8,7 @@
 
 namespace NEngine {
 
-  const char* CConfiguration::fileName = "configuration.conf";
+  const std::string CConfiguration::fileName("configuration.conf");
 
   bool CConfiguration::readConfiguration() {
     std::ifstream file(fileName);
@@ -22,16 +22,16 @@ namespace NEngine {
     uint8_t sensorsAmount;
     bool saveSDCardIfOnlineEnable;
 
-    uint8_t serverUrlLength;
-
+    // odczyt konfiguracji koncentratora
     file.read(reinterpret_cast<char*>(&idConcentrator), sizeof(idConcentrator));
     file.read(reinterpret_cast<char*>(&sendingPeriod), sizeof(sendingPeriod));
     file.read(reinterpret_cast<char*>(&checkingSensorPeriod), sizeof(checkingSensorPeriod));
     file.read(reinterpret_cast<char*>(&saveSDCardIfOnlineEnable), sizeof(saveSDCardIfOnlineEnable));
-    file.read(reinterpret_cast<char*>(&serverUrlLength), sizeof(serverUrlLength));
-    std::string serverUrl(serverUrlLength, '\0');
 
-    file.read(&serverUrl[0], serverUrlLength);
+    std::string serverUrl = readString(file);
+    std::string dataPath = readString(file);
+
+    // odczyt konfiguracji czujnikow
     file.read(reinterpret_cast<char*>(&sensorsAmount), sizeof(sensorsAmount));
 
     std::vector<DSensorConfiguration> sensors;
@@ -57,6 +57,7 @@ namespace NEngine {
       sensors.push_back(buf);
     }
     file.close();
+    // dopiero jak wszystko pojdzie ok, to zastap istniejaca konfiguracje
     this->idConcentrator = idConcentrator;
     this->sendingPeriod = sendingPeriod;
     this->checkingSensorPeriod = checkingSensorPeriod;
@@ -64,6 +65,7 @@ namespace NEngine {
     this->sensors = sensors;
     this->saveSDCardIfOnlineEnable = saveSDCardIfOnlineEnable;
     this->serverUrl = serverUrl;
+    this->dataPath = dataPath;
     return true;
   }
 
@@ -74,17 +76,18 @@ namespace NEngine {
       return false;
     }
 // TODO: sprawdzanie czy plik jest poprawny - CRC
-    const uint8_t sensorsAmount = static_cast<uint8_t>(sensors.size());
 
+    // zapis konfiguracji koncentratora
     file.write(reinterpret_cast<const char*>(&idConcentrator), sizeof(idConcentrator));
     file.write(reinterpret_cast<const char*>(&sendingPeriod), sizeof(sendingPeriod));
     file.write(reinterpret_cast<const char*>(&checkingSensorPeriod), sizeof(checkingSensorPeriod));
     file.write(reinterpret_cast<const char*>(&saveSDCardIfOnlineEnable), sizeof(saveSDCardIfOnlineEnable));
-    uint8_t serverUrlLength = static_cast<uint8_t>(serverUrl.length());
-    file.write(reinterpret_cast<const char*>(&serverUrlLength), sizeof(serverUrlLength));
-    const char* serverUrlBuf = serverUrl.c_str();
 
-    file.write(serverUrlBuf, serverUrlLength);
+    writeString(file, serverUrl);
+    writeString(file, dataPath);
+
+    // zapis konfigurakcji czujnikow
+    const uint8_t sensorsAmount = static_cast<uint8_t>(sensors.size());
     file.write(reinterpret_cast<const char*>(&sensorsAmount), sizeof(sensorsAmount));
 
     std::for_each(sensors.begin(), sensors.end(),
@@ -105,8 +108,87 @@ namespace NEngine {
                         file.write(ipv4.c_str(), ipv4Length);
                         file.write(reinterpret_cast<const char*>(&port), sizeof(port));
                     });
-
+    file.flush();
     file.close();
     return true;
+  }
+
+  template<typename T>
+  bool CConfiguration::changeValue(T& currentValue, const T& newValue)
+  {
+    // jesli ustawiana jest taka sama wartosc to nic nie zmieniaj
+    if (currentValue == newValue){
+      return true;
+    }
+    mutex.lock();
+    T odlValue = currentValue;
+    currentValue = newValue;
+    const bool result = saveConfiguration();
+    if (!result)
+    {
+      // jesli zapis sie nie powiodl, przywroc stare ustawienia
+      currentValue = odlValue;
+    }
+    mutex.unlock();
+    return result;
+  }
+
+
+  template<typename T>
+  bool CConfiguration::setSensorValue(const int8_t idSensor, const T (CSensorConfiguration::*getter)() const,
+                      void (CSensorConfiguration::*setter)(const T&), const T& newValue)
+  {
+    std::vector<DSensorConfiguration>::iterator it = std::find_if(
+                                                       sensors.begin(), sensors.end(),
+                                                       [&](DSensorConfiguration& s){return s->getSensorId() == idSensor;});
+    if (it == sensors.end())
+    {
+      // nie znaleziono czujnika
+      return false;
+    }
+    std::shared_ptr<CSensorConfiguration> s = std::dynamic_pointer_cast<CSensorConfiguration>(*it);
+    T currentValue = (*s.*getter)();
+    mutex.lock();
+    T oldValue = currentValue;
+    (*s.*setter)(newValue);
+
+    bool result = saveConfiguration();
+    if (!result)
+    {
+      // nie udal sie zapis - przywroc stare wartosci
+      (*s.*setter)(oldValue);
+    }
+
+    mutex.unlock();
+    return result;
+  }
+
+  template<typename T>
+  bool CConfiguration::setSensorValue(const int8_t idSensor, T (CSensorConfiguration::*getter)() const,
+                      void (CSensorConfiguration::*setter)(const T), const T& newValue)
+  {
+    std::vector<DSensorConfiguration>::iterator it = std::find_if(
+                                                       sensors.begin(), sensors.end(),
+                                                       [&](DSensorConfiguration& s){return s->getSensorId() == idSensor;});
+    if (it == sensors.end())
+    {
+      // nie znaleziono czujnika
+      return false;
+    }
+    std::shared_ptr<CSensorConfiguration> s = std::dynamic_pointer_cast<CSensorConfiguration>(*it);
+    T currentValue = (*s.*getter)();
+    mutex.lock();
+    T oldValue = currentValue;
+    (*s.*setter)(newValue);
+
+    bool result = saveConfiguration();
+    if (!result)
+    {
+      // nie udal sie zapis - przywroc stare wartosci
+      (*s.*setter)(oldValue);
+    }
+
+    mutex.unlock();
+    return result;
   }
 }

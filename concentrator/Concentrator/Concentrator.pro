@@ -26,7 +26,10 @@ SOURCES += main.cpp \
     sensors/core/CSensorsManager.cpp \
     sensors/tests/CSensorsManagerMock.cpp \
     configuration/tests/ConfigurationMock.cpp \
-    communication/interfaces/protocol.cpp
+    communication/interfaces/protocol.cpp \
+    util/Time.cpp \
+    engine/test/SensorDateFileManagerTest.cpp \
+    util/test/Test.cpp
 
 HEADERS += \
     communication/core/protocol.h \
@@ -57,9 +60,18 @@ HEADERS += \
     engine/interfaces/EngineFactory.h \
     sensors/tests/CSensorsManagerMock.h \
     configuration/tests/ConfigurationMock.h \
-    configuration/tests/SensorConfigurationMock.h
+    configuration/tests/SensorConfigurationMock.h \
+    engine/core/SensorDataFileManager.h \
+    util/Time.h \
+    engine/test/SensorDateFileManagerTest.h \
+    util/test/Test.h \
+    util/Memory.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 
-unix: CONFIG += link_pkgconfig
+# Wlaczenie/wylaczenie testow
+#DEFINES += TEST_ENABLE
+
 unix: PKGCONFIG += libmodbus
+
+unix|win32: LIBS += -lmodbus

@@ -1,0 +1,261 @@
+<zuiprezi><version>10</version><zui-table><settings><autoplay><delay>4000</delay></autoplay><bounds x="-131773.9276987071" y="-111510.78017154956" width="263547.8553974142" height="223021.56034309912"/><aspectratio>off</aspectratio><mode type="normal"/></settings><object id="53" type="button" x="-46930.59217086202" y="-34173.88095779119" r="0" s="48.766208450081095" class="invisible"><type>invisible</type><size><w>1257.0131212191782</w><h>942.7598409143836</h></size></object><object id="28" type="shape" x="-50934.23567192307" y="-24769.868436917342" r="97.50130869091338" s="28.40503217247871" class="line5"><geom type="line"><sp>194.0238819193057 0</sp><ep>-194.0238819193057 0</ep><t>8</t></geom></object><object id="27" type="shape" x="-44107.513823621346" y="-32679.25572062917" r="-4.210025579120927e-14" s="28.4050321724787" class="line5"><geom type="line"><sp>167.31564577768472 0</sp><ep>-167.31564577768472 0</ep><t>8</t></geom></object><object id="29" type="shape" x="-52457.20680434999" y="-44695.64586877681" r="81.90160532357721" s="28.405032172478684" class="line5"><geom type="line"><sp>206.00858498063525 0</sp><ep>-206.00858498063525 0</ep><t>8</t></geom></object><object id="26" type="shape" x="-77924.60541646862" y="-33456.99079133239" r="0" s="40.578617389255285" class="line5"><geom type="line"><sp>-124.13315624415284 0</sp><ep>124.13315624415284 0</ep><t>8</t></geom></object><object id="0" type="button" x="-107647.92197852519" y="-94647.2553580935" r="0" s="30.898436337235772" class="roundrect"><type>roundrect</type><size><w>799.1623036649214</w><h>600</h></size></object><object id="1" type="text" x="-108244.83138918004" y="-99988.52769679023" r="0" s="70.49155453373189" class="body"><height>27.59765625</height><width>-167.9765625</width><p><text weight="bold"><![CDATA[Monitoring Hal]]></text></p></object><object id="2" type="text" x="-103697.15859233015" y="-96100.82004806356" r="0" s="43.76970930558136" class="strong"><height>27.59765625</height><width>-177.4453125</width><p><text weight="normal" style="normal"><![CDATA[Pod patronatem:]]></text></p></object><object id="3" type="text" x="-102114.74682059178" y="-93730.14316780001" r="0" s="36.173313475687074" class="strong"><height>55.1953125</height><width>-273.3984375</width><p><text><![CDATA[dr. inż. Daniel Arendt]]></text></p><p><text><![CDATA[dr. inż. Michał Morawski]]></text></p></object><object id="4" type="text" x="-116502.53417104435" y="-90401.18321442735" r="0" s="36.173313475687074" class="strong"><height>27.59765625</height><width>-134.484375</width><p><text weight="normal" style="normal"><![CDATA[Wykonawcy:]]></text></p></object><object id="5" type="text" x="-114199.0164384965" y="-88161.13156037267" r="0" s="25.696935725946705" class="strong"><height>110.390625</height><width>328.85789890700073</width><p><text weight="normal"><![CDATA[inż. Krzysztof Chrzuszcz]]></text></p><p><text weight="normal"><![CDATA[inż. Rafał Olejniczak]]></text></p><p><text weight="normal"><![CDATA[inż. Piotr Sagalara]]></text></p><p><text weight="normal"><![CDATA[inż. Marcin Serwach]]></text></p></object><object id="6" type="image" x="-106487.14194122393" y="-50029.92835889415" r="0" s="47.015422838841275"><source w="1000" h="1000">YJDiYg5BPTIqCXM.png<url>YJDiYg5BPTIqCXM.png</url></source><resource><id>1925496565</id><url>http://0103.static.prezi.com.s3.amazonaws.com/media/0/0/e/777d44865f712b2db42c7eb6555952dc14eb9.png</url></resource><sourceUrl>hala-01.png</sourceUrl></object><object id="7" type="button" x="-45083.266863991106" y="20932.019857697596" r="0" s="54.299973633801464" class="roundrect"><type>roundrect</type><size><w>799.0909090909091</w><h>600</h></size></object><object id="8" type="text" x="-45000.68511222799" y="8489.864517060876" r="0" s="77.72400165938673" class="head"><height>27.59765625</height><width>-109.37109375</width><p><text><![CDATA[Problemy]]></text></p></object><object id="9" type="text" x="-46266.1290142449" y="13549.120167262176" r="0" s="77.72400165938673" class="strong"><height>27.59765625</height><width>-455.16796875</width><p><text><![CDATA[Koncentrator znajduje się za firewall'em]]></text></p></object><object id="10" type="text" x="-53999.18140434347" y="17309.504522545358" r="0" s="77.72400165938673" class="strong"><height>27.59765625</height><width>-256.1015625</width><p><text><![CDATA[Brak połączenia z halą]]></text></p></object><object id="11" type="text" x="-48768.598980171926" y="21666.28881784011" r="0" s="77.72400165938673" class="strong"><height>27.59765625</height><width>-390.76171875</width><p><text><![CDATA[Niepoprawne dane z koncentarora]]></text></p></object><object id="12" type="text" x="-55192.411015964004" y="25673.15102700606" r="0" s="77.72400165938673" class="strong"><height>27.59765625</height><width>-225.421875</width><p><text><![CDATA[Alarmujące odczyty]]></text></p></object><object id="13" type="button" x="-43298.969261786624" y="-93626.1495134231" r="0" s="53.43316415470259" class="roundrect"><type>roundrect</type><size><w>796.4682318354019</w><h>597.3511738765515</h></size></object><object id="14" type="text" x="-43206.74994709648" y="-104355.01021653818" r="0" s="101.5048045596322" class="head"><height>27.59765625</height><width>-253.40625</width><p><text><![CDATA[Jaki protokół wybrać?]]></text></p></object><object id="20" type="image" x="-36319.94964768111" y="-34666.06807965137" r="0" s="68.96991393926245"><source w="110" h="139">QubK7T26GxzOkp3.png<url>QubK7T26GxzOkp3.png</url></source><resource><id>1931505523</id><url>http://0103.static.prezi.com.s3.amazonaws.com/media/b/4/1/ee478e7f0d9e690b0684232adfd1b763c4285.png</url></resource><sourceUrl>serwer.png</sourceUrl></object><object id="21" type="image" x="-61075.28706370096" y="-34671.168717260254" r="0" s="91.49321533494631"><source w="296" h="174">CAIBtZQuJPso1pd.png<url>CAIBtZQuJPso1pd.png</url></source><resource><id>1931508295</id><url>http://0103.static.prezi.com.s3.amazonaws.com/media/a/b/1/907339daf2100c9f01e39cf597437daa69ba2.png</url></resource><sourceUrl>chmura-rura-md.png</sourceUrl></object><object id="41" type="image" x="-43206.58487779668" y="-95823.93301007578" r="0" s="66.63483096946781"><source w="841" h="595">aomh5l50xv.swf<url>aomh5l50xv.swf</url><mask x="47.35" y="51.05" w="627.4000000000001" h="83.8"/></source><resource><id>1935122968</id><url>http://0103.static.prezi.com.s3.amazonaws.com/media/0/a/e/2cccea42b4da29cb10af8678353cc3d7edde3.swf</url></resource><sourceUrl>protokoly.pdf</sourceUrl></object><object id="22" type="text" x="-53323.196987575066" y="-52823.466843558585" r="0" s="155.44800331877346" class="head"><height>27.59765625</height><width>-52.0078125</width><p><text><![CDATA[SMS]]></text></p></object><object id="23" type="image" x="-52325.507576895485" y="-16558.07590555056" r="0" s="65.27753359069378"><source w="132" h="115">LRLFrDi6NpBSWMo.png<url>LRLFrDi6NpBSWMo.png</url></source><resource><id>1931515816</id><url>http://0103.static.prezi.com.s3.amazonaws.com/media/5/a/9/7965d8805935a4ad9e93432e90f49c1230030.png</url></resource><sourceUrl>host.png</sourceUrl></object><object id="24" type="text" x="-35093.61063399907" y="-42488.50307165827" r="0" s="83.42170404570861" class="head"><height>27.59765625</height><width>-77.390625</width><p><text><![CDATA[serwer]]></text></p></object><object id="31" type="button" x="-111773.75461836245" y="-230.42822314787003" r="0" s="60.5607057694009" class="roundrect"><type>roundrect</type><size><w>660.483870967742</w><h>600</h></size></object><object id="34" type="image" x="-121081.2837723302" y="-9760.668611139852" r="0" s="68.10693250162385"><source w="430" h="200">3qqq30qwpr.jpg<url>3qqq30qwpr.jpg</url><mask x="135" y="9" w="159" h="191"/></source><resource><id>1935006382</id><url>http://0103.static.prezi.com.s3.amazonaws.com/media/a/c/5/eec3a4bb9405c95c63a557dcf1c157c9747c5.jpg</url></resource><sourceUrl>http://www.moxa.com/ImgUpload/Product/m20140613154734.jpg</sourceUrl></object><object id="25" type="text" x="-33722.75355473165" y="-14223.926980717104" r="0" s="83.42170404570861" class="head"><height>27.59765625</height><width>-256.53515625</width><p><text><![CDATA[Panel Administracyjny]]></text></p></object><object id="30" type="text" x="-61075.83257144983" y="-34306.891145219575" r="0" s="111.0342880848382" class="body"><height>27.59765625</height><width>-120</width><p><text color="0" weight="bold"><![CDATA[INTERNET]]></text></p></object><object id="32" type="text" x="-111794.51318020081" y="6500.4825602795645" r="0" s="65.73065296110774" class="body"><height>248.37890625</height><width>552</width><p><text><![CDATA[• Computer]]></text></p><p><text><![CDATA[CPU  MOXA ART ARM9 32-bit RISC CPU, 192 MHz]]></text></p><p><text><![CDATA[OS (pre-installed)  μClinux or Linux]]></text></p><p><text><![CDATA[DRAM  16 MB]]></text></p><p><text><![CDATA[Flash  8 MB onboard]]></text></p><p><text><![CDATA[]]></text></p><p><text><![CDATA[• Storage]]></text></p><p><text><![CDATA[Storage Expansion  SD slot]]></text></p></object><object id="35" type="text" x="-52910.912592341476" y="29531.394803883995" r="0" s="72.3037182572185" class="strong"><height>27.59765625</height><width>-305.42578125</width><p><text><![CDATA[Bezpieczeństwo transmisji]]></text></p></object><object id="39" type="image" x="65033.98238435119" y="-84554.01150319229" r="0" s="112.16797531824525"><source w="1190" h="841">aja4i42nsu.swf<url>aja4i42nsu.swf</url><mask x="0" y="37.85" w="1189.9999999999998" h="480.6499999999999"/></source><resource><id>1935059644</id><url>http://0103.static.prezi.com.s3.amazonaws.com/media/1/6/7/5680c80b841e7b019c18598d58967e4e75b54.swf</url></resource><sourceUrl>protocol.pdf</sourceUrl></object><object id="42" type="text" x="-44605.1314825978" y="-89174.296607111" r="0" s="59.92019159364354" class="strong"><height>55.1953125</height><width>-497.54296875</width><p><text color="5974240"><![CDATA[to jeszcze nie jest ostateczna wersja tabelki]]></text></p><p><text color="5974240"><![CDATA[jakies propozycje?]]></text></p></object><object id="43" type="text" x="17418.072408366137" y="102730.96225848749" r="0" s="636.2727206635228" class="strong"><height>27.59765625</height><width>-194.73046875</width><p><text><![CDATA[zdjecie interfejsu]]></text></p></object><object id="15" type="button" x="-106429.9386481479" y="-48477.73979715583" r="0" s="59.48387730713026" class="invisible"><type>invisible</type><size><w>798.9465570400823</w><h>600</h></size></object><object id="44" type="button" x="-113844.46444519723" y="-55905.11893933655" r="0" s="21.356815250562132" class="invisible"><type>invisible</type><size><w>898.0674497915878</w><h>600</h></size></object><object id="47" type="button" x="-103305.20333308158" y="-55905.11893933655" r="0" s="21.35681525056212" class="invisible"><type>invisible</type><size><w>898.0674497915878</w><h>600</h></size></object><object id="48" type="button" x="-102314.75536751744" y="-37485.02367612757" r="0" s="21.35681525056212" class="invisible"><type>invisible</type><size><w>898.0674497915878</w><h>600</h></size></object><object id="49" type="button" x="-100976.10061913752" y="-47883.363995638196" r="0" s="21.35681525056212" class="invisible"><type>invisible</type><size><w>898.0674497915878</w><h>600</h></size></object><object id="51" type="button" x="-92477.13405635224" y="-36227.14233265955" r="0" s="21.35681525056212" class="invisible"><type>invisible</type><size><w>898.0674497915878</w><h>600</h></size></object><object id="54" type="button" x="-65182.52560407615" y="13565.671851828267" r="0" s="0.6269975204274871" class="invisible"><type>invisible</type><size><w>1125.877192982456</w><h>600</h></size></object><object id="55" type="button" x="-65096.032281110965" y="17358.9508607215" r="0" s="0.6269975204274871" class="invisible"><type>invisible</type><size><w>1125.877192982456</w><h>600</h></size></object><object id="56" type="button" x="-65048.06328302968" y="21767.87343566299" r="0" s="0.6269975204274871" class="invisible"><type>invisible</type><size><w>1125.877192982456</w><h>600</h></size></object><object id="57" type="button" x="-64928.762147905276" y="25874.069380226294" r="0" s="0.7537773157529835" class="invisible"><type>invisible</type><size><w>1125.877192982456</w><h>600</h></size></object><object id="58" type="button" x="-64928.762147905276" y="29517.724882151015" r="0" s="0.7537773157529835" class="invisible"><type>invisible</type><size><w>1125.877192982456</w><h>600</h></size></object><object id="59" type="text" x="-65212.005411653474" y="13469.444085849298" r="0" s="0.8270302648468254" class="strong"><height>55.1953125</height><width>552</width><p><text><![CDATA[Koncentrator nawiązuje połączenie z serwerem protokołem HTTP]]></text></p></object><object id="60" type="text" x="-65218.50216622908" y="13420.252616424761" r="0" s="0.8270302648468254" class="head"><height>27.59765625</height><width>-142.69921875</width><p><text><![CDATA[Rozwiązanie]]></text></p></object><object id="61" type="text" x="-65146.049891774244" y="17218.163187124486" r="0" s="1.0047279520945434" class="head"><height>27.59765625</height><width>-142.69921875</width><p><text><![CDATA[Rozwiązanie]]></text></p></object><object id="62" type="text" x="-65108.72424835388" y="17294.472275086064" r="0" s="1.0047279520945434" class="head"><height>55.1953125</height><width>552</width><p><text><![CDATA[W przypadku braku połączenia koncentrator zapisuje pakiety na karcie SD ]]></text></p></object><object id="63" type="text" x="-65105.96124648566" y="17378.618241073986" r="0" s="1.0047279520945434" class="head"><height>55.1953125</height><width>552</width><p><text><![CDATA[Po odzyskaniu połączenia zaczyna przesyłać zapisane informacje]]></text></p></object><object id="64" type="text" x="-65100.20433113774" y="21638.17520146383" r="0" s="0.8090622070638919" class="head"><height>27.59765625</height><width>-142.69921875</width><p><text><![CDATA[Rozwiązanie]]></text></p></object><object id="65" type="text" x="-65113.798124512" y="21708.494528040992" r="0" s="0.8090622070638919" class="head"><height>55.1953125</height><width>552</width><p><text><![CDATA[Jednorazowe błedne dane są ignorowane, jako chwilowe zakłócenia]]></text></p></object><object id="67" type="text" x="-65182.38377401021" y="21793.293567197772" r="0" s="0.8090622070638919" class="head"><height>27.59765625</height><width>-382.74609375</width><p><text><![CDATA[Uwzględnienie nacisku ujemnego]]></text></p></object><object id="68" type="text" x="-65113.848360909564" y="21856.34024619169" r="0" s="0.8090622070638919" class="head"><height>27.59765625</height><width>552</width><p><text><![CDATA[Informacja o braku danych z czujnika]]></text></p></object><object id="69" type="text" x="-64951.98668782716" y="25723.437661008396" r="0" s="2.0094559041890863" class="head"><height>27.59765625</height><width>-142.69921875</width><p><text><![CDATA[Rozwiazanie]]></text></p></object><object id="70" type="text" x="-64993.582425043875" y="25841.5434317771" r="0" s="1.0554142687781745" class="head"><height>55.1953125</height><width>552</width><p><text><![CDATA[Podział na 3 stopniową skalę odczytów: ]]></text></p><p><text color="7326720"><![CDATA[w normie]]></text><text><![CDATA[, ]]></text><text color="16744448"><![CDATA[alarmujących]]></text><text><![CDATA[,]]></text><text color="16711680"><![CDATA[ krytycznych]]></text></p></object><object id="71" type="text" x="-64940.78397116127" y="25941.412212799736" r="0" s="1.0047279520945434" class="head"><height>27.59765625</height><width>670.0058103386788</width><p><text><![CDATA[Zgłoszenie stanu krytycznego NATYCHMIAST przez SMS]]></text></p></object><object id="72" type="text" x="-64905.86967482601" y="29580.538032701734" r="0" s="1.0505652980873084" class="strong"><height>358.76953125</height><width>824.625416791919</width><p><text><![CDATA[]]></text></p><p><text><![CDATA[  1. dodajemy do ciągu danych 3 wyzerowane bity,]]></text></p><p><text><![CDATA[    w linii poniżej wpisujemy 4-bitowy dzielnik CRC,]]></text></p><p><text><![CDATA[ 2.   jeżeli mamy 0 nad najstarszą pozycją dzielnika, to przesuwamy dzielnik w prawo o jedną pozycję, aż do napotkania 1,]]></text></p><p><text><![CDATA[ 3.   wykonujemy operację XOR pomiędzy bitami dzielnika i odpowiednimi bitami ciągu danych, uwzględniając dopisane 3 bity]]></text></p><p><text><![CDATA[ 4.   wynik zapisujemy w nowej linii poniżej,]]></text></p><p><text><![CDATA[ 5.  jeżeli liczba bitów danych jest większa lub równa 4, przechodzimy do kroku 2,]]></text></p><p><text><![CDATA[ 6.   3 najmłodsze bity stanowią szukane CRC, czyli cykliczny kod nadmiarowy:]]></text></p><p><text><![CDATA[]]></text></p></object><object id="73" type="text" x="-65220.34952383161" y="29380.546933837315" r="0" s="1.0505652980873084" class="strong"><height>27.59765625</height><width>-105.33984375</width><p><text><![CDATA[Algorytm]]></text></p></object><object id="74" type="text" x="-64928.827708531375" y="29336.338903945143" r="0" s="1.4707914173222314" class="head"><height>27.59765625</height><width>-58.6640625</width><p><text><![CDATA[ CRC]]></text></p></object><object id="16" type="text" x="-108594.4787934979" y="-14278.91692505623" r="0" s="128.83207980377108" class="head"><height>27.59765625</height><width>-72</width><p><text><![CDATA[MOXA]]></text></p></object><object id="17" type="text" x="-105775.48240909782" y="-9212.880395555161" r="0" s="92.02291414555081" class="head"><height>27.59765625</height><width>-96.046875</width><p><text weight="normal"><![CDATA[UC-7101]]></text></p></object></zui-table><background><layer depth="166.485863367863" fadescale="0.013214335172343945"><object id="backgroundm8vROoyeBHl6e5P.jpg" type="image" x="4432.226296193505" y="-11071.515476256083" r="0" s="343.441392138465"><source w="1600" h="1200">m8vROoyeBHl6e5P.jpg<url>m8vROoyeBHl6e5P.jpg</url></source><sourceUrl>background.jpg</sourceUrl></object></layer></background><path><s><eagle o="0"/></s><s><eagle o="15"/></s><s><eagle o="31"/></s><s><eagle o="6"/></s><s><eagle o="44"/></s><s><eagle o="47"/></s><s><eagle o="48"/></s><s><eagle o="51"/></s><s><eagle o="53"/></s><s><eagle o="13"/></s><s><eagle o="39"/></s><s><eagle o="53"/></s><s><eagle o="7"/></s><s><eagle o="54"/></s><s><eagle o="7"/></s><s><eagle o="55"/></s><s><eagle o="7"/></s><s><eagle o="56"/></s><s><eagle o="7"/></s><s><eagle o="57"/></s><s><eagle o="7"/></s><s><eagle o="58"/></s><s><eagle o="43"/></s></path><style type="text/css"><![CDATA[
+@font-face
+{
+	src: url('Arimo-Regular.keg');
+	fontFamily: body;
+	font-class: body;
+	font-style: normal;
+	font-weight: normal;
+	font-family: Arimo;
+}
+
+@font-face
+{
+	src: url('Arimo-Bold.keg');
+	fontFamily: head;
+	font-class: head;
+	font-style: normal;
+	font-weight: bold;
+	font-family: Arimo;
+}
+
+@font-face
+{
+	src: url('Arimo-BoldItalic.keg');
+	fontFamily: strong;
+	font-class: strong;
+	font-style: italic;
+	font-weight: bold;
+	font-family: Arimo;
+}
+
+@font-face
+{
+	src: url('Arimo-Italic.keg');
+	fontFamily: undefined;
+	font-class: undefined;
+	font-style: italic;
+	font-weight: normal;
+	font-family: Arimo;
+}
+
+.line1
+{
+	color: #c7c7c4;
+	gradEndColor: #c7c7c4;
+	gradStartColor: #c7c7c4;
+}
+
+.line2
+{
+	color: #555;
+	gradEndColor: #555;
+	gradStartColor: #888;
+}
+
+.line3
+{
+	color: #5374ec;
+	gradEndColor: #5374ec;
+	gradStartColor: #5374ec;
+}
+
+.line4
+{
+	color: #66e186;
+	gradEndColor: #66e186;
+	gradStartColor: #66e186;
+}
+
+.line5
+{
+	color: #fa5151;
+	gradEndColor: #fa5151;
+	gradStartColor: #fa5151;
+}
+
+.poly1
+{
+	color: #fff;
+	gradEndColor: #c7c7c4;
+	gradStartColor: #c7c7c4;
+}
+
+.poly2
+{
+	color: #fff;
+	gradEndColor: #000;
+	gradStartColor: #333;
+}
+
+.poly3
+{
+	color: #fff;
+	gradEndColor: #5374ec;
+	gradStartColor: #5374ec;
+}
+
+.poly4
+{
+	color: #fff;
+	gradEndColor: #66e186;
+	gradStartColor: #66e186;
+}
+
+.poly5
+{
+	color: #fff;
+	gradEndColor: #fa5151;
+	gradStartColor: #fa5151;
+}
+
+Background
+{
+	gradEnd: #fff;
+	gradStart: #fff;
+}
+
+Grid
+{
+	color: #b8b8b8;
+}
+
+ZArrow
+{
+	borderAlpha: 0;
+	borderThickness: 0;
+	gradEndAlpha: 1;
+	gradEndColor: #fff;
+	gradStartAlpha: 1;
+	gradStartColor: #fff;
+	thickness: 10;
+}
+
+ZCircle
+{
+	borderAlpha: 0;
+	gradEndAlpha: 1;
+	gradStartAlpha: .9;
+	lockTintAlpha: 0;
+	radius: 0;
+	thickness: 100;
+}
+
+ZCurveLine
+{
+	color: #fff;
+}
+
+ZFrame.bracket
+{
+	borderColor: #9bffff;
+	borderThickness: 0;
+	gradEndColor: #35afa9;
+	gradStartColor: #35afa9;
+}
+
+ZFrame.circle
+{
+	borderColor: #9bffff;
+	borderThickness: 0;
+	gradEndColor: #35afa9;
+	gradStartColor: #35afa9;
+}
+
+ZFrame.roundrect
+{
+	borderColor: #9bffff;
+	borderThickness: 0;
+	gradEndColor: #35afa9;
+	gradStartColor: #35afa9;
+}
+
+ZLabel
+{
+	lockTintAlpha: 0.15;
+	padding: 1.2;
+}
+
+ZLabel.body
+{
+	color: #c7f3ff;
+	fontFamily: body;
+}
+
+ZLabel.body-background
+{
+	background-alpha: 0.9;
+	background-color: #e4e4dd;
+	background-padding: 10;
+}
+
+ZLabel.head
+{
+	color: #bdf3ff;
+	fontFamily: head;
+}
+
+ZLabel.head-background
+{
+	background-alpha: 0.9;
+	background-color: #f6f1a6;
+	background-padding: 6;
+}
+
+ZLabel.strong
+{
+	color: #bdf3ff;
+	fontFamily: strong;
+}
+
+ZLabel.strong-background
+{
+	background-alpha: 0.9;
+	background-color: #d3e2ee;
+	background-padding: 8;
+}
+
+ZLine
+{
+	color: #fff;
+}
+
+ZMarker
+{
+	alpha: .65;
+	color: #f0ea82;
+}
+
+ZPath
+{
+	alpha: 1;
+	color: #333;
+	textColor: #fff;
+	thickness: 3;
+}
+
+ZPath Ball.base
+{
+	alpha: 1;
+	fillColor: #333;
+	radius: 12;
+}
+
+ZPath Ball.mid
+{
+	alpha: .5;
+	fillColor: #333;
+	radius: 8;
+}
+
+ZPoly
+{
+	borderAlpha: 0;
+	gradEndAlpha: 1;
+	gradStartAlpha: .9;
+	lockTintAlpha: 0;
+	radius: 0;
+	thickness: 100;
+}
+
+]]></style><hash>-79f1ff2d</hash><config>ZS3ElXZ2sxKXjgAbC6UBXQ2VNZSeEds3Ig==</config></zuiprezi>

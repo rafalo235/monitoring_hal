@@ -28,19 +28,17 @@
 #endif
 
 
-
-
 #ifdef LOGGER_ENABLE
 
 #define LOG_DEBUG(...) NUtil::CLogger::getInstance()->logDebug(__FILE_NAME__, __FUNCTION__, __LINE__, __VA_ARGS__);
 
 // wylaczenie logowania
 // unikatowe nazwy
-#define COMBINE1(X,Y) X##Y  // helper macro
-#define COMBINE(X,Y) COMBINE1(X,Y)
-#define UNIQUE_NAME COMBINE(x,__LINE__) (__FILE_NAME__);
+#define CONCAT(a, b) a ## b
+#define CONCAT2(a, b) CONCAT(a, b)
+#define UNIQUE_NAME(prefix) CONCAT2(prefix, __LINE__)
 // makro wylaczajace debug log w pliku
-#define LOG_OFF NUtil::CUnlogFile UNIQUE_NAME;
+#define LOG_OFF NUtil::CUnlogFile UNIQUE_NAME(turnOffLog);
 
 // makro do logowania protokolu
 #define LOG_PROTOCOL(prot) NUtil::CLogger::getInstance()->logProtocol(prot);
@@ -53,6 +51,11 @@
 
 #define LOG_ERROR(...) NUtil::CLogger::getInstance()->logError(__FILE_NAME__, __FUNCTION__, __LINE__, __VA_ARGS__);
 
+#ifdef LOGGER_ENABLE
+#define LOG_OUTPUT(A) A;
+#else
+#define LOG_OUTPUT(A)
+#endif
 
 //! \brief Logger do prostychy logow (do pliku tez).
 //! Wlaczenie logowania nastepuje po zdefinioawniu LOGGER_ENABLE. Wlacznie logowania do pliku LOGGER_FILE_ENABLE.
@@ -68,15 +71,23 @@
 //!
 namespace NUtil{
 #ifdef LOGGER_ENABLE
-
+  //! \brief The CUnlogFile class zawiera pliki, ktorych logi sa wylaczone
   class CUnlogFile{
+    //! \brief wylaczone pliki z logowania
     static std::set<std::string> turnOffFiles;
 
   public:
+    //!
+    //! \brief CUnlogFile Konstruktor zapisujacy nazwe pliku do wektora plikow nielogowanych
+    //! \param file sciezka do pliku
     CUnlogFile(const char* file){
       turnOffFiles.insert(std::string(file));
     }
 
+    //!
+    //! \brief find Sprawdza czy plik znajduje sie w wektorze nielogowanych plikow
+    //! \param file sciez do pliku
+    //! \return true jesli podana sciezka do pliku znajduje sie w wektorz nielogowanych plikow
     static bool find(const char* file){
 
       return turnOffFiles.find(std::string(file)) != turnOffFiles.end();
@@ -84,7 +95,8 @@ namespace NUtil{
   };
 
 #endif // LOGGER_ENABLE
-
+  //!
+  //! \brief The CLogger class Odpowiada za logowanie. Wzorzec singleton
   class CLogger{
 
   private:
@@ -101,6 +113,9 @@ namespace NUtil{
 #endif
 
   public:
+    //!
+    //! \brief getInstance Zwraca instacje loggera
+    //! \return logger
     static std::shared_ptr<CLogger> getInstance(){
       static std::shared_ptr<CLogger> logger(new CLogger());
       static bool inited = false;

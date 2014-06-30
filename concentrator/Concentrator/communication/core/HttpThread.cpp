@@ -89,6 +89,13 @@ namespace NProtocol {
         //success
         LOG_DEBUG("Protocol has been sent successfully. idPackage:", protocol.getIdPackage());
         CByteWrapper wrapper(reply->readAll());
+
+        if (!wrapper.isCRCValid())
+        {
+          LOG_ERROR("Received protocol error - CRC. idPackage:", protocol.getIdPackage());
+          DConnectionResult res(new CConnectionResult(protocol, EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR));
+          resultsQueue.push(res);
+        }
         std::shared_ptr<CProtocol> responseProtocol =
             convertToProtocol(wrapper);
         // przekonwertuj do struktury

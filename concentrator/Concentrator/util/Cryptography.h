@@ -18,7 +18,11 @@ namespace NUtil {
     //! \param dataSize rozmiar danych
     //! \return  CRC16
     static uint16_t crc16(const char* data, const int dataSize);
+    static bool checkCrc16(const char* data, const int dataSize);
 
+  private:
+    static void xorBytes(char* data, int length, const char* divisor);
+    static void shift(char* data, int length);
   };
 }
 #endif // CRYPTOGRAPHY_H

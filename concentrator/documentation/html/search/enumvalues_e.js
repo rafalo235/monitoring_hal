@@ -1,7 +1,4 @@
 var searchData=
 [
-  ['uint_5f16',['UINT_16',['../namespace_n_protocol.html#aa98c473b81ada5bbb825af86564d6e56a59d63072daeebf8656d5af347804a3e5',1,'NProtocol']]],
-  ['uint_5f32',['UINT_32',['../namespace_n_protocol.html#aa98c473b81ada5bbb825af86564d6e56a439763af420837dadd245f3026b75796',1,'NProtocol']]],
-  ['uint_5f64',['UINT_64',['../namespace_n_protocol.html#aa98c473b81ada5bbb825af86564d6e56aab7c10452570f477ab26f900ce950f98',1,'NProtocol']]],
-  ['uint_5f8',['UINT_8',['../namespace_n_protocol.html#aa98c473b81ada5bbb825af86564d6e56a8ca90caeddf8a3c04e61d42bde298278',1,'NProtocol']]]
+  ['turn_5foff',['TURN_OFF',['../namespaceNProtocol.html#acbbbdd115c74c6897c0db8c47322bb4aaeed1ed0fef866752b8126ade8443a026',1,'NProtocol']]]
 ];

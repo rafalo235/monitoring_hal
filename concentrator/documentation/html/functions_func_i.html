@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>HallMonitor: Class Members - Functions</title>
+<title>Monitoring hall: Class Members - Functions</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -22,10 +22,8 @@
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">HallMonitor
-   &#160;<span id="projectnumber">1.0</span>
+   <div id="projectname">Monitoring hall
    </div>
-   <div id="projectbrief">Program odczytujacy dane z czujnikow naprezen dachow hal, a nastepnie przekazujacy dane do serwera.</div>
   </td>
  </tr>
  </tbody>
@@ -74,9 +72,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions.html"><span>All</span></a></li>
       <li class="current"><a href="functions_func.html"><span>Functions</span></a></li>
       <li><a href="functions_vars.html"><span>Variables</span></a></li>
+      <li><a href="functions_type.html"><span>Typedefs</span></a></li>
       <li><a href="functions_enum.html"><span>Enumerations</span></a></li>
       <li><a href="functions_eval.html"><span>Enumerator</span></a></li>
-      <li><a href="functions_rela.html"><span>Related&#160;Functions</span></a></li>
     </ul>
   </div>
   <div id="navrow4" class="tabs3">
@@ -88,10 +86,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_func_g.html#index_g"><span>g</span></a></li>
       <li class="current"><a href="functions_func_i.html#index_i"><span>i</span></a></li>
       <li><a href="functions_func_l.html#index_l"><span>l</span></a></li>
+      <li><a href="functions_func_m.html#index_m"><span>m</span></a></li>
+      <li><a href="functions_func_n.html#index_n"><span>n</span></a></li>
       <li><a href="functions_func_o.html#index_o"><span>o</span></a></li>
       <li><a href="functions_func_p.html#index_p"><span>p</span></a></li>
       <li><a href="functions_func_r.html#index_r"><span>r</span></a></li>
       <li><a href="functions_func_s.html#index_s"><span>s</span></a></li>
+      <li><a href="functions_func_w.html#index_w"><span>w</span></a></li>
       <li><a href="functions_func_~.html#index_~"><span>~</span></a></li>
     </ul>
   </div>
@@ -101,7 +102,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(11)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -115,29 +116,30 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <h3><a class="anchor" id="index_i"></a>- i -</h3><ul>
 <li>IConnectionTask()
-: <a class="el" href="class_n_protocol_1_1_i_connection_task.html#a911416217d5c0f5e2e41da92075dd126">NProtocol::IConnectionTask</a>
+: <a class="el" href="classNProtocol_1_1IConnectionTask.html#a911416217d5c0f5e2e41da92075dd126">NProtocol::IConnectionTask</a>
 </li>
 <li>init()
-: <a class="el" href="class_n_engine_1_1_c_engine.html#afe58f17d7c2afd559101ae4b749ed68a">NEngine::CEngine</a>
-, <a class="el" href="class_n_engine_1_1_i_engine.html#a2932ed59595b41c1a634f9cc5fe5f776">NEngine::IEngine</a>
+: <a class="el" href="classNEngine_1_1CEngine.html#afe58f17d7c2afd559101ae4b749ed68a">NEngine::CEngine</a>
+, <a class="el" href="classNEngine_1_1CSensorDataFileManager.html#a40333a3a32cb2eb6953995df7a7d8cc3">NEngine::CSensorDataFileManager&lt; T, SeriesAround &gt;</a>
+, <a class="el" href="classNEngine_1_1IEngine.html#a2932ed59595b41c1a634f9cc5fe5f776">NEngine::IEngine</a>
 </li>
 <li>initEnums()
-: <a class="el" href="class_n_util_1_1_c_logger.html#a9efe61071f8743ac9b931c9906ebc610">NUtil::CLogger</a>
+: <a class="el" href="classNUtil_1_1CLogger.html#a9efe61071f8743ac9b931c9906ebc610">NUtil::CLogger</a>
 </li>
 <li>isAnyResult()
-: <a class="el" href="class_n_protocol_1_1_c_connection.html#ac612047e38206f7d36f306e1005d3e67">NProtocol::CConnection</a>
-, <a class="el" href="class_n_protocol_1_1_c_http_thread.html#abe0ee40df86b4de3943e659493d37d23">NProtocol::CHttpThread</a>
-, <a class="el" href="class_n_protocol_1_1_i_connection.html#a5f8a31edcd50cd1cdee03408330100e9">NProtocol::IConnection</a>
+: <a class="el" href="classNProtocol_1_1CConnection.html#ac612047e38206f7d36f306e1005d3e67">NProtocol::CConnection</a>
+, <a class="el" href="classNProtocol_1_1CHttpThread.html#abe0ee40df86b4de3943e659493d37d23">NProtocol::CHttpThread</a>
+, <a class="el" href="classNProtocol_1_1IConnection.html#a5f8a31edcd50cd1cdee03408330100e9">NProtocol::IConnection</a>
 </li>
 <li>isTurnOn()
-: <a class="el" href="class_n_engine_1_1_c_sensor_configuration.html#a25213802630face12d9435a9c3eea84d">NEngine::CSensorConfiguration</a>
-, <a class="el" href="class_n_engine_1_1_i_sensor_configuration.html#a03bfce64c4f0dd4236734beefd064331">NEngine::ISensorConfiguration</a>
+: <a class="el" href="classNEngine_1_1CSensorConfiguration.html#a25213802630face12d9435a9c3eea84d">NEngine::CSensorConfiguration</a>
+, <a class="el" href="classNEngine_1_1ISensorConfiguration.html#a03bfce64c4f0dd4236734beefd064331">NEngine::ISensorConfiguration</a>
 </li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 5 2014 20:48:22 for HallMonitor by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Jun 26 2014 12:08:22 for Monitoring hall by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>

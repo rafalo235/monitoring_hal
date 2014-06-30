@@ -19,22 +19,23 @@ namespace NEngine{
   {
     friend class EngineFactory;
 
-    DConfiguration configuration;
-
+    //! \brief Klasa watku silnika
     CCycleMonitor cycleMonitor;
   public:
 
-
+    //! \brief IEngine::init();
     virtual bool init(){
-      configuration = CConfigurationFactory::getInstance();
+      DConfiguration configuration = CConfigurationFactory::getInstance();
       if (!configuration->readConfiguration()){
         LOG_ERROR("Reading configuration failed");
+        return false;
       }
       cycleMonitor.runThread();
 
       return true;
     }
 
+    //! \brief IEngine::exit();
     virtual void exit(){
       CConnectionFactory::getInstance()->exit();
       cycleMonitor.exit();

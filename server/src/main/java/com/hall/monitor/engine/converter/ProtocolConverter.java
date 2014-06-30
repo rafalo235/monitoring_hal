@@ -180,6 +180,10 @@ public class ProtocolConverter
     if (version != SProtocol.VERSION){
       throw new ParserException("Unsupported version of protocol", 0, 0, 0);
     }
+    if (!stream.isValidCRC())
+    {
+      throw new ParserException("Wrong CRC", 0, 0, 0);
+    }
     long size = stream.readUInt32();
     char idConcentrator = stream.readUInt16();
     
@@ -208,6 +212,7 @@ public class ProtocolConverter
       break;
     }
     char crc = stream.readUInt16();
+    
     return new SProtocol(size, idConcentrator, crc, idPackage,
         messageType, message);
   }

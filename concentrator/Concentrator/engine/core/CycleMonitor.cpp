@@ -1,54 +1,44 @@
 #include "CycleMonitor.h"
 
-#include <ctime>
-#include <chrono>
 #include <vector>
 #include <cstdint>
 
-#include "communication/interfaces/protocolUtil.h"
 #include "util/Logger.h"
+#include "util/Time.h"
+#include "engine/core/SensorDataFileManager.h"
 
 namespace NEngine{
   using namespace NProtocol;
+  using namespace NUtil;
+
+  const int CCycleMonitor::secondInterval = 1;
 
 
   CCycleMonitor::CCycleMonitor():
-    threadExit(false),
-    secondInterval(1),
-    checkingSensorsTime(0),
-    sendingDataTime(0),
-    idSensorBase(0)
-
+    threadExit(false)
   {
-
     sensors = CSensorFactory::getInstance();
     configuration = CConfigurationFactory::getInstance();
     connection = CConnectionFactory::getInstance();
+    DSensorDataFileManager::init();
   }
 
-  void CCycleMonitor::runThread(){
+  void CCycleMonitor::runThread()
+  {
     thread.reset(new std::thread([&](){run();}));
   }
 
   // funkcja wywolywana z odrebnego watku
-  void CCycleMonitor::run(){
+  void CCycleMonitor::run()
+  {
     LOG_DEBUG("Engine thread was lunched");
     do{
 
-      // pobiera aktualny czas
-      std::time_t curTime = std::chrono::system_clock::to_time_t(
-                              std::chrono::system_clock::now());
-      // ustala czas obudzenia
-      std::time_t wakeUpTime = curTime + secondInterval;
-
       // usypia watek na okreslony czas
-      std::this_thread::sleep_until(
-            std::chrono::system_clock::from_time_t(wakeUpTime));
+      std::this_thread::sleep_for(std::chrono::seconds(secondInterval));
 
-      //LOG_DEBUG("Engine thread woke up.");
       // pobiera aktualny czas
-      curTime = std::chrono::system_clock::to_time_t(
-                  std::chrono::system_clock::now());
+      STime curTime = CTime::now();
 
       // sprawdza czy przyszly jakies dane z serwera
       if (connection->isAnyResult())
@@ -57,7 +47,7 @@ namespace NEngine{
         switch(result->getStatus())
         {
         case EConnectionStatus::CONNECTION_ERROR:
-          saveSensorsData();
+
           break;
         case EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR:
           //TODO: blad protokolu wysylanego
@@ -66,12 +56,6 @@ namespace NEngine{
           //TODO: blad protokolu otrzymanego
           break;
         case EConnectionStatus::NONE:
-          if (configuration->getSaveSDCardIfOnlineEnable())
-          {
-            // zapisywanie danych nawet jesli byly
-            saveSensorsData();
-          }
-         // sensorsData.clear();
           operateReceivedProtocol(result);
           break;
         }
@@ -81,25 +65,30 @@ namespace NEngine{
       // czas sprawdzic czujniki
       if (curTime - checkingSensorsTime >= configuration->getCheckingSensorPeriod())
       {
-        //LOG_DEBUG("Engine thread checks sensors.");
         warning = checkSensors(false);
-       // LOG_DEBUG("Engine thread checked sensors.");
+        checkingSensorsTime = curTime;
       }
       // czas wyslac dane z czujnikow lub dane byly niepokojace i trzeba je wyslac
       if ((curTime - sendingDataTime >= configuration->getSendingPeriod()) || warning)
       {
        // LOG_DEBUG("Engine thread sends data.");
-        if (!warning){
+        if (!warning)
+        {
           checkSensors(true);
         }
-        if (sensorsData.size() > 0){
+        if (savedSensorData.sensorDatas.size() > 0)
+        {
 
             uint8_t amount =
                     static_cast<uint8_t>(configuration->getSensorConfiguration().size());
 
-            CMonitorData* monitorData = new CMonitorData(curTime, amount, sensorsData);
+            CMonitorData* monitorData = new CMonitorData(
+                                          curTime.getTime(),
+                                          amount,
+                                          savedSensorData.sensorDatas);
             std::shared_ptr<CMonitorData> monitor(monitorData);
-            connection->sendMonitorData(monitor);
+            uint32_t sendIdPackage = connection->sendMonitorData(monitor);
+            sensorSeries[sendIdPackage] = savedSensorData;
         }
       }
       else{
@@ -112,12 +101,31 @@ namespace NEngine{
 
   void CCycleMonitor::operateReceivedProtocol(const DConnectionResult& result)
   {
-    // TODO: sprawdzic CRC
-  }
+    //TODO: sprawdzic CRC
+    std::shared_ptr<CProtocol> receivedProtocol = result->getReceivedProtocol();
+    if (receivedProtocol->getIdConcentrator() != configuration->getIdConcentrator())
+    {
+      LOG_ERROR("Wrong id of concentrator in received package");
+      //TODO
+    }
+    else
+    {
+      std::shared_ptr<CServerResponse> responseMessage =
+          std::dynamic_pointer_cast<CServerResponse>(receivedProtocol->getMessage());
 
-  void CCycleMonitor::saveSensorsData()
-  {
-    //TODO: zapis na karte SD
+      // potwierdz wyslany pakiet
+      const uint32_t idRequestPackage = responseMessage->getIdRequestPackage();
+      std::map<uint32_t, SSavedSensorData>::iterator it = sensorSeries.find(idRequestPackage);
+      if (it != sensorSeries.end())
+      {
+        STime dif = CTime::now() - it->second.time;
+        std::vector<int> idSeries{it->second.idSeries};
+        DSensorDataFileManager::confirm(dif.getDay(), idSeries);
+        sensorSeries.erase(it);
+        //LOG_OUTPUT(DSensorDataFileManager::coutFiles(0));
+      }
+    }
+
   }
 
   void CCycleMonitor::exit(){
@@ -129,14 +137,16 @@ namespace NEngine{
   bool CCycleMonitor::checkSensors(bool addToVector){
     bool warningLevel = false;
     const std::vector<DSensorConfiguration> sensorsConf = configuration->getSensorConfiguration();
+    savedSensorData.sensorDatas.clear();;
 
-    std::time_t curTime = std::chrono::system_clock::to_time_t(
-                            std::chrono::system_clock::now());
+    STime curTime = CTime::now();
 
-    // jesli funkcja ma nie dodawac do wektora danych z czujnikow, lecz dane sa nie pokojace,
-    // zostanie petla powrotrnie uruchomi sprawdzanie czujnikow z zapisem do wektora.
+    // dane do zapisu do pliku
+    // jesli funkcja ma nie dodawac do wektora danych z czujnikow, lecz jesli dane sa niepokojace,
+    // petla zostanie powrotrnie uruchomiona ze sprawdzaniem czujnikow i zapisem do wektora.
     bool checkOnceAgain;
-    do{
+    do
+    {
       checkOnceAgain = false;
       // petla po czujnikach
       for(const DSensorConfiguration& conf : sensorsConf){
@@ -158,7 +168,8 @@ namespace NEngine{
               dangerLvl = EDangerLevel::ALARM;
               warningLevel = true;
               // jesli nie dodawac do wektora, uruchom powtornie przeglad i zapisuj do wektora
-              if (!addToVector){
+              if (!addToVector)
+              {
                 checkOnceAgain = true;
                 break;
               }
@@ -169,7 +180,8 @@ namespace NEngine{
               dangerLvl = EDangerLevel::WARNING;
               warningLevel = true;
               // jesli nie dodawac do wektora, uruchom powtornie przeglad i zapisuj do wektora
-              if (!addToVector){
+              if (!addToVector)
+              {
                 checkOnceAgain = true;
                 break;
               }
@@ -196,10 +208,10 @@ namespace NEngine{
         if (addToVector)
         {
 
-          sensorsData.emplace_back(
-                ++idSensorBase,
+          savedSensorData.sensorDatas.emplace_back(
+                ++idSensorDataBase,
                             conf->getSensorId(),
-                            curTime,
+                            curTime.getTime(),
                             sensorState,
                             dangerLvl,
                             data);
@@ -207,12 +219,20 @@ namespace NEngine{
           checkOnceAgain = false;
         }
       }
-      if (checkOnceAgain){
+      if (checkOnceAgain)
+      {
         // uruchom jeszcze raz sprawdzanie danych, ale tym razem zapamietaj
         addToVector = true;
       }
     }while(checkOnceAgain);
 
+    // jesli sa jakies dane, to je zapisz
+    if (savedSensorData.sensorDatas.size() > 0)
+    {
+      savedSensorData.idSeries = DSensorDataFileManager::saveData(warningLevel, savedSensorData.sensorDatas);
+      savedSensorData.time = CTime::now();
+      //LOG_OUTPUT(DSensorDataFileManager::coutFiles(0));
+    }
     return warningLevel;
   }
 

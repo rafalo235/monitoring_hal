@@ -18,6 +18,8 @@ namespace NEngine{
     //! \param turnOn1 wlaczony/wylaczony
     //! \param warningLvl1 poziom ostrzegania
     //! \param alarmLvl1 poziom alarmowy
+    //! \param ipv4Address1 adres IP czujnikow
+    //! \param port1 port czujnikow
     CSensorConfigurationMock(uint8_t& idSensor1,
                              bool& turnOn1,
                              CData& warningLvl1,

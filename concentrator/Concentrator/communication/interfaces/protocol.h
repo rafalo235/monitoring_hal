@@ -40,7 +40,7 @@ namespace NProtocol
 
   typedef float float32_t;    //!< 32 bitowy float
   typedef double double64_t;  //!< 64 bitowy double
-  typedef unsigned long long uint64_t; //!< 64 bitowy int bez znaku - przenosnosc dla time_t
+ // typedef unsigned long long uint64_t; //!< 64 bitowy int bez znaku - przenosnosc dla time_t
 
   //! \brief Typ danej przechowywanej w UValue
   enum class EValueType : int8_t
@@ -98,7 +98,7 @@ namespace NProtocol
     //! \param[in] type1 Typ wartosci
     //! \param[in] value1 Wskaznik do wartosci
     //!
-    CData(const EValueType& type1, void* value1) noexcept
+    CData(const EValueType& type1, const void* value1) noexcept
     {
       setValue(type1, value1);
     }
@@ -111,41 +111,45 @@ namespace NProtocol
     //! \param[in] obj Obiekt przypisywany
     CData& operator=(const CData& obj) = default;
 
+    bool operator>(const CData& data2) const;
+    bool operator<(const CData& data2) const;
+    bool operator==(const CData& data2) const;
+
     //! \brief Zmienia wartosc
     //! \param[in] type1 Typ wartosci
     //! \param[in] value1 Wskaznik do wartosci
-    void setValue(const EValueType& type1, void* value1) noexcept{
+    void setValue(const EValueType& type1, const void* value1) noexcept{
       type = type1;
       switch(type){
       case EValueType::INT_8:
-        value.vInt8 = *(reinterpret_cast<int8_t*>(value1));
+        value.vInt8 = *(reinterpret_cast<const int8_t*>(value1));
         break;
       case EValueType::UINT_8:
-        value.vUInt8 = *(reinterpret_cast<uint8_t*>(value1));
+        value.vUInt8 = *(reinterpret_cast<const uint8_t*>(value1));
         break;
       case EValueType::INT_16:
-        value.vInt16 = *(reinterpret_cast<int16_t*>(value1));
+        value.vInt16 = *(reinterpret_cast<const int16_t*>(value1));
         break;
       case EValueType::UINT_16:
-        value.vUInt16 = *(reinterpret_cast<uint16_t*>(value1));
+        value.vUInt16 = *(reinterpret_cast<const uint16_t*>(value1));
         break;
       case EValueType::INT_32:
-        value.vInt32 = *(reinterpret_cast<int32_t*>(value1));
+        value.vInt32 = *(reinterpret_cast<const int32_t*>(value1));
         break;
       case EValueType::UINT_32:
-        value.vUInt32 = *(reinterpret_cast<uint32_t*>(value1));
+        value.vUInt32 = *(reinterpret_cast<const uint32_t*>(value1));
         break;
       case EValueType::INT_64:
-        value.vInt64 = *(reinterpret_cast<int64_t*>(value1));
+        value.vInt64 = *(reinterpret_cast<const int64_t*>(value1));
         break;
       case EValueType::UINT_64:
-        value.vUInt64 = *(reinterpret_cast<uint64_t*>(value1));
+        value.vUInt64 = *(reinterpret_cast<const uint64_t*>(value1));
         break;
       case EValueType::FLOAT_32:
-        value.vFloat32 = *(reinterpret_cast<float32_t*>(value1));
+        value.vFloat32 = *(reinterpret_cast<const float32_t*>(value1));
         break;
       case EValueType::DOUBLE_64:
-        value.vDouble64 = *(reinterpret_cast<double64_t*>(value1));
+        value.vDouble64 = *(reinterpret_cast<const double64_t*>(value1));
         break;
       case EValueType::VOID:
         value.vVoid8 = cVoidValue;
@@ -255,15 +259,16 @@ namespace NProtocol
   //! \brief Dane pojedynczego pomiaru.
   class CSensorData
   {
-    const uint32_t idData;           //!< id pomiaru
-    const uint8_t idSensor;          //!< id czujnika
-    const uint64_t timeStamp;        //!< czas pomiaru
-    const ESensorState sensorState;  //!< stan czujnika
-    const EDangerLevel dangerLevel;  //!< stopien niebezpieczenstwa
-    const CData data; //!< dane pomiaru; dla CSensorData::sensorState != ESensorState::OK pole data przechowuje wartosc NProtocol::cVoidValue
+    uint32_t idData;           //!< id pomiaru
+    uint8_t idSensor;          //!< id czujnika
+    uint64_t timeStamp;        //!< czas pomiaru
+    ESensorState sensorState;  //!< stan czujnika
+    EDangerLevel dangerLevel;  //!< stopien niebezpieczenstwa
+    CData data; //!< dane pomiaru; dla CSensorData::sensorState != ESensorState::OK pole data przechowuje wartosc NProtocol::cVoidValue
 
   public:
 
+    CSensorData() = default;
     //!
     //! \brief CSensorData Konstruktor
     //! \param[in] idData1 ID pomiaru
@@ -273,10 +278,10 @@ namespace NProtocol
     //! \param[in] dangerLevel1 Stopien zagozenia
     //! \param[in] data1 Dana pomiaru
     CSensorData(const uint32_t idData1,
-                const uint8_t& idSensor1,
+                const uint8_t idSensor1,
                 const uint64_t timeStamp1,
-                const ESensorState& sensorState1,
-                const EDangerLevel& dangerLevel1,
+                const ESensorState sensorState1,
+                const EDangerLevel dangerLevel1,
                 const CData& data1) :
       idData(idData1),
       idSensor(idSensor1),
@@ -363,9 +368,9 @@ namespace NProtocol
   //! \brief Dane z czujnikow wysylane z koncentrator do serwera (CProtocol::type = EMessageType::MONITOR_DATA)
   class CMonitorData : public IMessage
   {
-    const uint64_t sendTime;        //!< czas pierwszej proby wyslania pakietu
-    const uint8_t sensorsAmount;    //!< ilosc czujnikow
-    const std::vector<CSensorData> sensorsData; //!< wektor z danymi z czujnikow
+    uint64_t sendTime;        //!< czas pierwszej proby wyslania pakietu
+    uint8_t sensorsAmount;    //!< ilosc czujnikow
+    std::vector<CSensorData> sensorsData; //!< wektor z danymi z czujnikow
 
   public:
     //! \brief Rozmiar samego naglowka
@@ -440,9 +445,9 @@ namespace NProtocol
   //! \brief Pojedyncza wartosc konfigurowalna.
   class CConfigurationValue
   {
-    const uint8_t idSensor;        //!< id czujnika lub koncentratora (NProtocol::cIdConcentrator)
-    const EConfigurationType configurationType;  //!< opcja konfiguracji
-    const CData data;                            //!< wartosc dla danej opcji
+    uint8_t idSensor;        //!< id czujnika lub koncentratora (NProtocol::cIdConcentrator)
+    EConfigurationType configurationType;  //!< opcja konfiguracji
+    CData data;                            //!< wartosc dla danej opcji
 
   public:
 
@@ -565,9 +570,9 @@ namespace NProtocol
   //! \brief Potwierdzenie zmiany konfiguracji koncentratora do serwera (SProtocol.type = EMessageType.CONFIGURATION_RESPONSE)
   class CConfigurationResponse : public IMessage
   {
-    const EReceiveStatus status;               //!< Status otrzymanego pakietu konfiguracyjnego lub status zmiany konfiguracji
-    const uint32_t idRequestPackage;           //!< ID pakietu, ktory zglosil zmiane konfiguracji - pole SProtocol.idPackage
-    const CConfiguration currentConfiguration; //!< Konfiguracja koncentratora
+    EReceiveStatus status;               //!< Status otrzymanego pakietu konfiguracyjnego lub status zmiany konfiguracji
+    uint32_t idRequestPackage;           //!< ID pakietu, ktory zglosil zmiane konfiguracji - pole SProtocol.idPackage
+    CConfiguration currentConfiguration; //!< Konfiguracja koncentratora
 
   public:
 
@@ -629,8 +634,8 @@ namespace NProtocol
   //! \brief Pojedyncze zadanie opcji konfigurowalnej
   class CRequest
   {
-    const uint8_t idSensor;                      //!< id czujnika lub koncentratora (cIdConcentrator)
-    const EConfigurationType configurationType; //!< opcja konfiguracji
+    uint8_t idSensor;                      //!< id czujnika lub koncentratora (cIdConcentrator)
+    EConfigurationType configurationType; //!< opcja konfiguracji
 
   public:
 
@@ -672,7 +677,7 @@ namespace NProtocol
   //! Prosba koncentratora o wyslanie konfiguracji (SProtocol.type = EMessageType.SERVER_REQUEST)
   class CServerRequest : public IMessage
   {
-    const std::vector<CRequest> requests;   //!< tablica o wielkosci requestsSize zadan konfiguracji
+    std::vector<CRequest> requests;   //!< tablica o wielkosci requestsSize zadan konfiguracji
 
   public:
 
@@ -720,9 +725,9 @@ namespace NProtocol
   //! \brief Odpowiedz serwera po otrzymaniu danych z czujnikow (SProtocol.type = EMessageType.SERVER_RESPONSE).
   class CServerResponse : public IMessage
   {
-    const EReceiveStatus status;        //!< Status otrzymanego pakietu z danymi z czujnikow
-    const uint32_t idRequestPackage;    //!< ID pakietu, ktory wyslal dane z czujnikow
-    const CConfiguration configuration; //!< Zadanie zmiany konfiguracji koncentratora
+    EReceiveStatus status;        //!< Status otrzymanego pakietu z danymi z czujnikow
+    uint32_t idRequestPackage;    //!< ID pakietu, ktory wyslal dane z czujnikow
+    CConfiguration configuration; //!< Zadanie zmiany konfiguracji koncentratora
 
   public:
 
@@ -784,17 +789,17 @@ namespace NProtocol
   class CProtocol
   {
     //! \brief Wersja protkolu
-    const uint8_t version;
+    uint8_t version;
     //! \brief Rozmiar laczny danych przesylanych protokolem.
     uint32_t size;
     //! \brief ID koncentratora
-    const uint16_t idConcentrator;
+    uint16_t idConcentrator;
     //! \brief ID danych pakietu danych.
-    const uint32_t idPackage;
+    uint32_t idPackage;
     //! \brief Typ pakietu danych wysylanych protokolem
-    const EMessageType type;
+    EMessageType type;
     //! \brief Dane wysylane protokolem. Typ danych zalezny do wartoci idPackage.
-    const std::shared_ptr<IMessage> message;
+    std::shared_ptr<IMessage> message;
     //! \brief Cykliczny kod nadmiarowy dla calej struktury
     uint16_t crc;
 

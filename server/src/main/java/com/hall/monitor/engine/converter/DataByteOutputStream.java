@@ -69,4 +69,10 @@ public class DataByteOutputStream
   public byte[] getBytes(){
     return buffer.array();
   }
+  
+  public char calcCRC16()
+  {
+    return CRCHelper.countCrc16(buffer.array().clone());
+  }
+
 }
