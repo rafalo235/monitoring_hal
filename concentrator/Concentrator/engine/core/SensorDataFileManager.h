@@ -297,7 +297,7 @@ namespace NEngine
           static const int defaultSize = 1;
           newFile.write(reinterpret_cast<const char*>(&defaultSize), sizeof(defaultSize));
           long buf = time.getTime();
-          file.write(reinterpret_cast<const char*>(&buf), sizeof(buf));
+          newFile.write(reinterpret_cast<const char*>(&buf), sizeof(buf));
           newFile.flush();
           newFile.close();
           return true;
@@ -554,6 +554,7 @@ namespace NEngine
     {
       // przeczytaj rozmiar
       int size;
+      file.seekg(0, std::fstream::beg);
       file.read(reinterpret_cast<char*>(&size), sizeof(size));
 
       // przeczytaj dane wszystkie
@@ -684,6 +685,61 @@ namespace NEngine
     static int saveDataWarning(std::fstream& bufferFile,
         const std::vector<T>& sData)
     {
+
+      // odczytaj info buffera
+      SBufferInfo bufferInfo;
+      bufferFile.read(reinterpret_cast<char*>(&bufferInfo), sizeof(bufferInfo));
+
+      if (bufferInfo.size < SeriesAround)
+      {
+        // serie pomiarowe .buffer z poprzednich dni powinny byc przesuniete do .warning.
+        // Czesc z SeriesAround serii przed warningiem znajdauja sie w starych plikach
+        int moveSizeAll = SeriesAround - bufferInfo.size;
+        const int daysBefore = 1;
+        std::fstream warningFileYesterday(getWarningFilePath(daysBefore),
+            std::fstream::in | std::fstream::out | std::fstream::binary);
+        std::fstream warningConfirmedFileYesterday(getConfirmedWarningFilePath(daysBefore),
+            std::fstream::in | std::fstream::out | std::fstream::binary);
+        std::fstream warningUnconfirmedFileYesterdaay(getUnconfirmedWarningFilePath(daysBefore),
+            std::fstream::in | std::fstream::out | std::fstream::binary);
+        std::fstream bufferFileYesterday(getBufferFilePath(daysBefore),
+            std::fstream::in | std::fstream::out | std::fstream::binary);
+        std::fstream bufferConfirmedFileYesterday(getConfirmedBufferFilePath(daysBefore),
+            std::fstream::in | std::fstream::out | std::fstream::binary);
+        std::fstream bufferUnconfirmedFileYesterday(getUnconfirmedBufferFilePath(daysBefore),
+            std::fstream::in | std::fstream::out | std::fstream::binary);
+
+        if (warningFileYesterday.is_open() &&
+            warningConfirmedFileYesterday.is_open() &&
+            warningUnconfirmedFileYesterdaay.is_open() &&
+            bufferFileYesterday.is_open() &&
+            bufferConfirmedFileYesterday.is_open() &&
+            bufferUnconfirmedFileYesterday)
+        {
+
+          SBufferInfo bufferInfoYesterday;
+          bufferFileYesterday.read(reinterpret_cast<char*>(&bufferInfoYesterday), sizeof(bufferFileYesterday));
+          moveDataToWarnings(bufferInfoYesterday,
+                           warningFileYesterday,
+                           warningConfirmedFileYesterday,
+                           warningUnconfirmedFileYesterdaay,
+                           bufferFileYesterday,
+                           bufferConfirmedFileYesterday,
+                           bufferUnconfirmedFileYesterday, true, moveSizeAll);
+          warningFileYesterday.flush();
+          warningFileYesterday.close();;
+          warningConfirmedFileYesterday.flush();
+          warningConfirmedFileYesterday.close();;
+          warningUnconfirmedFileYesterdaay.flush();
+          warningUnconfirmedFileYesterdaay.close();;
+          bufferFileYesterday.flush();
+          bufferFileYesterday.close();;
+          bufferConfirmedFileYesterday.flush();
+          bufferUnconfirmedFileYesterday.close();;
+
+        }
+
+      }
       std::fstream warningFile(getWarningFilePath(0),
           std::fstream::in | std::fstream::out | std::fstream::binary);
       std::fstream warningConfirmedFile(getConfirmedWarningFilePath(0),
@@ -695,24 +751,24 @@ namespace NEngine
       std::fstream bufferUnconfirmedFile(getUnconfirmedBufferFilePath(0),
           std::fstream::in | std::fstream::out | std::fstream::binary);
 
-      // odczytaj info buffera
-      SBufferInfo bufferInfo;
-      bufferFile.read(reinterpret_cast<char*>(&bufferInfo), sizeof(bufferInfo));
-
-      if (bufferInfo.size < SeriesAround)
-      {
-        // serie pomiarowe .buffer z poprzednich dni powinny byc przesuniete do .warning.
-        // Czesc z SeriesAround serii przed warningiem znajdauja sie w starych plikach
-
-      }
-      //////////////////////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       // skopiuj zwartosc .buffer do .warnings
       int lastId;
       if (bufferInfo.size != 0)
       {
+        if (warningFile.fail())
+        {
+          warningFile.clear();
+          /*
+          warningFile.close();
+          warningFile.open(getWarningFilePath(0),
+                           std::fstream::in | std::fstream::out | std::fstream::binary);*/
+        }
+
+        int moveSize = -1;
         lastId = moveDataToWarnings(bufferInfo, warningFile,
             warningConfirmedFile, warningUnconfirmedFile, bufferFile,
-            bufferConfirmedFile, bufferUnconfirmedFile, true);
+            bufferConfirmedFile, bufferUnconfirmedFile, true, moveSize);
       }
       else
       {
@@ -774,17 +830,29 @@ namespace NEngine
         std::fstream& warningFile, std::fstream& warningConfirmedFile,
         std::fstream& warningUnconfirmedFile, std::fstream& bufferFile,
         std::fstream& bufferConfirmedFile, std::fstream& bufferUnconfirmedFile,
-        const bool warning)
+        const bool warning,
+        int& moveSize)
     {
       // kopiujemy z pliku .buffer do pliku .warnings (oczywiscie bez info)
       // ustawienie pozycji
       bufferFile.seekg(sizeof(bufferInfo), std::fstream::beg);
-      // odczytane dane: ilosc serii * (ilosc czujnikow * rozmiar danych + rozmiar id)
-      const int allBufferSeriesSize = bufferInfo.size
-          * (bufferInfo.sensors * sizeof(T) + sizeof(int));
+      int allBufferSeriesSize;
+      if (moveSize == -1)
+      {
+        // odczytane dane: ilosc serii * (ilosc czujnikow * rozmiar danych + rozmiar id)
+        allBufferSeriesSize = bufferInfo.size
+            * (bufferInfo.sensors * sizeof(T) + sizeof(int));
+        moveSize = bufferInfo.size;
+      }
+      else
+      {
+        moveSize = std::min(bufferInfo.size, moveSize);
+        allBufferSeriesSize = moveSize
+            * (bufferInfo.sensors * sizeof(T) + sizeof(int));
+      }
 
       std::shared_ptr<char> array = getArray<char>(allBufferSeriesSize);
-
+      bufferFile.seekg(-allBufferSeriesSize, std::fstream::end);
       bufferFile.read(reinterpret_cast<char*>(&*array), allBufferSeriesSize);
 
       // przeczytaj pliki bufora niepotwierdzonego
@@ -804,7 +872,7 @@ namespace NEngine
       std::vector<SWarningIndex> newUnconfirmed;
       std::vector<SWarningIndex> newConfirmed;
       int idOffsetWarnings = warningFile.tellg();
-      for (int i = 0; i < bufferInfo.size; ++i)
+      for (int i = 0; i < moveSize; ++i)
       {
         idPointer = reinterpret_cast<int*>(&*array + i * seriesSize);
         // utworz strukture wpisu (id, offset w .warnings)
@@ -841,7 +909,7 @@ namespace NEngine
       writeIndexFile(warningConfirmedFile, newConfirmed, true);
 
       // uaktualnij ilosc w pliku .warnings
-      changeSizeInFile(warningFile, bufferInfo.size, true);
+      changeSizeInFile(warningFile, moveSize, true);
       // zapisz dane do .warnings
       warningFile.seekg(0, std::fstream::end);
       warningFile.write(&*array, allBufferSeriesSize);

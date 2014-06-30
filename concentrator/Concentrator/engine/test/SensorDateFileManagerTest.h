@@ -9,6 +9,7 @@
 #include "configuration/interfaces/ConfigurationFactory.h"
 #include "engine/core/SensorDataFileManager.h"
 #include "util/test/Test.h"
+#include "util/Time.h"
 
 namespace NTest
 {
@@ -70,12 +71,17 @@ namespace NTest
 
     //!
     //! \brief assertData sprawdza podane dane z zapisynami
+    //! \param daysBeforeNow dni przed dzisiaj
     //! \param bufferStart1 poczatek danych bufora
     //! \param bufferStop koniec danych bufora
     //! \param warningStart1 poczatek danych niebezpiecznych
     //! \param warningStop koneic danych niebezpiecznych
     template<typename T>
-    static void assertData(const T& bufferStart1, const T& bufferStop, const T& warningStart1, const T& warningStop)
+    static void assertData(const int daysBeforeNow,
+                           const T& bufferStart1,
+                           const T& bufferStop,
+                           const T& warningStart1,
+                           const T& warningStop)
     {
       T bufferStart = bufferStart1;
       T warningStart = warningStart1;
@@ -184,7 +190,7 @@ namespace NTest
         bufferSize = bufferSize < 0 ? 0 : bufferSize;
       }
 
-      assertData(buffersAll.end() - bufferSize, buffersAll.end(), warningsAll.begin(), warningsAll.end());
+      assertData(0, buffersAll.end() - bufferSize, buffersAll.end(), warningsAll.begin(), warningsAll.end());
     }
 
     //!
@@ -224,16 +230,17 @@ namespace NTest
     CSensorDateFileManagerTest()
     {
       configuration = CConfigurationFactory::getInstance();
+
       addTestCase("lessThanSeriesAround_notWarning", &CSensorDateFileManagerTest::lessThanSeriesAround_notWarning);
       addTestCase("moreThanSeriesAround_notWarning", &CSensorDateFileManagerTest::moreThanSeriesAround_notWarning);
       addTestCase("lessThanSeriesAround_warning", &CSensorDateFileManagerTest::lessThanSeriesAround_warning);
       addTestCase("moreThanSeriesAround_warning", &CSensorDateFileManagerTest::moreThanSeriesAround_warning);
+
       addTestCase("lessThanSeriesAround_5warning", &CSensorDateFileManagerTest::lessThanSeriesAround_5warning);
+
       addTestCase("moreThanSeriesAround_8warning", &CSensorDateFileManagerTest::moreThanSeriesAround_8warning);
       addTestCase("moreThanSeriesAround_8_33warning", &CSensorDateFileManagerTest::moreThanSeriesAround_8_33warning);
       addTestCase("moreThanSeriesAround_12_43warning", &CSensorDateFileManagerTest::moreThanSeriesAround_12_43warning);
-
-
     }
 
     //! \brief lessThanSeriesAround_notWarning sprawdza przypadek, gdy jest mniej serii niz miesci sie w buforze
@@ -318,6 +325,7 @@ namespace NTest
 
       simulate(size, warnings);
     }
+
   };
 }
 #endif // TEST_ENABLE
