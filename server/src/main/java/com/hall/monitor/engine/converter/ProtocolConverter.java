@@ -22,6 +22,15 @@ import com.hall.monitor.protocol.UMessage;
 public class ProtocolConverter
 {
   
+  /**
+   * Konwertuje bajty na SData
+   * @param stream stream 
+   * @param idConcentrator id koncentratora
+   * @param idSensor id czujnka
+   * @param idData id pomiaru
+   * @return obiekt SData
+   * @throws ParserException
+   */
   private static SData converToSData(DataByteInputStream stream,
       int idConcentrator, int idSensor, long idData) throws ParserException {
     
@@ -71,6 +80,13 @@ public class ProtocolConverter
     
   }
   
+  /**
+   * Konwertuje bajty na SSensorData
+   * @param stream stream 
+   * @param idConcentrator id koncentratora
+   * @return objekt SSensorData
+   * @throws ParserException gdy nieznany jest stan lub poziom niebezpieczenstwa (niepoprawne wartosci)
+   */
   private static SSensorData convertToSSensorData(DataByteInputStream stream,
       int idConcentrator) throws ParserException {
     
@@ -98,6 +114,13 @@ public class ProtocolConverter
         dangerLevel, data);
   }
   
+  /**
+   * Konwertuje bajty do SMonitorData
+   * @param stream stream
+   * @param idConcentrator id koncentratatora
+   * @return object SMonitorData
+   * @throws ParserException gdy stan danych czujnikow jest niepoprawny
+   */
   private static SMonitorData convertToSMonitorData(DataByteInputStream stream,
       int idConcentrator) throws ParserException {
     
@@ -115,6 +138,13 @@ public class ProtocolConverter
     return new SMonitorData(sendTime, sensorsAmount, sensorDates);
   }
   
+  /**
+   * Konwertuje bajty na pojedyncza konfiguracje (pojedyncza opcja konfiguracyjna)
+   * @param stream stream
+   * @param idConcentrator id koncentratora
+   * @return object SConfigurationValue
+   * @throws ParserException niepoprawny typ danych
+   */
   private static SConfigurationValue convertToSConfigurationValue(
       DataByteInputStream stream, int idConcentrator) throws ParserException {
     
@@ -127,6 +157,13 @@ public class ProtocolConverter
     return new SConfigurationValue(idSensor, configurationType, data);
   }
   
+  /**
+   * Konwertuje bajty na objekt skupiajacy opcje konfiguracyjne SConfiguration
+   * @param stream stream 
+   * @param idConcentrator id koncentratora 
+   * @return object SConfiguration
+   * @throws ParserException gdy niepoprawne sa typy danych opcji
+   */
   private static SConfiguration convertToSConfiguration(
       DataByteInputStream stream, int idConcentrator) throws ParserException {
     
@@ -141,6 +178,13 @@ public class ProtocolConverter
     return new SConfiguration(configurations);
   }
   
+  /**
+   * 
+   * @param stream
+   * @param idConcentrator
+   * @return
+   * @throws ParserException
+   */
   private static SConfigurationResponse convertoSConfigurationResponse(
       DataByteInputStream stream, int idConcentrator) throws ParserException {
     
@@ -159,6 +203,13 @@ public class ProtocolConverter
         currentConfiguration);
   }
   
+  /**
+   * Konwersja bajtow na zadnei koncentratora przeslania konfiguracji SServerRequest
+   * @param stream stream 
+   * @param idConcentrator id koncentratora
+   * @return object SServerRequest
+   * @throws ParserException niepoprawny typ konfiguracji
+   */
   private static SServerRequest convertToSServerRequest(
       DataByteInputStream stream, int idConcentrator) throws ParserException {
     
@@ -171,6 +222,12 @@ public class ProtocolConverter
     return null;
   }
   
+  /**
+   * Konwertuje tablice bajtow na obiekty 
+   * @param bytes tablica bajtow
+   * @return obiekt protokolu
+   * @throws ParserException bledy struktury lub blad CRC
+   */
   public static SProtocol convertToProtocol(byte bytes[])
       throws ParserException {
     
@@ -211,7 +268,7 @@ public class ProtocolConverter
       message = convertToSServerRequest(stream, idConcentrator);
       break;
     }
-    char crc = (char)0;// stream.readUInt16();
+    char crc = stream.readUInt16();
     
     return new SProtocol(size, idConcentrator, crc, idPackage,
         messageType, message);
@@ -237,6 +294,11 @@ public class ProtocolConverter
     convertToBytes(data, response.getConfiguration());
   }
   
+  /**
+   * Konwertuje 
+   * @param data
+   * @param confResponse
+   */
   private static void convertToBytes(DataByteOutputStream data,
       SConfigurationResponse confResponse) {
     
@@ -245,6 +307,11 @@ public class ProtocolConverter
     convertToBytes(data, confResponse.getCurrentConfiguration());
   }
   
+  /**
+   * KOnwertuje zbior konfiguracji na tablice bajtow
+   * @param data stream - cel
+   * @param configuration konfiguracja do skonwerterowania
+   */
   private static void convertToBytes(DataByteOutputStream data,
       SConfiguration configuration) {
     
@@ -255,6 +322,11 @@ public class ProtocolConverter
     }
   }
   
+  /**
+   * KOnwertuje pojedyncza opcje konfiguracji na tablice bajtow
+   * @param data stream - cel
+   * @param value objekt do skonwerterowania
+   */
   private static void convertToBytes(DataByteOutputStream data,
       SConfigurationValue value) {
     
@@ -263,6 +335,11 @@ public class ProtocolConverter
     convertToBytes(data, value.getData());
   }
   
+  /**
+   * Konwertuje obiekt SData do tablicy bajtow, ktora odpisuje do obiektu DataByteOutputStream
+   * @param data stream - cel
+   * @param sdata obiekt do skonwerterowania
+   */
   private static void convertToBytes(DataByteOutputStream data,
       SData sdata) {
     
@@ -306,6 +383,12 @@ public class ProtocolConverter
     }
     
   }
+  
+  /**
+   * Konwertuje protokol do postaci tablicy bajtow
+   * @param protocol obiekt protokolu
+   * @return tablica bajtow
+   */
   public static byte[] convertToBytes(SProtocol protocol) {
     DataByteOutputStream data = new DataByteOutputStream(
         (int) protocol.getSize());
@@ -331,7 +414,12 @@ public class ProtocolConverter
       convertToBytes(data, (SServerRequest) protocol.getMessage());
       break;
     }
+    
+    // oblicz CRC
     data.writeUInt16(protocol.getCrc());
+    char crc = data.calcCRC16();
+    data.setPosition(data.getPosiotion() - Character.SIZE / 8);
+    data.writeUInt16(crc);
     return data.getBytes();
   }
   
