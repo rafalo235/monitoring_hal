@@ -2,7 +2,7 @@
 
 namespace NUtil
 {
-#ifdef DEBUG_TIME
+#ifdef TEST_ENABLE
   long CTime::secondsMoved;
 #endif
 

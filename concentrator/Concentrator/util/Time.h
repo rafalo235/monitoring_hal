@@ -7,7 +7,6 @@
 #include <ratio>
 #include <iostream>
 
-#define DEBUG_TIME
 
 namespace NUtil
 {
@@ -312,7 +311,7 @@ namespace NUtil
       }
     }
 
-#ifdef DEBUG_TIME
+#ifdef TEST_ENABLE
   private:
     //! \brief zmienna, dzieki ktorej czas jest przestawiany
     static long secondsMoved;
@@ -342,7 +341,7 @@ namespace NUtil
     {
       auto now = std::chrono::system_clock::now();
       auto in_time_t = std::chrono::system_clock::to_time_t(now);
-#ifdef DEBUG_TIME
+#ifdef TEST_ENABLE
       in_time_t += secondsMoved;
 #endif
       struct tm* aTime = localtime(&in_time_t);
@@ -360,7 +359,7 @@ namespace NUtil
     {
       auto now = std::chrono::system_clock::now();
       auto in_time_t = std::chrono::system_clock::to_time_t(now);
-#ifdef DEBUG_TIME
+#ifdef TEST_ENABLE
       in_time_t += secondsMoved;
 #endif
       moveTime(in_time_t, future, unit, value);
