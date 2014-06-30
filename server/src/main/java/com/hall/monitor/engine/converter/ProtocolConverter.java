@@ -211,7 +211,7 @@ public class ProtocolConverter
       message = convertToSServerRequest(stream, idConcentrator);
       break;
     }
-    char crc = stream.readUInt16();
+    char crc = (char)0;// stream.readUInt16();
     
     return new SProtocol(size, idConcentrator, crc, idPackage,
         messageType, message);

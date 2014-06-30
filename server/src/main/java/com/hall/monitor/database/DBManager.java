@@ -87,7 +87,7 @@ public class DBManager implements IDBManager
       int concentratorId, SMonitorData monitor) {
     
     // zapisz date pierwszej proby wyslania
-    Date sendTime = new Date(monitor.getSendTime());
+    Date sendTime = new Date(monitor.getSendTime() * 1000);
     
     // zapisz date otrzymania pakietu
     Date receiveTime = new Date();
@@ -137,7 +137,7 @@ public class DBManager implements IDBManager
         }
         
         // dodanie danych
-        Date timeStamp = new Date(sensorData.getTimeStamp());
+        Date timeStamp = new Date(sensorData.getTimeStamp() * 1000);
         SData data = sensorData.getData();
         SensorData sdata = new SensorData(idData, sensor, timeStamp,
             data.getType(), String.valueOf(data.getValue()),
