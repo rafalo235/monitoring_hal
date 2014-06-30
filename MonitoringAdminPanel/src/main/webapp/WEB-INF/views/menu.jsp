@@ -8,5 +8,6 @@
 <ul class="menu">
   <li><a href="${contextPath}/" class="active"><span>Home</span></a></li>
   <li><a href="${contextPath}/companies"><span>Data</span></a></li>
-
+  <li><a href="${contextPath}/statistics"><span>Statistics</span></a></li>
+	
 </ul>
