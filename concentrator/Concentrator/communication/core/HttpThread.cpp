@@ -100,20 +100,24 @@ namespace NProtocol {
           LOG_ERROR("Received protocol error - CRC. idPackage:", protocol.getIdPackage());
           DConnectionResult res(new CConnectionResult(protocol, EConnectionStatus::CRC_ERROR));
           resultsQueue.push(res);
+
         }
-        std::shared_ptr<CProtocol> responseProtocol =
-            convertToProtocol(wrapper);
-        // przekonwertuj do struktury
-        if (!responseProtocol){
-          // blad struktury protokolu
-          LOG_ERROR("Received protocol error. idPackage:", protocol.getIdPackage());
-          DConnectionResult res(new CConnectionResult(protocol, EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR));
-          resultsQueue.push(res);
-        }
-        else{
-          LOG_DEBUG("Protocol has been received successfully. idPackage:", responseProtocol->getIdPackage());
-          DConnectionResult res(new CConnectionResult(protocol, responseProtocol, EConnectionStatus::NONE));
-          resultsQueue.push(res);
+        else
+        {
+          std::shared_ptr<CProtocol> responseProtocol =
+              convertToProtocol(wrapper);
+          // przekonwertuj do struktury
+          if (!responseProtocol){
+            // blad struktury protokolu
+            LOG_ERROR("Received protocol error. idPackage:", protocol.getIdPackage());
+            DConnectionResult res(new CConnectionResult(protocol, EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR));
+            resultsQueue.push(res);
+          }
+          else{
+            LOG_DEBUG("Protocol has been received successfully. idPackage:", responseProtocol->getIdPackage());
+            DConnectionResult res(new CConnectionResult(protocol, responseProtocol, EConnectionStatus::NONE));
+            resultsQueue.push(res);
+          }
         }
 
       }
