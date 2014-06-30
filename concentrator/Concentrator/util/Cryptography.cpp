@@ -3,6 +3,7 @@
 #include <cstring>
 #include "Memory.h"
 
+#define RAFAL_ZOBACZ_BO_COS_NIE_DZIALA
 
 namespace NUtil {
 
@@ -19,7 +20,7 @@ namespace NUtil {
      char* copy = &*array;
      memcpy(copy, data, dataSize);
 
-     xorBytes(copy, dataSize, divisor);
+     xorBytes(copy, dataSize - 2, divisor);
 
      memcpy(&crc, copy, sizeof(uint16_t));
 #endif
