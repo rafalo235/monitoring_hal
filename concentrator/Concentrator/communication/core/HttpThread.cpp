@@ -15,6 +15,7 @@
 #include "communication/core/ConnectionTask.h"
 #include "communication/core/ConnectionResult.h"
 #include "configuration/interfaces/ConfigurationFactory.h"
+#include "util/Cryptography.h"
 
 namespace NProtocol {
 
@@ -68,6 +69,10 @@ namespace NProtocol {
     }
     else
     {
+
+      uint16_t crc = NUtil::CCryptography::crc16(postData.constData(), postData.size());
+      postData.replace(postData.size() - sizeof(crc), sizeof(crc), reinterpret_cast<char*>(&crc));
+
       // tworzy tymczasowa petle komunikatow
       QEventLoop eventLoop;
 

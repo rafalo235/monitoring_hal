@@ -1,7 +1,7 @@
 #include "communication/core/Connection.h"
 #include "communication/interfaces/protocol.h"
 #include "configuration/interfaces/ConfigurationFactory.h"
-#include "util/Cryptography.h"
+
 
 namespace NProtocol{
 
@@ -16,10 +16,6 @@ namespace NProtocol{
     CProtocol protocol(VERSION, 0,
                        idConcentrator,
                        ++idPackageBase, type, message);
-
-    const char* data = reinterpret_cast<const char*>(&protocol);
-    int dataSize = protocol.getSize();
-    protocol.setCRC(NUtil::CCryptography::crc16(data, dataSize));
 
     thread.addToSendingQueue(protocol);
     return idPackageBase;
