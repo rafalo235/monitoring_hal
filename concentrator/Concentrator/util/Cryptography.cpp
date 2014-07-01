@@ -21,7 +21,7 @@ namespace NUtil {
      xorBytes(copy, dataSize - 2, divisor);
 
      memcpy(&crc, copy, sizeof(uint16_t));
-     delete divisor;
+     delete[] divisor;
 #endif
      return crc;
    }
@@ -35,7 +35,7 @@ namespace NUtil {
        memcpy(copy, data, dataSize);
 
        xorBytes(copy, dataSize, divisor);
-       delete divisor;
+       delete[] divisor;
 
        for (int i = 0 ; i < dataSize ; i++) {
            if (copy[i] != 0) {

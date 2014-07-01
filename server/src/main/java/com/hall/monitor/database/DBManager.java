@@ -551,7 +551,7 @@ public class DBManager implements IDBManager
       long idConcentratorConf) {
     Query query = session
         .createQuery("FROM Concentrator WHERE idConcentrator = :id");
-    query.setParameter("id", idConcentratorConf);
+    query.setParameter("id", (int) idConcentratorConf);
     
     @SuppressWarnings("rawtypes")
     List list = query.list();

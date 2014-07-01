@@ -38,7 +38,7 @@ namespace NProtocol {
         sendHttp(sendingTask->getProtocol());
       }
 
-    }while(exit);
+    }while(!exit);
   }
 
   void CHttpThread::addToSendingQueue(const CProtocol& prot)
