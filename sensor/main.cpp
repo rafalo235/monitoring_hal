@@ -9,16 +9,11 @@
 //
 int main(int argc, char *argv[])
 {
-    int port = 1024;
+    int port = 1502;
     uint16_t low = 0;
     uint16_t high = 50;
     uint16_t alarm = 30;
     uint16_t init = 5;
-
-    QApplication a(argc, argv);
-    ValueGenerator generator;
-    Sensor sensor(port, &generator);
-    MainWindow w;
 
     /* Jeżeli podano port to zmieniamy z domyślnego */
     if (argc > 1) {
@@ -30,6 +25,12 @@ int main(int argc, char *argv[])
         alarm = atoi(argv[4]);
         init = atoi(argv[5]);
     }
+
+    QApplication a(argc, argv);
+    ValueGenerator generator;
+    Sensor sensor(port, &generator);
+    MainWindow w;
+
 
     generator.setMinValue(low);
     generator.setMaxValue(high);
