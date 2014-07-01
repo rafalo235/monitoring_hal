@@ -15,9 +15,9 @@
 
 			<c:forEach var="concentrator" items="${concentrators}" varStatus="loop">
 				<tr>
-					<td>${concentrator.idConcentrator}
+					<td onclick="window.location='monitorDatas?idConcentrator=${concentrator.idConcentrator}'">${concentrator.idConcentrator}
 					</td>
-					<td>${sizes[loop.index]}
+					<td onclick="window.location='monitorDatas?idConcentrator=${concentrator.idConcentrator}'">${sizes[loop.index]}
 					</td>
 					
 					<td style="width: 7%;"><input type="button"

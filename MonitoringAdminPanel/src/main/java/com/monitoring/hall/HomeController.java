@@ -1,7 +1,9 @@
 package com.monitoring.hall;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,9 +14,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.googlecode.charts4j.Color;
+import com.googlecode.charts4j.Data;
+import com.googlecode.charts4j.GCharts;
+import com.googlecode.charts4j.PieChart;
+import com.googlecode.charts4j.Plot;
+import com.googlecode.charts4j.Plots;
+import com.googlecode.charts4j.Slice;
 import com.monitoring.hall.beans.Company;
 import com.monitoring.hall.beans.Concentrator;
 import com.monitoring.hall.beans.Hall;
+import com.monitoring.hall.beans.MonitorData;
+import com.monitoring.hall.beans.SensorData;
 import com.monitoring.hall.services.PersistenceService;
 
 
@@ -167,6 +178,78 @@ public class HomeController {
 		persistence.removeConcentrator(idConcentrator);
 		
 		return "redirect:/concentrators?idHall="+chosenHall;
+	}
+	
+	@RequestMapping(value = "/monitorDatas", method = RequestMethod.GET)
+	public String monitorData(@RequestParam int idConcentrator, Model model) {
+
+		List<MonitorData> monitorDatas = persistence.getMonitorDatas(idConcentrator);
+		model.addAttribute("monitorDatas", monitorDatas);
+		
+		return "monitorDatas";
+	}
+	
+	@RequestMapping(value = "/sensorDatas", method = RequestMethod.GET)
+	public String sensorDatas(@RequestParam int idMonitorData, Model model) {
+
+		List<SensorData> sensorDatas = persistence.getSensorDatas(idMonitorData);
+		model.addAttribute("sensorDatas", sensorDatas);
+		
+		List<Integer> idSensors = new ArrayList<Integer>();
+		for (SensorData sensorData : sensorDatas) {
+			idSensors.add(sensorData.getSensor().getIdSensor());
+		}
+
+		model.addAttribute("idSensors", idSensors);
+		
+		return "sensorDatas";
+	}
+	
+	@RequestMapping(value = "/statistics", method = RequestMethod.GET)
+	public String statistics(Model model) {
+
+		halls = persistence.listHalls();
+		List<SensorData> sensorDatas = persistence.listSensorDatas();
+		
+		List<String> chartsUrls = new ArrayList<String>();
+		
+		for (Hall hall : halls) {
+			int none = 0;
+			int danger = 0;
+			int alarm = 0;
+			
+			for (SensorData sensorData : sensorDatas) {
+				if(hall.getIdHall()==sensorData.getMonitorData().getConcentrator().getHall().getIdHall()){
+					if(sensorData.getDangerLevel().name()=="NONE") none++;
+					else if(sensorData.getDangerLevel().name()=="DANGER") danger++;
+					else alarm++;
+				}
+			}
+			/*System.out.println(hall.getHallName());
+			System.out.println("none:" + none);
+			System.out.println("danger:" + danger);
+			System.out.println("alarm:" + alarm+"\n");*/
+			
+			int total = none + danger + alarm;
+			int percentNone = (int) (none*100/total);
+			int percentDanger = (int) (danger*100/total);
+			int percentAlarm = (int) (alarm*100/total);
+			Slice s1 = Slice.newSlice(percentNone, Color.newColor("adff2f"), "Positive", "Positive value");
+			Slice s2 = Slice.newSlice(percentDanger, Color.newColor("ff8c00"), "Danger", "Danger");
+			Slice s3 = Slice.newSlice(percentAlarm, Color.newColor("ff0000"), "Alarm", "Alarm");
+			
+			PieChart pieChart = GCharts.newPieChart(s1,s2,s3);
+			pieChart.setTitle(hall.getHallName(), Color.BLACK, 18);
+			pieChart.setSize(640, 320);
+			pieChart.setThreeD(true);
+			
+			chartsUrls.add(pieChart.toURLString());
+				
+		}
+		
+		model.addAttribute("charts", chartsUrls);
+		
+		return "statistics";
 	}
 	
 	

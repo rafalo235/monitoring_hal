@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.monitoring.hall.beans.Company;
 import com.monitoring.hall.beans.Concentrator;
 import com.monitoring.hall.beans.Hall;
+import com.monitoring.hall.beans.MonitorData;
+import com.monitoring.hall.beans.SensorData;
 import com.monitoring.hall.persistence.PersistenceDAO;
 
 @Service
@@ -79,6 +81,21 @@ public class PersistenceServiceImpl implements PersistenceService {
 	public List<Concentrator> getConcentrators(int idHall) {
 		
 		return persistence.getConcentrators(idHall);
+	}
+
+	@Override
+	public List<MonitorData> getMonitorDatas(int idConcentrator) {
+		return persistence.getMonitorDatas(idConcentrator);
+	}
+	
+	@Override
+	public List<SensorData> getSensorDatas(int idMonitorData) {
+		return persistence.getSensorDatas(idMonitorData);
+	}
+
+	@Override
+	public List<SensorData> listSensorDatas() {
+		return persistence.listSensorDatas();
 	}
 
 }
