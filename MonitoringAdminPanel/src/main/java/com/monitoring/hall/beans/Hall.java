@@ -24,7 +24,7 @@ public class Hall {
 	@Column(nullable = false, name = "hallName")
 	private String hallName;
 
-	@Column(nullable = false, name = "hallAddress")
+	@Column(nullable = false, name = "address")
 	private String hallAddress;
 
 	@ManyToOne
