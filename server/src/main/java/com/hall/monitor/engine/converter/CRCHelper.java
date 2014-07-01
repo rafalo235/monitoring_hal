@@ -1,6 +1,9 @@
 package com.hall.monitor.engine.converter;
 
 import java.security.InvalidParameterException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class CRCHelper
 {
@@ -12,8 +15,8 @@ public class CRCHelper
   public static byte[] countCrc16(byte data[]) {
     byte[] r = new byte[2];
 	  
-    byte[] divisor =
-    { (byte) 0xFE, (byte) 0xEF, (byte) 0x80 }; // TODO
+    byte[] divisor = generateDivisor();
+    //{ (byte) 0xFE, (byte) 0xEF, (byte) 0x80 }; // TODO
     //char crc = 0x0000;
     
     xorBytes(data, data.length - 2, divisor);
@@ -32,8 +35,8 @@ public class CRCHelper
   public static boolean isValid(byte data[]) {
     
     //////////////////////////////////////////////////////////////////// RAFAL TUTAJ ////
-    byte[] divisor =
-    { (byte) 0xFE, (byte) 0xEF, (byte) 0x80 }; // TODO
+    byte[] divisor = generateDivisor();
+    //{ (byte) 0xFE, (byte) 0xEF, (byte) 0x80 }; // TODO
     
     xorBytes(data, data.length, divisor);
     
@@ -78,6 +81,21 @@ public class CRCHelper
       }
       array[i] = (byte) (array[i] << 1);
     }
+  }
+  
+  private static byte[] generateDivisor() {
+	  byte[] divisor = new byte[3];
+	  
+	  Calendar calendar = GregorianCalendar.getInstance();
+	  calendar.setTime(new Date());
+	  int day = calendar.get(Calendar.DAY_OF_MONTH);
+	  int hour = calendar.get(Calendar.HOUR_OF_DAY);
+	  
+	  divisor[0] = (byte) (day | 0x80);
+	  divisor[1] = (byte) hour;
+	  divisor[2] = (byte) 0x80;
+	  
+	  return divisor;
   }
   
   public static void main(String[] args) {

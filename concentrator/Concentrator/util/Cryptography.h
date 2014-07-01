@@ -2,6 +2,8 @@
 #define CRYPTOGRAPHY_H
 
 #include <cstdint>
+#include <QDate>
+#include <QTime>
 
 //! \brief Namespace przydatnych klas.
 namespace NUtil {
@@ -23,6 +25,7 @@ namespace NUtil {
   private:
     static void xorBytes(char* data, int length, const char* divisor);
     static void shift(char* data, int length);
+    static char* generateDivisor();
   };
 }
 #endif // CRYPTOGRAPHY_H

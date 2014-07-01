@@ -12,9 +12,7 @@ namespace NUtil {
 
      uint16_t crc = 0;
 #ifdef RAFAL_ZOBACZ_BO_COS_NIE_DZIALA
-     char divisor[3] = {static_cast<char>(0xFE),
-                        static_cast<char>(0xEF),
-                        static_cast<char>(0x80)}; //TODO
+     char *divisor = generateDivisor();
 
      std::shared_ptr<char> array = CMemory::getArray<char>(dataSize);
      char* copy = &*array;
@@ -23,6 +21,7 @@ namespace NUtil {
      xorBytes(copy, dataSize - 2, divisor);
 
      memcpy(&crc, copy, sizeof(uint16_t));
+     delete divisor;
 #endif
      return crc;
    }
@@ -30,14 +29,13 @@ namespace NUtil {
    bool CCryptography::checkCrc16(const char *data, int dataSize) {
 
 #ifdef RAFAL_ZOBACZ_BO_COS_NIE_DZIALA
-     char divisor[3] = {static_cast<char>(0xFE),
-                        static_cast<char>(0xEF),
-                        static_cast<char>(0x80)}; //TODO
+     char *divisor = generateDivisor();
        std::shared_ptr<char> array = CMemory::getArray<char>(dataSize);
        char* copy = &*array;
        memcpy(copy, data, dataSize);
 
        xorBytes(copy, dataSize, divisor);
+       delete divisor;
 
        for (int i = 0 ; i < dataSize ; i++) {
            if (copy[i] != 0) {
@@ -76,5 +74,20 @@ namespace NUtil {
          }
          data[i] = data[i] << 1;
      }
+   }
+
+   char* CCryptography::generateDivisor() {
+     char *divisor = new char[3];
+     QDate date = QDate::currentDate();
+     QTime time = QTime::currentTime();
+
+     int day = date.day();
+     int hour = time.hour();
+
+     divisor[0] = (char) (day | 0x80);
+     divisor[1] = (char) hour;
+     divisor[2] = 0x80;
+
+     return divisor;
    }
 }
