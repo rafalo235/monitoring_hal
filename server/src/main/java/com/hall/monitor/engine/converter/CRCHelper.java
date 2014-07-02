@@ -89,10 +89,9 @@ public class CRCHelper
 	  Calendar calendar = GregorianCalendar.getInstance();
 	  calendar.setTime(new Date());
 	  int day = calendar.get(Calendar.DAY_OF_MONTH);
-	  int hour = calendar.get(Calendar.HOUR_OF_DAY);
-	  
+	 
 	  divisor[0] = (byte) (day | 0x80);
-	  divisor[1] = (byte) hour;
+	  divisor[1] = (byte) (day | 0x80);
 	  divisor[2] = (byte) 0x80;
 	  
 	  return divisor;
