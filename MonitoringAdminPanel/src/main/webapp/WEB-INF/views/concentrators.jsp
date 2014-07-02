@@ -10,7 +10,7 @@
 			<tr>
 				<td>Concentrator ID</td>
 				<td>Number of sensors</td>
-				<td>Delete</td>
+				<td>Action</td>
 			</tr>
 
 			<c:forEach var="concentrator" items="${concentrators}" varStatus="loop">
@@ -20,9 +20,14 @@
 					<td onclick="window.location='monitorDatas?idConcentrator=${concentrator.idConcentrator}'">${sizes[loop.index]}
 					</td>
 					
-					<td style="width: 7%;"><input type="button"
-						onclick="location.href='concentrators/delete?idConcentrator=${concentrator.idConcentrator}'"
-						value="Delete"></td>
+					<td style="width: 7%;">
+						<input type="button"
+							onclick="location.href='concentrators/delete?idConcentrator=${concentrator.idConcentrator}'"
+							value="Delete">
+						<input type="button"
+							onclick="location.href='concentrators/config?idConcentrator=${concentrator.idConcentrator}'"
+							value="Configure">
+					</td>
 				</tr>
 			</c:forEach>
 

@@ -38,6 +38,11 @@ public class Concentrator
     super();
     this.hall = hall;
   }
+
+  
+  public int getIdConcentrator() {
+    return idConcentrator;
+  }
   
   public void setIdConcentrator(int idConcentrator) {
     this.idConcentrator = idConcentrator;
@@ -57,10 +62,6 @@ public class Concentrator
   
   public void setSensors(Set<Sensor> sensors) {
     this.sensors = sensors;
-  }
-  
-  public int getIdConcentrator() {
-    return idConcentrator;
   }
   
 }

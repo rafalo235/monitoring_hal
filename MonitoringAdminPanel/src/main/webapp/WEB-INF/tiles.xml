@@ -45,5 +45,10 @@
 		<put-attribute name="body" value="/WEB-INF/views/statistics.jsp" />
 	</definition>
 	
+	<definition name="concentratorConfiguration" extends="bazowa.definicja">
+		<put-attribute name="title" value="Configuration" />
+		<put-attribute name="body" value="/WEB-INF/views/concentratorConfiguration.jsp" />
+	</definition>
+	
 	
 </tiles-definitions>
