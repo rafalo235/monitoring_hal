@@ -29,7 +29,8 @@ SOURCES += main.cpp \
     communication/interfaces/protocol.cpp \
     util/Time.cpp \
     engine/test/SensorDateFileManagerTest.cpp \
-    util/test/Test.cpp
+    util/test/Test.cpp \
+    configuration/tests/CConfigurationTest.cpp
 
 HEADERS += \
     communication/core/protocol.h \
@@ -66,12 +67,15 @@ HEADERS += \
     engine/test/SensorDateFileManagerTest.h \
     util/test/Test.h \
     util/Memory.h \
-    util/FileHelper.h
+    util/FileHelper.h \
+    configuration/tests/ConfigurationTest.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 
 # Wlaczenie/wylaczenie testow
 #DEFINES += TEST_ENABLE
+DEFINES += TEST_ENABLE_CONFIGURATION_TEST
+DEFINES += TEST_ENABLE_SENSOR_DATA_TEST
 
 unix: PKGCONFIG += libmodbus
 
