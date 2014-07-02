@@ -1,7 +1,7 @@
 #include "communication/core/Connection.h"
 #include "communication/interfaces/protocol.h"
 #include "configuration/interfaces/ConfigurationFactory.h"
-
+#include "util/Logger.h"
 
 namespace NProtocol{
 
@@ -13,6 +13,7 @@ namespace NProtocol{
   {
 
     uint16_t idConcentrator = NEngine::CConfigurationFactory::getInstance()->getIdConcentrator();
+
     CProtocol protocol(VERSION, 0,
                        idConcentrator,
                        ++idPackageBase, type, message);

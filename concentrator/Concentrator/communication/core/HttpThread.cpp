@@ -93,30 +93,36 @@ namespace NProtocol {
       if (reply->error() == QNetworkReply::NoError) {
         //success
         LOG_DEBUG("Protocol has been sent successfully. idPackage:", protocol.getIdPackage());
+
         CByteWrapper wrapper(reply->readAll());
-
-        if (!wrapper.isCRCValid())
+        // wyslanie potwierdzenia zmiany konfiguracji - jesli zmiana odbyla sie bez problemow nie zwraca danych
+        if (wrapper.getSize() > 0)
         {
-          LOG_ERROR("Received protocol error - CRC. idPackage:", protocol.getIdPackage());
-          DConnectionResult res(new CConnectionResult(protocol, EConnectionStatus::CRC_ERROR));
-          resultsQueue.push(res);
-
-        }
-        else
-        {
-          std::shared_ptr<CProtocol> responseProtocol =
-              convertToProtocol(wrapper);
-          // przekonwertuj do struktury
-          if (!responseProtocol){
-            // blad struktury protokolu
-            LOG_ERROR("Received protocol error. idPackage:", protocol.getIdPackage());
-            DConnectionResult res(new CConnectionResult(protocol, EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR));
+          if (!wrapper.isCRCValid())
+          {
+            LOG_ERROR("Received protocol error - CRC. idPackage:", protocol.getIdPackage());
+            DConnectionResult res(new CConnectionResult(protocol, EConnectionStatus::CRC_ERROR));
             resultsQueue.push(res);
+
           }
-          else{
-            LOG_DEBUG("Protocol has been received successfully. idPackage:", responseProtocol->getIdPackage());
-            DConnectionResult res(new CConnectionResult(protocol, responseProtocol, EConnectionStatus::NONE));
-            resultsQueue.push(res);
+          else
+          {
+            std::shared_ptr<CProtocol> responseProtocol =
+                convertToProtocol(wrapper);
+            // przekonwertuj do struktury
+            if (!responseProtocol)
+            {
+              // blad struktury protokolu
+              LOG_ERROR("Received protocol error. idPackage:", protocol.getIdPackage());
+              DConnectionResult res(new CConnectionResult(protocol, EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR));
+              resultsQueue.push(res);
+            }
+            else
+            {
+              LOG_DEBUG("Protocol has been received successfully. idPackage:", responseProtocol->getIdPackage());
+              DConnectionResult res(new CConnectionResult(protocol, responseProtocol, EConnectionStatus::NONE));
+              resultsQueue.push(res);
+            }
           }
         }
 
@@ -169,8 +175,8 @@ namespace NProtocol {
     convertToBinary(array, reqs->getRequestsSize());
     std::for_each(reqs->getRequests().begin(), reqs->getRequests().end(),
                   [&](const CRequest& req){
-                    convertToBinary(array, req);
-                  });
+      convertToBinary(array, req);
+    });
 
   }
 
@@ -194,8 +200,8 @@ namespace NProtocol {
     convertToBinary(array, conf.getConfigurationsSize());
     std::for_each(conf.getConfigurations().begin(), conf.getConfigurations().end(),
                   [&](const CConfigurationValue& value){
-                    convertToBinary(array, value);
-                  });
+      convertToBinary(array, value);
+    });
 
 
   }
@@ -221,8 +227,8 @@ namespace NProtocol {
 
     std::for_each(monitorData->getSensorsData().begin(), monitorData->getSensorsData().end(),
                   [&](const CSensorData& value){
-                    convertToBinary(array, value);
-                  });
+      convertToBinary(array, value);
+    });
 
 
   }
@@ -281,33 +287,42 @@ namespace NProtocol {
 
   }
   // ///////////////////////// CONVERT TO PROTOCOL ////////////////////////
+  template<typename T>
+  T CHttpThread::convertToProtocol(CByteWrapper& wrapper)
+  {
+    return wrapper.read<T>();
+  }
 
   std::shared_ptr<CProtocol> CHttpThread::convertToProtocol(CByteWrapper& wrapper){
     std::shared_ptr<CProtocol> protocol;
 
-    uint8_t version;
-    uint32_t size;
-    uint16_t idConcentrator;
-    uint32_t idPackage;
-    EMessageType type;
+    uint8_t version = convertToProtocol<uint8_t>(wrapper);
 
-    READ_WRAPPER(version, wrapper);
     if (version != VERSION)
     {
+      LOG_ERROR("wrong protocol version");
       return protocol;
     }
-    READ_WRAPPER(size, wrapper);
-    READ_WRAPPER(idConcentrator, wrapper);
-    if (idConcentrator != NEngine::CConfigurationFactory::getInstance()->getIdConcentrator())
+
+    uint32_t size = convertToProtocol<uint32_t>(wrapper);
+
+    uint16_t idConcentrator = convertToProtocol<uint16_t>(wrapper);
+    uint16_t idConcentratorConf = NEngine::CConfigurationFactory::getInstance()->getIdConcentrator();
+
+    if (idConcentrator != idConcentratorConf)
     {
+      LOG_ERROR("wrong id concentrator: expcted=", idConcentratorConf, "actual: ", idConcentrator);
       return protocol;
     }
-    READ_WRAPPER(idPackage, wrapper);
-    READ_WRAPPER(type, wrapper);
+
+    uint32_t idPackage = convertToProtocol<uint32_t>(wrapper);
+    EMessageType type = convertToProtocol<EMessageType>(wrapper);
+
 
     std::shared_ptr<IMessage> message;
     if (!convertToProtocol(message, wrapper))
     {
+      LOG_ERROR("wrong protocol structure");
       return protocol;
     }
     protocol.reset(new CProtocol(version, size, idConcentrator, idPackage, type, message));
@@ -316,34 +331,29 @@ namespace NProtocol {
 
   bool CHttpThread::convertToProtocol(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper)
   {
-    EReceiveStatus status;
-    uint32_t idRequestPackage;
-
-    READ_WRAPPER(status, wrapper);
-    READ_WRAPPER(idRequestPackage, wrapper);
+    EReceiveStatus status = convertToProtocol<EReceiveStatus>(wrapper);
+    uint32_t idRequestPackage = convertToProtocol<uint32_t>(wrapper);
 
     std::vector<CConfigurationValue> configurations;
 
     if (convertToProtocol(configurations, wrapper))
     {
-       CConfiguration configuration(configurations);
-        message.reset(new CServerResponse(status, idRequestPackage, configuration));
-        return true;
+      CConfiguration configuration(configurations);
+      message.reset(new CServerResponse(status, idRequestPackage, configuration));
+      return true;
     }
     return false;
   }
 
-//////////
+  //////////
   bool CHttpThread::convertToProtocol(std::vector<CConfigurationValue>& configurations, CByteWrapper& wrapper)
   {
-    uint8_t configurationSize;
-    READ_WRAPPER(configurationSize, wrapper);
+    uint8_t configurationSize = convertToProtocol<uint8_t>(wrapper);
 
     for(decltype(configurationSize) i = 0; i < configurationSize; ++i){
-      int8_t idSensor;
-      EConfigurationType configurationType;
-      READ_WRAPPER(idSensor, wrapper);
-      READ_WRAPPER(configurationType, wrapper);
+      int8_t idSensor = convertToProtocol<int8_t>(wrapper);
+      EConfigurationType configurationType = convertToProtocol<EConfigurationType>(wrapper);
+
       CData data;
       if (convertToProtocol(data, wrapper))
       {
@@ -351,72 +361,74 @@ namespace NProtocol {
       }
       else
       {
-        // niepoprawny format
+        LOG_ERROR("wrong CData format");
+
         return false;
       }
     }
     return true;
   }
-////////////////
+  ////////////////
   bool CHttpThread::convertToProtocol(CData& sdata, CByteWrapper& wrapper)
   {
-    EValueType type;
-    READ_WRAPPER(type, wrapper);
+    EValueType type = convertToProtocol<EValueType>(wrapper);
+
     void* value;
     switch(type){
     case EValueType::INT_8:
       int8_t vInt8;
-      READ_WRAPPER(vInt8, wrapper);
+      vInt8 = convertToProtocol<int8_t>(wrapper);
       value = &vInt8;
       break;
     case EValueType::UINT_8:
       uint8_t vUInt8;
-      READ_WRAPPER(vUInt8, wrapper);
+      vUInt8 = convertToProtocol<uint8_t>(wrapper);
       value = &vUInt8;
       break;
+
     case EValueType::INT_16:
       int16_t vInt16;
-      READ_WRAPPER(vInt16, wrapper);
+      vInt16 = convertToProtocol<int16_t>(wrapper);
       value = &vInt16;
       break;
     case EValueType::UINT_16:
       uint16_t vUInt16;
-      READ_WRAPPER(vUInt16, wrapper);
+      vUInt16 = convertToProtocol<uint16_t>(wrapper);
       value = &vUInt16;
       break;
     case EValueType::INT_32:
       int32_t vInt32;
-      READ_WRAPPER(vInt32, wrapper);
+      vInt32 = convertToProtocol<int32_t>(wrapper);
       value = &vInt32;
       break;
     case EValueType::UINT_32:
       uint32_t vUInt32;
-      READ_WRAPPER(vUInt32, wrapper);
+      vUInt32 = convertToProtocol<uint32_t>(wrapper);
       value = &vUInt32;
       break;
     case EValueType::INT_64:
       int64_t vInt64;
-      READ_WRAPPER(vInt64, wrapper);
+      vInt64 = convertToProtocol<int64_t>(wrapper);
       value = &vInt64;
       break;
     case EValueType::UINT_64:
       uint64_t vUInt64;
-      READ_WRAPPER(vUInt64, wrapper);
+      vUInt64 = convertToProtocol<uint64_t>(wrapper);
       value = &vUInt64;
       break;
     case EValueType::FLOAT_32:
       float32_t vFloat32;
-      READ_WRAPPER(vFloat32, wrapper);
+      vFloat32 = convertToProtocol<float32_t>(wrapper);
       value = &vFloat32;
       break;
     case EValueType::DOUBLE_64:
       double64_t vDouble64;
-      READ_WRAPPER(vDouble64, wrapper);
+      vDouble64 = convertToProtocol<double64_t>(wrapper);
       value = &vDouble64;
       break;
     case EValueType::VOID:
       uint8_t vVoid8;
-      READ_WRAPPER(vVoid8, wrapper);
+      vVoid8 = convertToProtocol<uint8_t>(wrapper);
       value = &vVoid8;
       break;
     default:

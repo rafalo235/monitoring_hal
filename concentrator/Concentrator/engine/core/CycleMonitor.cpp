@@ -75,9 +75,11 @@ namespace NEngine{
       {
         warning = checkSensors(false);
         checkingSensorsTime = curTime;
+
       }
       // czas wyslac dane z czujnikow lub dane byly niepokojace i trzeba je wyslac
-      if ((curTime - sendingDataTime >= configuration->getSendingPeriod()) || warning)
+      const uint16_t period = configuration->getSendingPeriod();
+      if ((curTime - sendingDataTime >= period) || warning)
       {
 
         if (!warning)
@@ -98,10 +100,7 @@ namespace NEngine{
             uint32_t sendIdPackage = connection->sendMonitorData(monitor);
             sensorSeries[sendIdPackage] = savedSensorData;
         }
-      }
-      else
-      {
-          LOG_DEBUG("Engine thread didn't send data.");
+        sendingDataTime = curTime;
       }
     }while(!threadExit.load(std::memory_order_consume));
 

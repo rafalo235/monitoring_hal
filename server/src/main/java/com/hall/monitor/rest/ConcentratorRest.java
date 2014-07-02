@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
@@ -44,12 +45,13 @@ public class ConcentratorRest
   @Consumes(MediaType.APPLICATION_OCTET_STREAM)
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
   public Response receiveData(byte bytes[]) {
-    
+
     byte response[] = engine.onReceiveData(bytes);
     if (response == null) {
-      // odpowiedz na potwierdzeni konfiguracja
+      // odpowiedz na potwierdzenie konfiguracja
       return Response.status(201).build();
     }
+
     return Response.status(201).entity(response).build();
     
   }

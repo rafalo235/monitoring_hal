@@ -9,8 +9,8 @@ namespace NEngine{
   {
     LOG_DEBUG("CConfigurationMock - constructor.");
     idConcentrator = 1;
-    sendingPeriod = 10;
-    checkingSensorPeriod = 2;
+    sendingPeriod = 20;
+    checkingSensorPeriod = 4;
     saveSDCardIfOnlineEnable = false;
     dataPath = ".";
 

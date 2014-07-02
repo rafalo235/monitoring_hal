@@ -90,35 +90,36 @@ namespace NProtocol {
     template<typename T>
     static inline void convertToBinary(QByteArray& array, const T& data);
 
-    //! \brief makro do ulatwienia odczytu
-#define READ_WRAPPER(obj, wrapper) obj = wrapper.read<decltype(obj)>();
+
+    template<typename T>
+    static inline T convertToProtocol(CByteWrapper& wrapper);
 
     //! \brief convertToPrototocl Konwertuje tablice bajtow do protokolu
     //! \param[in] wrapper Tablica bajtow
     //! \return smart pointer; jesli protokol ma poprawna strukture to smart pointer ma dynamicznie
     //!         zalokowana pamiec
-    std::shared_ptr<CProtocol> convertToProtocol(CByteWrapper& wrapper);
+    static std::shared_ptr<CProtocol> convertToProtocol(CByteWrapper& wrapper);
 
     //!
     //! \brief convertToProtocol Konwertuj tablic bajtow do wiadomosci
     //! \param message[out] odczytana odpowiedz z serwera
     //! \param wrapper tablica bajtow
     //! \return true jesli konwersja poprawna; false jesli nie
-    bool convertToProtocol(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper);
+    static bool convertToProtocol(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper);
 
     //!
     //! \brief convertToProtocol Konwertuje tablice bajtow na konfiguracje
     //! \param configurations odczytana konfiguracja
     //! \param wrapper tablica bajtow
     //! \return true jesli konwersja poprawna; false jesli nie
-    bool convertToProtocol(std::vector<CConfigurationValue>& configurations, CByteWrapper& wrapper);
+    static bool convertToProtocol(std::vector<CConfigurationValue>& configurations, CByteWrapper& wrapper);
 
     //!
     //! \brief convertToProtocol Konwertuje tablice bajtow na dane
     //! \param sdata odczytane dane
     //! \param wrapper tablica bajtow
     //! \return true jesli konwersja poprawna; false jesli nie
-    bool convertToProtocol(CData& sdata, CByteWrapper& wrapper);
+    static bool convertToProtocol(CData& sdata, CByteWrapper& wrapper);
     // ////////////////////////////////////////////////////////////////////
 
   public:

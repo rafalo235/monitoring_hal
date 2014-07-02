@@ -47,8 +47,8 @@ public class Engine
     SProtocol responseProtocol = null;
     try {
       SProtocol protocol = ProtocolConverter.convertToProtocol(bytes);
-      log.log(Level.INFO,
-          "Protocol data received: id=" + protocol.getIdPackage());
+      log.log(Level.SEVERE,
+          "Protocol data received: id=" + protocol.getIdPackage() + " type: "+protocol.getType());
       UMessage message = protocol.getMessage();
       if (message instanceof SMonitorData){
         responseProtocol = operateMonitorData(protocol);
@@ -71,7 +71,8 @@ public class Engine
       // odpowiedz na potwierdzenie konfiguracji
       return null;
     }
-    else{
+    else
+    {
       return ProtocolConverter.convertToBytes(responseProtocol);
     }
   }

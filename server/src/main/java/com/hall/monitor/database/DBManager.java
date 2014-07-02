@@ -157,16 +157,13 @@ public class DBManager implements IDBManager
    * @param confResponse
    * @return
    */
-  private boolean storeConfigurationResponse(Session session,
+  private boolean storeConfigurationResponse(Session session, int idConfiguration,
       SConfigurationResponse confResponse) {
-    
-    // pobierz id pakietu z konfiguracja, na ktory koncentratora odpowiada
-    long idRequestPackage = confResponse.getIdRequestPackage();
-    
+
     // zmien flage informujaca ze konfiguracja zostala poprawnie zmieniona
     
     ConcentratorConf conf = getConcentratorConfiguration(session,
-        idRequestPackage);
+        idConfiguration);
     if (conf == null) {
       log.log(Level.SEVERE, "Configuration of concentrator wasn't found");
       return false;
@@ -313,7 +310,7 @@ public class DBManager implements IDBManager
     else if (umessage instanceof SConfigurationResponse) {
       // potwierdzenie konfiguracji
       SConfigurationResponse configurationResponse = (SConfigurationResponse) umessage;
-      res = storeConfigurationResponse(session, configurationResponse);
+      res = storeConfigurationResponse(session, concentratorId, configurationResponse);
     }
     else if (umessage instanceof SServerRequest) {
       // prosba o przeslanie konfiguracji
@@ -551,7 +548,7 @@ public class DBManager implements IDBManager
   private ConcentratorConf getConcentratorConfiguration(Session session,
       long idConcentratorConf) {
     Query query = session
-        .createQuery("FROM Concentrator WHERE idConcentrator = :id");
+        .createQuery("FROM ConcentratorConf WHERE idConcentrator = :id");
     query.setParameter("id", (int) idConcentratorConf);
     
     @SuppressWarnings("rawtypes")
