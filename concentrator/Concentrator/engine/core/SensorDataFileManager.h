@@ -777,7 +777,12 @@ namespace NEngine
         }
       }
       warningFile.seekg(0, std::fstream::end);
-      warningUnconfirmedFile.seekg(0, std::fstream::end);
+
+      int warningUnconfirmedSize;
+      warningUnconfirmedFile.seekg(0, std::fstream::beg);
+      warningUnconfirmedFile.read(reinterpret_cast<char*>(&warningUnconfirmedSize), sizeof(warningUnconfirmedSize));
+      int warningUnconfirmedOffset = sizeof(warningUnconfirmedSize) + warningUnconfirmedSize * sizeof(SWarningIndex);
+      warningUnconfirmedFile.seekg(warningUnconfirmedOffset, std::fstream::beg);
       // id nowego
       const int id = lastId + 1;
       // dopisz wpis do _unconfirmed.warnings
@@ -1157,6 +1162,7 @@ namespace NEngine
               file.read(reinterpret_cast<char*>(&size), sizeof(size));
               if (size > 0)
               {
+
                 dayBeforeNow = dif.getDay();
                 // znaleziono jakies dane, wiec zwroc otwarty plik, rozmiar i ilosc dni
                 return true;
@@ -1439,127 +1445,58 @@ namespace NEngine
     //! \param dayBeforeNow ile dni od dzisiaj - kiedy pomiary byl zapisany
     //! \return true jesli sa jakies dane, false jesli nie
     static bool getToConfirm(const int maxIdsToConfirm,
-        std::vector<SToConfirm>& toConfirm, int& dayBeforeNow)
+                             std::vector<SToConfirm>& toConfirm, int& dayBeforeNow)
     {
 
       int size;
-      std::ifstream warningUnconfirmedFile;
+      std::fstream warningUnconfirmedFile;
       if (findLastUnconfirmedData(dayBeforeNow, warningUnconfirmedFile, size))
       {
         std::ifstream warning(getWarningFilePath(dayBeforeNow),
-            std::fstream::in | std::fstream::out | std::fstream::binary);
+                              std::fstream::in | std::fstream::out | std::fstream::binary);
         SWarningsInfo warningInfo;
         warning.read(reinterpret_cast<char*>(&warningInfo), sizeof(warningInfo));
-        warning.close();
+
 
         if (warningUnconfirmedFile.is_open())
         {
           // plik istnieje
-          int size;
-          warningUnconfirmedFile.read(reinterpret_cast<char*>(&size),
-              sizeof(size));
           if (size != 0)
           {
             int indicesToRead = size < maxIdsToConfirm ? size : maxIdsToConfirm;
 
             // sa jakies dane do potwierdzenia
             std::shared_ptr<SWarningIndex> array = CMemory::getArray<SWarningIndex>(
-                indicesToRead);
+                                                     indicesToRead);
 
             SWarningIndex* buf = &*array;
             // odczytywane sa dane z konca
-            warningUnconfirmedFile.seekg(-indicesToRead * sizeof(SWarningIndex),
-                std::ifstream::end);
+            int offset = sizeof(size) + (size - indicesToRead) * sizeof(SWarningIndex);
+            warningUnconfirmedFile.seekg(offset,
+                                         std::ifstream::beg);
             warningUnconfirmedFile.read(reinterpret_cast<char*>(buf),
-                indicesToRead * sizeof(SWarningIndex));
+                                        indicesToRead * sizeof(SWarningIndex));
 
-            // przed odczytem nalezy uporzadkowac dane
-            std::sort(buf, buf + indicesToRead,
-                [](const SWarningIndex& s1, const SWarningIndex& s2)
-                { return s1.offset < s2.offset;});
-
-            // polaczyc odczyty w wieksze bufory - odczyt nie pojedyczno, ale grupami
-            std::vector<std::vector<SWarningIndex>> readBuffer;
-            int lastOffset = -1;
-            std::vector<SWarningIndex> indicesOneAfterAnother;
-            int maxOneAfterAnother = -1;
-            for (SWarningIndex* ptr = buf; ptr != buf + indicesToRead; ++ptr)
+            T data;
+            for (int i = 0; i < indicesToRead; ++i)
             {
-              if (ptr->offset - lastOffset
-                  == sizeof(int) + warningInfo.sensors * sizeof(T)
-                  || lastOffset == -1)
-              {
-                // offsety sa po kolei
-                indicesOneAfterAnother.push_back(*ptr);
-              }
-              else
-              {
-                // przerwa w offsetach
-                readBuffer.push_back(indicesOneAfterAnother);
-                if (maxOneAfterAnother < indicesOneAfterAnother.size())
-                {
-                  maxOneAfterAnother = indicesOneAfterAnother.size();
-                }
-                indicesOneAfterAnother.clear();
-                indicesOneAfterAnother.push_back(*ptr);
+              warning.seekg(buf->offset, std::fstream::beg);
+              SToConfirm toConf;
 
+              warning.read(reinterpret_cast<char*>(&toConf.id), sizeof(toConf.id));
+              for(int j = 0; j < warningInfo.sensors; ++j)
+              {
+                warning.read(reinterpret_cast<char*>(&data), sizeof(data));
+                toConf.data.push_back(data);
               }
-              lastOffset = ptr->offset;
+              toConfirm.push_back(toConf);
+              ++buf;
             }
-            int indOneAfterAnotherSize =
-                static_cast<int>(indicesOneAfterAnother.size());
-
-            if (indOneAfterAnotherSize > 0)
-            {
-              readBuffer.push_back(indicesOneAfterAnother);
-              if (maxOneAfterAnother < indOneAfterAnotherSize)
-              {
-                maxOneAfterAnother = indOneAfterAnotherSize;
-              }
-            }
-
-            // zaalokuj miejsce na na najwiekszy odczyt
-            const int readArrayToConfirmSize = maxOneAfterAnother
-                * (sizeof(int) + warningInfo.sensors * sizeof(T));
-            std::shared_ptr<char> arrayToConfirm = CMemory::getArray<char>(
-                readArrayToConfirmSize);
-
-            char* bufToConfirm = &*arrayToConfirm;
-            // no to odczyt
-            std::ifstream warningFile(getWarningFilePath(dayBeforeNow),
-                std::fstream::in | std::fstream::out | std::fstream::binary);
-            for (std::vector<SWarningIndex>& indicesOneAfterAnother : readBuffer)
-            {
-
-              // przesuniecie na offset
-              warningFile.seekg(indicesOneAfterAnother.begin()->offset,
-                  std::ofstream::beg);
-              // odczytanie
-              const int sizeToRead = (sizeof(int)
-                  + warningInfo.sensors * sizeof(T))
-                  * indicesOneAfterAnother.size();
-              warningFile.read(reinterpret_cast<char*>(bufToConfirm), sizeToRead);
-
-              for (unsigned int j = 0; j < indicesOneAfterAnother.size(); ++j)
-              {
-                int* id = reinterpret_cast<int*>(bufToConfirm
-                    + j * (sizeof(int) + warningInfo.sensors * sizeof(T)));
-                T* buf = reinterpret_cast<T*>(bufToConfirm + sizeof(int)
-                    + j * (sizeof(int) + warningInfo.sensors * sizeof(T)));
-
-                SToConfirm toConfirmStruct;
-                toConfirmStruct.id = *id;
-                toConfirmStruct.data.insert(toConfirmStruct.data.end(), buf,
-                    buf + warningInfo.sensors);
-                toConfirm.push_back(toConfirmStruct);
-              }
-
-            }
-            warningFile.close();
-            return true;
           }
           warningUnconfirmedFile.close();
         }
+        warning.close();
+        return true;
       }
       return false;
     }

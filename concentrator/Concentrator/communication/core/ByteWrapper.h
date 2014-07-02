@@ -6,7 +6,8 @@
 #include "util/Cryptography.h"
 #include "util/Memory.h"
 
-#include <iostream>
+#include "util/Logger.h"
+
 namespace NProtocol{
 
   //! \brief Klasa pomocnicza w konwertowaniu tablicy bajtow na protokol
@@ -32,6 +33,15 @@ namespace NProtocol{
 
     }
 
+    void display() const
+    {
+      LOG_DEBUG("siz bytes: ", size);
+      char* buf = &*src;
+      for (int i = 0; i < size; ++i)
+      {
+        std::cout<<(int)*(buf + i)<<std::endl;
+      }
+    }
     int getSize() const
     {
       return size;

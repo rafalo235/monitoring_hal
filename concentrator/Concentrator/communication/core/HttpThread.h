@@ -105,8 +105,10 @@ namespace NProtocol {
     //! \param message[out] odczytana odpowiedz z serwera
     //! \param wrapper tablica bajtow
     //! \return true jesli konwersja poprawna; false jesli nie
-    static bool convertToProtocol(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper);
-
+    static bool convertToProtocolServerReponse(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper);
+    static bool convertToProtocolMonitorData(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper);
+    static bool convertToProtocolConfigurationResponse(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper);
+    static bool convertToProtocolServerRequest(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper);
     //!
     //! \brief convertToProtocol Konwertuje tablice bajtow na konfiguracje
     //! \param configurations odczytana konfiguracja
@@ -122,6 +124,7 @@ namespace NProtocol {
     static bool convertToProtocol(CData& sdata, CByteWrapper& wrapper);
     // ////////////////////////////////////////////////////////////////////
 
+    static void convertToProtocolDebug(const QByteArray& array);
   public:
     //!
     //! \brief CHttpThread Konstruktor, ktory uruchamia watek komunikacji

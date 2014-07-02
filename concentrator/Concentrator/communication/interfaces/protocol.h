@@ -437,6 +437,7 @@ namespace NProtocol
   //! \brief Id koncentratora podawane jako id sensora
   const int8_t cIdConcentrator = 0xFF;
 
+  const uint16_t cErrorIdConcentraor = 0xFF;
   //! \brief Pojedyncza wartosc konfigurowalna.
   class CConfigurationValue
   {

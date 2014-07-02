@@ -3,6 +3,8 @@ package com.hall.monitor.protocol;
 public class SProtocol
 {
   public static final char VERSION     = (char) 1;
+  
+  public static final char ERROR_ID_CONCENTRATOR = (char) 0xFF;
   // uint8_t version;
   private char             version;
   

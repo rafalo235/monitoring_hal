@@ -64,7 +64,7 @@ public class Engine
     catch (ParserException e) {
       log.log(Level.SEVERE, "Protocol parser error ");
       e.printStackTrace();
-      responseProtocol =  getWrongProtocolResponse(EReceiveStatus.BAD_STRUCTURE);
+      responseProtocol =  getWrongProtocolResponse(EReceiveStatus.BAD_STRUCTURE, SProtocol.ERROR_ID_CONCENTRATOR);
     }
     
     if (responseProtocol == null){
@@ -79,7 +79,7 @@ public class Engine
   
   private SProtocol operateConfigurationResponse(SProtocol protocol){
     if (!db.store(protocol)){
-      return getWrongProtocolResponse(EReceiveStatus.OPERATION_FAILED);
+      return getWrongProtocolResponse(EReceiveStatus.OPERATION_FAILED, protocol.getIdConcentrator());
     }
     return null;
   }
@@ -90,7 +90,7 @@ public class Engine
    */
   private SProtocol operateSeverRequest(SProtocol protocol){
     if (!db.store(protocol)){
-      return getWrongProtocolResponse(EReceiveStatus.OPERATION_FAILED);
+      return getWrongProtocolResponse(EReceiveStatus.OPERATION_FAILED, protocol.getIdConcentrator());
     }
     List<SRequest> requests = ((SServerRequest)protocol.getMessage()).getRequests();
     SConfiguration conf = db.loadConcentratorConfiguration(protocol.getIdConcentrator(), requests);
@@ -106,7 +106,7 @@ public class Engine
   private SProtocol operateMonitorData(SProtocol protocol){
     wasDangerLvl(protocol);
     if (!db.store(protocol)){
-      return getWrongProtocolResponse(EReceiveStatus.OPERATION_FAILED);
+      return getWrongProtocolResponse(EReceiveStatus.OPERATION_FAILED, protocol.getIdConcentrator());
     }
     
     SConfiguration conf = db.loadConcentratorConfiguration(protocol.getIdConcentrator());
@@ -118,11 +118,11 @@ public class Engine
    * Tworzy protokol odpowiedzi jesli protokol otrzymany byl niepoprawny
    * @return
    */
-  private SProtocol getWrongProtocolResponse(EReceiveStatus status) {
+  private SProtocol getWrongProtocolResponse(EReceiveStatus status, char idConcentrator) {
 
     SServerResponse response = new SServerResponse(
         status, (char) 0);
-    return new SProtocol(0, (char) 0, (char) 0, idPackage++,
+    return new SProtocol(0, idConcentrator, (char) 0, idPackage++,
         EMessageType.SERVER_MONITOR_RESPONSE, response);
     
   }

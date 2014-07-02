@@ -16,6 +16,7 @@
 #include "communication/core/ConnectionResult.h"
 #include "configuration/interfaces/ConfigurationFactory.h"
 #include "util/Cryptography.h"
+#include "util/Time.h"
 
 namespace NProtocol {
 
@@ -55,10 +56,16 @@ namespace NProtocol {
     thread->join();
   }
 
+  void CHttpThread::convertToProtocolDebug(const QByteArray& array)
+  {
+    CByteWrapper wrapper(array);
+    std::shared_ptr<CProtocol> ptr = convertToProtocol(wrapper);
+    LOG_PROTOCOL(*ptr);
+  }
 
   void CHttpThread::sendHttp(const CProtocol& protocol)
   {
-
+    //LOG_PROTOCOL(protocol);
     QByteArray postData;
     // konwertuj protokol do postaci binarnej tablicy QByteArray
     if (!convertToBinary(postData, protocol)){
@@ -69,6 +76,7 @@ namespace NProtocol {
     }
     else
     {
+      //convertToProtocolDebug(postData);
 
       uint16_t crc = NUtil::CCryptography::crc16(postData.constData(), postData.size());
       postData.replace(postData.size() - sizeof(crc), sizeof(crc), reinterpret_cast<char*>(&crc), sizeof(crc));
@@ -107,6 +115,7 @@ namespace NProtocol {
           }
           else
           {
+
             std::shared_ptr<CProtocol> responseProtocol =
                 convertToProtocol(wrapper);
             // przekonwertuj do struktury
@@ -320,16 +329,94 @@ namespace NProtocol {
 
 
     std::shared_ptr<IMessage> message;
-    if (!convertToProtocol(message, wrapper))
+    bool res = false;
+    switch(type)
+    {
+    case EMessageType::SERVER_MONITOR_RESPONSE:
+      res = convertToProtocolServerReponse(message, wrapper);
+      break;
+    case EMessageType::MONITOR_DATA:
+      res = convertToProtocolMonitorData(message, wrapper);
+      break;
+    case EMessageType::CONFIGURATION_RESPONSE:
+      res = convertToProtocolConfigurationResponse(message, wrapper);
+      break;
+    case EMessageType::SERVER_REQUEST:
+      res = convertToProtocolServerRequest(message, wrapper);
+      break;
+    }
+
+    if (!res)
     {
       LOG_ERROR("wrong protocol structure");
       return protocol;
     }
+
     protocol.reset(new CProtocol(version, size, idConcentrator, idPackage, type, message));
     return protocol;
   }
 
-  bool CHttpThread::convertToProtocol(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper)
+  bool CHttpThread::convertToProtocolServerRequest(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper)
+  {
+    uint8_t size = convertToProtocol<uint8_t>(wrapper);
+    std::vector<CRequest> requests;
+    for (int i = 0; i < size; ++i)
+    {
+      uint8_t idSensor = convertToProtocol<uint8_t>(wrapper);
+      EConfigurationType configurationType = convertToProtocol<EConfigurationType>(wrapper);
+      CRequest req(idSensor, configurationType);
+      requests.push_back(req);
+    }
+    message.reset(new CServerRequest(requests));
+    return true;
+  }
+
+  bool CHttpThread::convertToProtocolConfigurationResponse(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper)
+  {
+    EReceiveStatus status = convertToProtocol<EReceiveStatus>(wrapper);
+    uint32_t idRequestPackage = convertToProtocol<uint32_t>(wrapper);
+
+    std::vector<CConfigurationValue> configurations;
+
+    if (convertToProtocol(configurations, wrapper))
+    {
+      CConfiguration currentConfiguration(configurations);
+      message.reset(new CConfigurationResponse(status, idRequestPackage, currentConfiguration));
+      return true;
+    }
+    return false;
+  }
+
+  bool CHttpThread::convertToProtocolMonitorData(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper)
+  {
+    uint64_t sendTime = convertToProtocol<uint64_t>(wrapper);
+    NUtil::STime time(sendTime);
+    time.display();
+    uint8_t sensorsAmount = convertToProtocol<uint8_t>(wrapper);
+    uint32_t sensorDataSize = convertToProtocol<uint32_t>(wrapper);
+    std::vector<CSensorData> sensorsData;
+    for(uint32_t i = 0; i < sensorDataSize; ++i)
+    {
+      uint32_t idData = convertToProtocol<uint32_t>(wrapper);
+      uint8_t idSensor = convertToProtocol<uint8_t>(wrapper);
+      uint64_t timeStamp = convertToProtocol<uint64_t>(wrapper);
+      NUtil::STime time(timeStamp);
+      time.display();
+      ESensorState sensorState = convertToProtocol<ESensorState>(wrapper);
+      EDangerLevel dangerLevel = convertToProtocol<EDangerLevel>(wrapper);
+      CData sdata;
+      if (!convertToProtocol(sdata, wrapper))
+      {
+        return false;
+      }
+      CSensorData s(idData, idSensor, timeStamp, sensorState, dangerLevel, sdata);
+      sensorsData.push_back(s);
+    }
+    message.reset(new CMonitorData(sendTime, sensorsAmount, sensorsData));
+    return true;
+  }
+
+  bool CHttpThread::convertToProtocolServerReponse(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper)
   {
     EReceiveStatus status = convertToProtocol<EReceiveStatus>(wrapper);
     uint32_t idRequestPackage = convertToProtocol<uint32_t>(wrapper);
