@@ -103,10 +103,11 @@ public class Engine
    * @return
    */
   private SProtocol operateMonitorData(SProtocol protocol){
+    wasDangerLvl(protocol);
     if (!db.store(protocol)){
       return getWrongProtocolResponse(EReceiveStatus.OPERATION_FAILED);
     }
-    wasDangerLvl(protocol);
+    
     SConfiguration conf = db.loadConcentratorConfiguration(protocol.getIdConcentrator());
     SServerResponse response = new SServerResponse(EReceiveStatus.OK, protocol.getIdPackage(), conf);
     return new SProtocol(0, protocol.getIdConcentrator(), (char)0, idPackage, response);
@@ -134,23 +135,33 @@ public class Engine
   private boolean wasDangerLvl(SProtocol protocol){
     SMonitorData monitor = (SMonitorData) protocol.getMessage();
     ArrayList<SSensorData> datas = monitor.getSensorsData();
-    HashSet<Integer> dangerSensorsIds = new HashSet<Integer>();
+    HashSet<Integer> warningSensorsIds = new HashSet<Integer>();
+    HashSet<Integer> alarmSensorsIds = new HashSet<Integer>();
+    
     for(SSensorData sensorData : datas){
-      if (sensorData.getDangerLevel() != EDangerLevel.NONE){
+      if (sensorData.getDangerLevel() == EDangerLevel.ALARM){
         int id = sensorData.getIdSensor();
-        dangerSensorsIds.add(id);
+        alarmSensorsIds.add(id);
+      }
+      else if (sensorData.getDangerLevel() == EDangerLevel.DANGER)
+      {
+        int id = sensorData.getIdSensor();
+        warningSensorsIds.add(id);
       }
     }
     
     // czy byly jakies niepokojace dane?
-    if (dangerSensorsIds.size() == 0){
+    if (warningSensorsIds.isEmpty() && alarmSensorsIds.isEmpty()){
       // nie bylo
       return false;
     }
     else{
       Concentrator concentrator = db.getConcentrator(protocol.getIdConcentrator());
-
-      smsManager.sendSms(concentrator, dangerSensorsIds);
+      if (!db.wasLastSeriesDangerous(concentrator.getIdConcentrator()))
+      {
+        smsManager.sendSms(concentrator, warningSensorsIds, alarmSensorsIds);
+      }
+      
       return true;
     }
   }

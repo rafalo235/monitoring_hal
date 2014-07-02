@@ -29,6 +29,7 @@ import com.hall.monitor.database.data.SensorData;
 import com.hall.monitor.database.data.User;
 import com.hall.monitor.database.interfaces.IDBManager;
 import com.hall.monitor.protocol.EConfigurationType;
+import com.hall.monitor.protocol.EDangerLevel;
 import com.hall.monitor.protocol.EValueType;
 import com.hall.monitor.protocol.SConfiguration;
 import com.hall.monitor.protocol.SConfigurationResponse;
@@ -740,6 +741,48 @@ public class DBManager implements IDBManager
     session.getTransaction().commit();
     session.close();
     return user;
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private List<SensorData> getLastSensorData(Session session, int idConcentrator)
+  {
+    Query query = session
+        .createSQLQuery(
+            "SELECT SensorDatas.idMonitorData FROM SensorDatas, Sensors, Concentrators WHERE SensorDatas.idSensor = Sensors.idSensor AND Sensors.idConcentrator = Concentrators.idConcentrator AND Concentrators.idConcentrator = :id ORDER By SensorDatas.timeStamp DESC LIMIT 1")
+        .setParameter("id", idConcentrator);
+    List result = query.list();
+    if (result.isEmpty()) {
+      return null;
+    }
+    else
+    {
+      int idMonitorData = (Integer) result.iterator().next();
+      Criteria cr = session.createCriteria(SensorData.class)
+          .add(Restrictions.eq("monitorData.idMonitorData", idMonitorData));
+      return cr.list();
+    }
+  }
+  @Override
+  public boolean wasLastSeriesDangerous(int idConcentrator) {
+    SessionFactory factory = HibernateUtil.getFactory();
+    Session session = factory.openSession();
+    session.beginTransaction();
+    boolean danger = false;
+    List<SensorData> sensorDatas = getLastSensorData(session, idConcentrator);
+    if (sensorDatas != null)
+    {
+      for (SensorData data : sensorDatas)
+      {
+        if (data.getDangerLevel() != EDangerLevel.NONE)
+        {
+          danger = true;
+          break;
+        }
+      }
+    }
+    session.getTransaction().commit();
+    session.close();
+    return danger;
   }
   
 }

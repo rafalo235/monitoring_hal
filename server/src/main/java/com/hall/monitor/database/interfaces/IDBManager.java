@@ -37,4 +37,5 @@ public interface IDBManager
   
   public User getUser(String login, String pass);
 
+  public boolean wasLastSeriesDangerous(int idConcentrator);
 }
