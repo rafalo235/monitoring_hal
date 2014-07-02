@@ -2,14 +2,18 @@ package com.monitoring.hall.persistence;
 
 import java.util.List;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.monitoring.hall.beans.Company;
 import com.monitoring.hall.beans.Concentrator;
+import com.monitoring.hall.beans.ConcentratorConf;
 import com.monitoring.hall.beans.Hall;
 import com.monitoring.hall.beans.MonitorData;
+import com.monitoring.hall.beans.SensorConf;
 import com.monitoring.hall.beans.SensorData;
 
 @Repository
@@ -104,6 +108,38 @@ public class PersistenceDAOImpl implements PersistenceDAO {
 	@Override
 	public List<SensorData> listSensorDatas() {
 		return sessionFactory.getCurrentSession().createQuery("from SensorData").list();
+	}
+
+	@Override
+	public ConcentratorConf getConcentratorConf(int idConcentrator) {
+		Query q = sessionFactory.getCurrentSession().createQuery(
+				"from ConcentratorConf "
+				+ "where concentrator=" + idConcentrator +" "
+				+ "and timeStamp = ( "
+					+ "select max(conf2.timeStamp) from ConcentratorConf as conf2 where conf2.concentrator=" + idConcentrator
+				+ " )"
+					);
+		return (ConcentratorConf) q.uniqueResult();
+	}
+
+	@Override
+	public void setConcentratorConf(ConcentratorConf concentratorConf) {
+		Session session = sessionFactory.getCurrentSession();
+		session.update(concentratorConf);
+	}
+
+	@Override
+	public SensorConf getSensorConf(int sensorConfId) {
+		return (SensorConf) sessionFactory
+				.getCurrentSession()
+				.createQuery("from SensorConf where idSensorConf=" + sensorConfId)
+				.uniqueResult();
+	}
+
+	@Override
+	public void setSensorConf(SensorConf sensorConf) {
+		Session session = sessionFactory.getCurrentSession();
+		session.update(sensorConf);
 	}
 
 }

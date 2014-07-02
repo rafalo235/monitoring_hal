@@ -1,5 +1,6 @@
 package com.monitoring.hall.services;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.monitoring.hall.beans.Company;
 import com.monitoring.hall.beans.Concentrator;
+import com.monitoring.hall.beans.ConcentratorConf;
 import com.monitoring.hall.beans.Hall;
 import com.monitoring.hall.beans.MonitorData;
+import com.monitoring.hall.beans.SensorConf;
 import com.monitoring.hall.beans.SensorData;
 import com.monitoring.hall.persistence.PersistenceDAO;
 
@@ -96,6 +99,25 @@ public class PersistenceServiceImpl implements PersistenceService {
 	@Override
 	public List<SensorData> listSensorDatas() {
 		return persistence.listSensorDatas();
+	}
+
+	@Override
+	public ConcentratorConf getConcentratorConf(int idConcentrator) {
+		return persistence.getConcentratorConf(idConcentrator);
+	}
+
+	@Override
+	public SensorConf getSensorConf(int sensorConfId) {
+		return persistence.getSensorConf(sensorConfId);
+	}
+
+	@Override
+	public void setSensorConf(SensorConf sensorConf) {
+		persistence.setSensorConf(sensorConf);
+		ConcentratorConf concentratorConf = sensorConf.getConcentratorConf();
+		concentratorConf.setChanged(true);
+		concentratorConf.setTimeStamp(new Date());
+		persistence.setConcentratorConf(concentratorConf);
 	}
 
 }

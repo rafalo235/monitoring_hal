@@ -18,8 +18,10 @@ import com.googlecode.charts4j.PieChart;
 import com.googlecode.charts4j.Slice;
 import com.monitoring.hall.beans.Company;
 import com.monitoring.hall.beans.Concentrator;
+import com.monitoring.hall.beans.ConcentratorConf;
 import com.monitoring.hall.beans.Hall;
 import com.monitoring.hall.beans.MonitorData;
+import com.monitoring.hall.beans.SensorConf;
 import com.monitoring.hall.beans.SensorData;
 import com.monitoring.hall.services.PersistenceService;
 
@@ -167,6 +169,31 @@ public class HomeController
     persistence.removeConcentrator(idConcentrator);
     
     return "redirect:/concentrators?idHall=" + chosenHall;
+  }
+  
+  @RequestMapping(value = "/concentrators/config", method = RequestMethod.GET)
+  public String showConcentratorConfiguration(@RequestParam int idConcentrator, Model model) {
+	  
+	  ConcentratorConf conf = persistence.getConcentratorConf(idConcentrator);
+	  model.addAttribute("concentratorConf", conf);
+	  return "concentratorConfiguration";
+  }
+  
+  @RequestMapping(value = "/concentrators/config/modify", method = RequestMethod.GET)
+  public String modifySensorConfiguration(
+		  @RequestParam int sensorConfId,
+		  @RequestParam String value,
+		  Model model) {
+	  
+	  SensorConf sensorConf = persistence.getSensorConf(sensorConfId);
+	  sensorConf.setDataStr(value);
+	  persistence.setSensorConf(sensorConf);
+
+	  return "redirect:/concentrators/config?idConcentrator=" + 
+	  			sensorConf
+	  				.getConcentratorConf()
+	  				.getConcentrator()
+	  				.getIdConcentrator();
   }
   
   @RequestMapping(value = "/monitorDatas", method = RequestMethod.GET)
