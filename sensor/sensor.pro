@@ -22,8 +22,9 @@ SOURCES += main.cpp \
 
 QMAKE_CXXFLAGS += -std=c++0x
 
-unix: CONFIG += link_pkgconfig
 unix: PKGCONFIG += libmodbus
+
+unix|win32: LIBS += -lmodbus
 
 FORMS += \
     mainwindow.ui

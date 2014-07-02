@@ -203,6 +203,7 @@ namespace NEngine{
     {
       const std::vector<CConfigurationValue> confs = conf.getConfigurations();
       DConfiguration concentratorConf = CConfigurationFactory::getInstance();
+
       for(CConfigurationValue value : confs)
       {
         bool res;
@@ -213,7 +214,7 @@ namespace NEngine{
           res = concentratorConf->setAlarmLevel(idSensor, value.getData());
           break;
         case EConfigurationType::WARNING_LEVEL:
-          res = concentratorConf->setAlarmLevel(idSensor, value.getData());
+          res = concentratorConf->setWarningLevel(idSensor, value.getData());
         break;
         case EConfigurationType::SENDING_FREQUENCY:
           res = concentratorConf->setSendingPeriod(value.getData().getValue().vUInt16);
@@ -228,6 +229,7 @@ namespace NEngine{
           return false;
         }
       }
+
     }
     return true;
   }

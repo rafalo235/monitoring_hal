@@ -2,7 +2,7 @@
 #define SENSORDATEFILEMANAGERTEST_H
 
 #ifdef TEST_ENABLE
-
+#ifdef TEST_ENABLE_SENSOR_DATA_TEST
 #include <string>
 #include <cstdint>
 #include "configuration/interfaces/ConfigurationFactory.h"
@@ -287,5 +287,6 @@ namespace NTest
 
   };
 }
+#endif // TEST_ENABLE_SENSOR_DATA_TEST
 #endif // TEST_ENABLE
 #endif // SENSORDATEFILEMANAGERTEST_H

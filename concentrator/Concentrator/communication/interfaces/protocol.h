@@ -89,6 +89,7 @@ namespace NProtocol
     const static uint32_t headerSize;
 
     CData() noexcept {
+      value.vDouble64 = 0;
       value.vVoid8 = cVoidValue;
       type = EValueType::VOID;
     }
@@ -100,6 +101,7 @@ namespace NProtocol
     //!
     CData(const EValueType& type1, const void* value1) noexcept
     {
+      value.vDouble64 = 0;
       setValue(type1, value1);
     }
 

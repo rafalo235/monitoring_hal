@@ -4,7 +4,8 @@
 #include "valuegenerator.h"
 
 #include <cstdio>
-#include <modbus.h>
+#include <modbus/modbus.h>
+#include <modbus/modbus-tcp.h>
 #include <QThread>
 
 class Sensor : public QThread

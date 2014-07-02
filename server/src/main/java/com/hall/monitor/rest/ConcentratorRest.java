@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
@@ -19,8 +18,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import org.hibernate.cfg.Configuration;
-
 import com.hall.monitor.database.DBManager;
 import com.hall.monitor.database.data.Company;
 import com.hall.monitor.database.data.Concentrator;
@@ -30,17 +27,10 @@ import com.hall.monitor.database.data.Sensor;
 import com.hall.monitor.database.data.SensorConf;
 import com.hall.monitor.database.data.User;
 import com.hall.monitor.engine.Engine;
-import com.hall.monitor.engine.converter.ProtocolConverter;
-import com.hall.monitor.engine.converter.ProtocolConverter.ParserException;
 import com.hall.monitor.protocol.EConfigurationType;
-import com.hall.monitor.protocol.EMessageType;
-import com.hall.monitor.protocol.EReceiveStatus;
 import com.hall.monitor.protocol.EValueType;
 import com.hall.monitor.protocol.SConfiguration;
 import com.hall.monitor.protocol.SConfigurationValue;
-import com.hall.monitor.protocol.SData;
-import com.hall.monitor.protocol.SProtocol;
-import com.hall.monitor.protocol.SServerResponse;
 
 @Path("/concentrator")
 public class ConcentratorRest
@@ -72,31 +62,7 @@ public class ConcentratorRest
     Response res = builder.build();
     return res;
   }
-  
-  private SProtocol getTest() {
-    
-    ArrayList<SConfigurationValue> configurations = new ArrayList<SConfigurationValue>();
-    SData data1 = new SData(EValueType.INT_32, 100);
-    SConfigurationValue val1 = new SConfigurationValue((char) 1,
-        EConfigurationType.DANGER_LEVEL, data1);
-    configurations.add(val1);
-    
-    SData data2 = new SData(EValueType.INT_32, 200);
-    SConfigurationValue val2 = new SConfigurationValue((char) 2,
-        EConfigurationType.DANGER_LEVEL, data2);
-    configurations.add(val2);
-    
-    SData data3 = new SData(EValueType.UINT_32, 200L);
-    SConfigurationValue val3 = new SConfigurationValue((char) 1,
-        EConfigurationType.DANGER_LEVEL, data3);
-    configurations.add(val3);
-    
-    SConfiguration configuration = new SConfiguration(configurations);
-    SServerResponse res = new SServerResponse(EReceiveStatus.OK, 9,
-        configuration);
-    return new SProtocol(0L, (char) 10, (char) 0, 2,
-        EMessageType.SERVER_MONITOR_RESPONSE, res);
-  }
+ 
   
   @GET
   @Path("/test/get_configuration")
@@ -298,19 +264,24 @@ public class ConcentratorRest
       
       Set<SensorConf> sensorCon = new HashSet<SensorConf>();
       Set<Sensor> sensors = concentrator.getSensors();
-      Iterator<Sensor> it = sensors.iterator();
-      EConfigurationType types[] = EConfigurationType.values();
-      int i = 0;
+      Sensor sensor = null;
+      for(Sensor s : sensors)
+      {
+        if (s.getIdConcentratorSensor()== 0)
+        {
+          sensor = s;
+          break;
+        }
+      }
       Date timeStamp = new Date();
       boolean changed = false;
       ConcentratorConf conf1 = new ConcentratorConf(concentrator, sensorCon,
           user, changed, timeStamp);
-      while (it.hasNext()) {
-        
-        SensorConf s = new SensorConf(conf1, it.next(), types[i++],
-            EValueType.INT_32, String.valueOf(1));
-        sensorCon.add(s);
-      }
+
+      sensorCon.add(new SensorConf(conf1, sensor, EConfigurationType.ALARM_LEVEL,
+          EValueType.INT_32, String.valueOf(40)));
+      sensorCon.add(new SensorConf(conf1, sensor, EConfigurationType.DANGER_LEVEL,
+          EValueType.INT_32, String.valueOf(20)));
       
       db.storeConcentratorConfiguration(concentrator.getIdConcentrator(), conf1);
     }

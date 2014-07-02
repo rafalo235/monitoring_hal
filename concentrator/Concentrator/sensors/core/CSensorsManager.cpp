@@ -4,6 +4,8 @@
 #include <modbus/modbus-tcp.h>
 #include <cstdio>
 #include "util/Logger.h"
+
+
 namespace NSensors {
 
   bool CSensorsManager::getSensorData(const NEngine::DSensorConfiguration& configuration, CData& value) const {
@@ -32,11 +34,11 @@ namespace NSensors {
     if ( (rc = modbus_read_registers(ctx, 0, 1, &recv_value)) == -1 ) {
       LOG_ERROR("ERROR modbus_read_registers single (%d)\n", rc);
     }
-    LOG_DEBUG("Modbus register read: 0x%X\n", recv_value);
+    //LOG_DEBUG("Modbus register read: 0x%X\n", recv_value);
 
     value.setValue(EValueType::UINT_16, &recv_value);
 
-    LOG_DEBUG("Closing Modbus connection context...\n");
+    //LOG_DEBUG("Closing Modbus connection context...\n");
     modbus_close(ctx);
     modbus_free(ctx);
 

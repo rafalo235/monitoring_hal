@@ -27,6 +27,8 @@
 
 //! \brief AsertEQ
 #define assertEq(t1, t2) assertEqFun(t1, t2, __FILE__, __LINE__);
+//! \brief AsertNEQ
+#define assertNEq(t1, t2) assertNEqFun(t1, t2, __FILE__, __LINE__);
 
 //! \brief namespace testow
 //! Przyklad uzycia
@@ -269,7 +271,7 @@ namespace NTest
     }
 
     //!
-    //! \brief assertFun asertEquals
+    //! \brief assertEqFun asertEquals
     //! \param expected wartosc lewa - expected
     //! \param actual wartosc prawa - actual
     //! \param file sciezka do pliku, gdzie uzyto asercji
@@ -291,6 +293,28 @@ namespace NTest
       }
     }
 
+    //!
+    //! \brief assertNEqFun asertEquals
+    //! \param expected wartosc lewa - expected
+    //! \param actual wartosc prawa - actual
+    //! \param file sciezka do pliku, gdzie uzyto asercji
+    //! \param line nr linie, w ktorej uzyto asercji
+    template<typename T1, typename T2>
+    static void assertNEqFun(const T1& expected, const T2& actual, const char* file,
+        const int line)
+    {
+      if (expected == actual)
+      {
+        std::cout << "assert failed. File: " << file << " line: " << line
+            << std::endl;
+        std::cout<<"expected: "<<expected<<" actual: "<<actual<<std::endl;
+        ++currectTestCaseAsserts.assertsFalse;
+      }
+      else
+      {
+        ++currectTestCaseAsserts.assertsTrue;
+      }
+    }
     static void resetAssertsValues(const std::string& testCaseName1)
     {
       currectTestCaseAsserts.testCaseName = testCaseName1;

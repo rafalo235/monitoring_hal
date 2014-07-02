@@ -5,17 +5,20 @@
 
 #include "configuration/core/Configuration.h"
 #include "configuration/core/SensorConfiguration.h"
+#include "util/Logger.h"
 
 namespace NEngine {
 
   const std::string CConfiguration::fileName("configuration.conf");
 
-  bool CConfiguration::readConfiguration() {
+  bool CConfiguration::readConfiguration()
+  {
     std::ifstream file(fileName);
-    if (!file.is_open()){
+    if (!file.is_open())
+    {
+      LOG_ERROR("The configuration file couldn't been open");
       return false;
     }
-    //TODO: sprawdzanie czy plik jest poprawny
     uint16_t idConcentrator;
     uint16_t sendingPeriod;
     uint16_t checkingSensorPeriod;
@@ -72,11 +75,11 @@ namespace NEngine {
   bool CConfiguration::saveConfiguration()const{
 
     std::ofstream file(fileName);
-    if (!file.is_open()){
+    if (!file.is_open())
+    {
+      LOG_ERROR("The configuration file couldn't been open");
       return false;
     }
-// TODO: sprawdzanie czy plik jest poprawny - CRC
-
     // zapis konfiguracji koncentratora
     file.write(reinterpret_cast<const char*>(&idConcentrator), sizeof(idConcentrator));
     file.write(reinterpret_cast<const char*>(&sendingPeriod), sizeof(sendingPeriod));
@@ -129,6 +132,10 @@ namespace NEngine {
       // jesli zapis sie nie powiodl, przywroc stare ustawienia
       currentValue = odlValue;
     }
+    else
+    {
+      readConfiguration();
+    }
     mutex.unlock();
     return result;
   }
@@ -158,7 +165,10 @@ namespace NEngine {
       // nie udal sie zapis - przywroc stare wartosci
       (*s.*setter)(oldValue);
     }
-
+    else
+    {
+      readConfiguration();
+    }
     mutex.unlock();
     return result;
   }
@@ -187,7 +197,10 @@ namespace NEngine {
       // nie udal sie zapis - przywroc stare wartosci
       (*s.*setter)(oldValue);
     }
-
+    else
+    {
+      readConfiguration();
+    }
     mutex.unlock();
     return result;
   }

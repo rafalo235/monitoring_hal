@@ -195,7 +195,7 @@ namespace NEngine {
     {
 
       return setSensorValue(idSensor, &CSensorConfiguration::getAlarmLvl,
-                            &CSensorConfiguration::setWarningLvl, value);
+                            &CSensorConfiguration::setAlarmLvl, value);
     }
 
     //! IConfiguration::setTurnOn(const int8_t, const bool)
