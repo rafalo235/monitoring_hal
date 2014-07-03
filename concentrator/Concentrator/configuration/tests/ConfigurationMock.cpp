@@ -9,7 +9,7 @@ namespace NEngine{
   {
     LOG_DEBUG("CConfigurationMock - constructor.");
     idConcentrator = 1;
-    sendingPeriod = 20;
+    sendingPeriod = 8;
     checkingSensorPeriod = 4;
     saveSDCardIfOnlineEnable = false;
     dataPath = ".";

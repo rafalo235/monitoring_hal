@@ -59,6 +59,13 @@ namespace NEngine{
 
     std::map<uint32_t, SSavedSensorData> sensorSeries;
 
+    struct SOldSensorData
+    {
+      STime time;
+      std::vector<DSensorDataFileManager::SToConfirm> toConfirm;
+    };
+    std::map<uint32_t, SOldSensorData> oldSensorSeries;
+
   public:
     CCycleMonitor();
 

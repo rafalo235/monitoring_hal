@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
@@ -261,28 +260,24 @@ public class ConcentratorRest
           "HallAddresss1");
       List<Concentrator> concs = db.getConcentrators(hall.getIdHall());
       Concentrator concentrator = concs.iterator().next();
+      
       User user = db.getUser("login0", "pass0");
       
       Set<SensorConf> sensorCon = new HashSet<SensorConf>();
       Set<Sensor> sensors = concentrator.getSensors();
-      Sensor sensor = null;
-      for(Sensor s : sensors)
-      {
-        if (s.getIdConcentratorSensor()== 0)
-        {
-          sensor = s;
-          break;
-        }
-      }
       Date timeStamp = new Date();
       boolean changed = false;
       ConcentratorConf conf1 = new ConcentratorConf(concentrator, sensorCon,
           user, changed, timeStamp);
+      for(Sensor sensor : sensors)
+      {
 
-      sensorCon.add(new SensorConf(conf1, sensor, EConfigurationType.ALARM_LEVEL,
-          EValueType.INT_32, String.valueOf(40)));
-      sensorCon.add(new SensorConf(conf1, sensor, EConfigurationType.DANGER_LEVEL,
-          EValueType.INT_32, String.valueOf(20)));
+        sensorCon.add(new SensorConf(conf1, sensor, EConfigurationType.ALARM_LEVEL,
+            EValueType.INT_32, String.valueOf(40)));
+        sensorCon.add(new SensorConf(conf1, sensor, EConfigurationType.DANGER_LEVEL,
+            EValueType.INT_32, String.valueOf(20)));
+      }
+     
       
       db.storeConcentratorConfiguration(concentrator.getIdConcentrator(), conf1);
     }

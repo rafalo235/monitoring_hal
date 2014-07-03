@@ -54,7 +54,6 @@ namespace NEngine{
           break;
         case EConnectionStatus::INPUT_PROTOCOL_FORMAT_ERROR:
           // blad formatu z serwera
-          //  TODO
           break;
         case EConnectionStatus::CRC_ERROR:
           sendConfigurationChangeResponse(EReceiveStatus::CRC_ERROR, result->getReceivedProtocol()->getIdPackage());
@@ -100,6 +99,58 @@ namespace NEngine{
             uint32_t sendIdPackage = connection->sendMonitorData(monitor);
             sensorSeries[sendIdPackage] = savedSensorData;
         }
+        // przeslij dane historyczne
+
+        const int maxIdsToConfirm = 100;
+        SOldSensorData oldSensorData;
+        int dayBeforeNow;
+        if (DSensorDataFileManager::getToConfirm(maxIdsToConfirm, oldSensorData.toConfirm, dayBeforeNow))
+        {
+          // najpierw usun te ktore zostaly wlasnie wyslane
+          auto it = oldSensorData.toConfirm.begin();
+          bool found = false;
+          while(it != oldSensorData.toConfirm.end())
+          {
+            int idSeries = it->id;
+            for(std::map<uint32_t, SSavedSensorData>::iterator itSend = sensorSeries.begin(); itSend != sensorSeries.end(); ++itSend)
+            {
+
+              if (idSeries == itSend->second.idSeries)
+              {
+                it = oldSensorData.toConfirm.erase(it);
+                found = true;
+                break;
+              }
+            }
+            if (!found)
+            {
+              ++it;
+            }
+          }
+          if (!oldSensorData.toConfirm.empty())
+          {
+            oldSensorData.time = CTime::getDateTime(false, CTime::ETimeUnit::DAY, dayBeforeNow);
+
+            uint8_t amount =
+                    static_cast<uint8_t>(configuration->getSensorConfiguration().size());
+            std::vector<CSensorData> sensorDatas;
+            std::for_each(oldSensorData.toConfirm.begin(),
+                          oldSensorData.toConfirm.end(),
+                          [&](const DSensorDataFileManager::SToConfirm& buf){
+              sensorDatas.insert(sensorDatas.end(), buf.data.begin(), buf.data.end());
+
+            });
+
+            CMonitorData* monitorData = new CMonitorData(
+                                          curTime.getTime(),
+                                          amount,
+                                          sensorDatas);
+            std::shared_ptr<CMonitorData> monitor(monitorData);
+            uint32_t sendIdPackage = connection->sendMonitorData(monitor);
+            oldSensorSeries[sendIdPackage] = oldSensorData;
+
+          }
+        }
         sendingDataTime = curTime;
       }
     }while(!threadExit.load(std::memory_order_consume));
@@ -124,6 +175,7 @@ namespace NEngine{
       // potwierdz wyslany pakiet
       const uint32_t idRequestPackage = responseMessage->getIdRequestPackage();
       std::map<uint32_t, SSavedSensorData>::iterator it = sensorSeries.find(idRequestPackage);
+      // sprawdz czy powtierdzenie dotyczy aktualnych danych
       if (it != sensorSeries.end())
       {
         STime dif = CTime::now() - it->second.time;
@@ -131,6 +183,21 @@ namespace NEngine{
         DSensorDataFileManager::confirm(dif.getDay(), idSeries);
         sensorSeries.erase(it);
 
+      }
+      else
+      {
+        // sprawdz czy potwierdzenie dotyczy danych historycznych
+        std::map<uint32_t, SOldSensorData>::iterator it2 = oldSensorSeries.find(idRequestPackage);
+        if (it2 != oldSensorSeries.end())
+        {
+          SOldSensorData& old = it2->second;
+          STime dif = CTime::now() - old.time;
+          std::vector<int> seriesIds;
+          std::for_each(old.toConfirm.begin(), old.toConfirm.end(),
+                        [&](const DSensorDataFileManager::SToConfirm& conf)
+                          {seriesIds.push_back(conf.id);});
+          DSensorDataFileManager::confirm(dif.getDay(), seriesIds);
+        }
       }
       // zmiana konfiguracji
       const NProtocol::CConfiguration conf = responseMessage->getConfiguration();
@@ -336,12 +403,9 @@ namespace NEngine{
     {
       savedSensorData.idSeries = DSensorDataFileManager::saveData(warningLevel, savedSensorData.sensorDatas);
       savedSensorData.time = CTime::now();
-      //LOG_OUTPUT(DSensorDataFileManager::coutFiles(0));
+
     }
     return warningLevel;
   }
-
-
-
 
 }

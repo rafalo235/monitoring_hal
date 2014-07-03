@@ -15,7 +15,7 @@
 #include "engine/test/SensorDateFileManagerTest.h"
 #include "util/FileHelper.h"
 
-int programLifeTime = 130;
+int programLifeTime = 1300;
 using namespace NEngine;
 
 #endif // TEST_ENABLE

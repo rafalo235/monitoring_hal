@@ -226,6 +226,11 @@ namespace NUtil
       return time >= time1.time;
     }
 
+    void display()
+    {
+      std::cerr<<day<<"."<<month<<"."<<year<<":"<<time<<std::endl;
+    }
+
   private:
     //!
     //! \brief convertDuration konwertuje sekundy na dni, godziny, minuty, sekundy - nie uwzglednia miesiacy
