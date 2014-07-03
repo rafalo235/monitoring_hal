@@ -1,7 +1,9 @@
 package com.monitoring.hall;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,17 +15,24 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.googlecode.charts4j.Color;
+import com.googlecode.charts4j.Data;
 import com.googlecode.charts4j.GCharts;
-import com.googlecode.charts4j.PieChart;
-import com.googlecode.charts4j.Slice;
+import com.googlecode.charts4j.Plots;
+import com.googlecode.charts4j.XYLine;
+import com.googlecode.charts4j.XYLineChart;
 import com.monitoring.hall.beans.Company;
 import com.monitoring.hall.beans.Concentrator;
 import com.monitoring.hall.beans.ConcentratorConf;
 import com.monitoring.hall.beans.Hall;
 import com.monitoring.hall.beans.MonitorData;
+import com.monitoring.hall.beans.Sensor;
 import com.monitoring.hall.beans.SensorConf;
 import com.monitoring.hall.beans.SensorData;
+import com.monitoring.hall.protocol.EConfigurationType;
+import com.monitoring.hall.protocol.EValueType;
+import com.monitoring.hall.protocol.SData;
 import com.monitoring.hall.services.PersistenceService;
+import com.monitoring.util.SensorDataComparator;
 
 @Controller
 public class HomeController
@@ -225,58 +234,91 @@ public class HomeController
   @RequestMapping(value = "/statistics", method = RequestMethod.GET)
   public String statistics(Model model) {
     
-    halls = persistence.listHalls();
-    List<SensorData> sensorDatas = persistence.listSensorDatas();
+    List<Concentrator> concentrators = persistence.listConcentrators(); 
     
     List<String> chartsUrls = new ArrayList<String>();
     
-    for (Hall hall : halls) {
-      int none = 0;
-      int danger = 0;
-      int alarm = 0;
-      
-      for (SensorData sensorData : sensorDatas) {
-        if (hall.getIdHall() == sensorData.getMonitorData().getConcentrator()
-            .getHall().getIdHall()) 
-        {
-          if (sensorData.getDangerLevel().name() == "NONE")
-          {
-            none++;
+    for (Concentrator c : concentrators) {
+      ConcentratorConf coConf = persistence.getConcentratorConf(c.getIdConcentrator());
+      Set<SensorConf> seConf = coConf.getSensorConf();
+    	
+      for (Sensor sensor : c.getSensors()) {
+          List<Double> y = new ArrayList<Double>();
+          List<Long> x = new ArrayList<Long>();
+          ArrayList<SensorData> records = new ArrayList<SensorData>(sensor.getSensorDatas());
+          Collections.sort(records, new SensorDataComparator());
+          
+          long minX = -1;
+    	  
+          for (SensorData record : records) {
+        	  try {
+        		  SData data = convert(record.getType(), record.getDataStr());
+        		  char buf1 = (Character) data.getValue();
+        		  double val1 = buf1;
+        		  long tmpX = record.getTimeStamp().getTime();
+        		  
+        		  y.add( new Double( val1 ) );
+        		  x.add( tmpX );
+        		  
+        		  if (minX == -1 || minX > tmpX) {
+        			  minX = tmpX;
+        		  }
+        		  
+        		  
+        	  } catch (NumberFormatException e) {
+        		  System.err.println("Wrong data record format");
+        	  }
           }
-          else if (sensorData.getDangerLevel().name() == "DANGER")
-          {
-            danger++;
+          
+          for (int j = 0 ; j < x.size() - 50 ; j++) {
+        	  x.remove(0);
+        	  y.remove(0);
           }
-          else
-          {
-            alarm++;
+          
+          for (int i = 0 ; i < x.size() ; i++ ) {
+        	  x.set(i, x.get(i) - minX);
+        	  x.set(i, x.get(i) / 1000);
           }
-        }
-      }
-      
-      int total = none + danger + alarm;
-      int percentNone = 0;
-      
-      int percentDanger = 0;
-      int percentAlarm = 0;
-      if (total != 0) {
-        percentNone = (int) (none * 100 / total);
-        percentDanger = (int) (danger * 100 / total);
-        percentAlarm = (int) (alarm * 100 / total);
-      }
-      Slice s1 = Slice.newSlice(percentNone, Color.newColor("adff2f"),
-          "Positive", "Positive value");
-      Slice s2 = Slice.newSlice(percentDanger, Color.newColor("ff8c00"),
-          "Danger", "Danger");
-      Slice s3 = Slice.newSlice(percentAlarm, Color.newColor("ff0000"),
-          "Alarm", "Alarm");
-      
-      PieChart pieChart = GCharts.newPieChart(s1, s2, s3);
-      pieChart.setTitle(hall.getHallName(), Color.BLACK, 18);
-      pieChart.setSize(640, 320);
-      pieChart.setThreeD(true);
-      
-      chartsUrls.add(pieChart.toURLString());
+          
+
+          XYLine line = Plots.newXYLine(Data.newData(x), Data.newData(y), Color.BLACK);
+          XYLineChart lineChart = GCharts.newXYLineChart(line);
+
+          lineChart.setTitle(
+        		  c.getHall().getHallName() + " - Concentrator " + c.getIdConcentrator() + " - Sensor " + sensor.getIdSensor(),
+        		  Color.BLACK,
+        		  18);
+          lineChart.setSize(640, 320);
+          
+          Double begin = null;
+          Double end = null;
+          
+          for (SensorConf conf : seConf) {
+        	  if (conf.getSensor().getIdSensor() == sensor.getIdSensor()) {
+        		  try {
+        			  SData data2 = convert(conf.getType(), conf.getDataStr());
+        			  int buf2 = (Integer) data2.getValue();
+        			  double val2 = buf2;
+        			  
+	                  if (conf.getConfigType() == EConfigurationType.DANGER_LEVEL) {
+	                	  begin = new Double( val2 );
+	                  } else if (conf.getConfigType() == EConfigurationType.ALARM_LEVEL) {
+	                	  end = new Double( val2 );
+	                  }
+        		  } catch (NumberFormatException e) {
+        			  System.err.println("Wrong data record format");
+        			  break;
+        		  }
+        	  }
+          }
+          if (begin != null && end != null) {
+        	  lineChart.addHorizontalRangeMarker(begin.doubleValue(), end.doubleValue(), Color.ORANGE);
+        	  lineChart.addHorizontalRangeMarker(end.doubleValue(), Data.MAX_VALUE, Color.RED);
+          }
+          if (!x.isEmpty()) {
+              chartsUrls.add(lineChart.toURLString());
+          }
+	  } 
       
     }
     
@@ -285,4 +327,34 @@ public class HomeController
     return "statistics";
   }
   
+  private SData convert(EValueType type, String str) {
+	    switch (type)
+	    {
+	    case DOUBLE_64:
+	      return new SData(type, Double.valueOf(str));
+	    case FLOAT_32:
+	      return new SData(type, Float.valueOf(str));
+	    case INT_16:
+	      return new SData(type, Short.valueOf(str));
+	    case INT_32:
+	      return new SData(type, Integer.valueOf(str));
+	    case INT_64:
+	      return new SData(type, Long.valueOf(str));
+	    case INT_8:
+	      return new SData(type, str.charAt(0));
+	    case UINT_64:
+	      return new SData(type, Long.valueOf(str));
+	    case UINT_32:
+	      return new SData(type, Long.valueOf(str));
+	    case UINT_16:
+	      return new SData(type, Character.valueOf(str.charAt(0)));
+	    case UINT_8:
+	      return new SData(type, str.charAt(0));
+	    case VOID:
+	    default:
+	      return SData.VOID;
+	    }
+	  }
+  
 }
+

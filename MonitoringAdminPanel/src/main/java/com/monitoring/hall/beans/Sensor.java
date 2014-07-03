@@ -4,6 +4,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,7 +29,7 @@ public class Sensor
   @Column(nullable = false, name = "idConcentratorSensor")
   private int             idConcentratorSensor;
   
-  @OneToMany(mappedBy = "sensor")
+  @OneToMany(mappedBy = "sensor", fetch = FetchType.EAGER)
   private Set<SensorData> sensorDatas;
   
   public Sensor()

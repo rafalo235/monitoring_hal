@@ -8,8 +8,8 @@
 
 
 		<c:forEach var="chart" items="${charts}" varStatus="loop">
-				<img src="${charts[loop.index] }" />
-				</br>
+				<div><img src="${charts[loop.index] }" /></div>
+				<div style="height: 20px;"></div>
 			</c:forEach>
 
 	
