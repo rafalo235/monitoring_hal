@@ -248,22 +248,15 @@ public class HomeController
           ArrayList<SensorData> records = new ArrayList<SensorData>(sensor.getSensorDatas());
           Collections.sort(records, new SensorDataComparator());
           
-          long minX = -1;
     	  
           for (SensorData record : records) {
         	  try {
         		  SData data = convert(record.getType(), record.getDataStr());
         		  char buf1 = (Character) data.getValue();
         		  double val1 = buf1;
-        		  long tmpX = record.getTimeStamp().getTime();
         		  
         		  y.add( new Double( val1 ) );
-        		  x.add( tmpX );
-        		  
-        		  if (minX == -1 || minX > tmpX) {
-        			  minX = tmpX;
-        		  }
-        		  
+        		  x.add( record.getTimeStamp().getTime() );
         		  
         	  } catch (NumberFormatException e) {
         		  System.err.println("Wrong data record format");
@@ -274,6 +267,13 @@ public class HomeController
         	  x.remove(0);
         	  y.remove(0);
           }
+
+          long minX = -1;
+          for (long l : x) {
+        	  if (minX == -1 || minX > l) {
+    			  minX = l;
+    		  }
+          }		  
           
           for (int i = 0 ; i < x.size() ; i++ ) {
         	  x.set(i, x.get(i) - minX);
