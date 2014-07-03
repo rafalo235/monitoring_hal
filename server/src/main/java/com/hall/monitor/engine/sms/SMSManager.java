@@ -25,7 +25,7 @@ public class SMSManager
 {
   private static final String SMS_PATTER      = "HALL: {0}\nADDRESS: {1}\nCONCENTRATOR: {2}\nWARNINGS: {3}\nALARMS: {4}";
   private ExecutorService     executorService = Executors.newFixedThreadPool(1);
-  private static boolean      SENDING_SMS     = false;
+  private static boolean      SENDING_SMS     = true;
   private static Logger       log             = Logger
                                                   .getLogger(SMSManager.class
                                                       .getSimpleName());

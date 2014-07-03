@@ -1,5 +1,7 @@
 package com.monitoring.hall;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.googlecode.charts4j.AxisLabels;
+import com.googlecode.charts4j.AxisLabelsFactory;
 import com.googlecode.charts4j.Color;
 import com.googlecode.charts4j.Data;
 import com.googlecode.charts4j.GCharts;
@@ -51,7 +55,8 @@ public class HomeController
   @RequestMapping(value = "/", method = RequestMethod.GET)
   public String home(Model model) {
     
-    // w razie pustej bazy odkomentowac i puscic. Nie wiem czemu, ale aplikacja
+    // w razie pustej bazy odkomentowac i puscic. Nie wiem czemu, ale
+    // aplikacja
     // nie dziala, gdy baza jest pusta
     
     /*
@@ -181,28 +186,25 @@ public class HomeController
   }
   
   @RequestMapping(value = "/concentrators/config", method = RequestMethod.GET)
-  public String showConcentratorConfiguration(@RequestParam int idConcentrator, Model model) {
-	  
-	  ConcentratorConf conf = persistence.getConcentratorConf(idConcentrator);
-	  model.addAttribute("concentratorConf", conf);
-	  return "concentratorConfiguration";
+  public String showConcentratorConfiguration(@RequestParam int idConcentrator,
+      Model model) {
+    
+    ConcentratorConf conf = persistence.getConcentratorConf(idConcentrator);
+    model.addAttribute("concentratorConf", conf);
+    return "concentratorConfiguration";
   }
   
   @RequestMapping(value = "/concentrators/config/modify", method = RequestMethod.GET)
-  public String modifySensorConfiguration(
-		  @RequestParam int sensorConfId,
-		  @RequestParam String value,
-		  Model model) {
-	  
-	  SensorConf sensorConf = persistence.getSensorConf(sensorConfId);
-	  sensorConf.setDataStr(value);
-	  persistence.setSensorConf(sensorConf);
-
-	  return "redirect:/concentrators/config?idConcentrator=" + 
-	  			sensorConf
-	  				.getConcentratorConf()
-	  				.getConcentrator()
-	  				.getIdConcentrator();
+  public String modifySensorConfiguration(@RequestParam int sensorConfId,
+      @RequestParam String value, Model model) {
+    
+    SensorConf sensorConf = persistence.getSensorConf(sensorConfId);
+    sensorConf.setDataStr(value);
+    persistence.setSensorConf(sensorConf);
+    
+    return "redirect:/concentrators/config?idConcentrator="
+        + sensorConf.getConcentratorConf().getConcentrator()
+            .getIdConcentrator();
   }
   
   @RequestMapping(value = "/monitorDatas", method = RequestMethod.GET)
@@ -234,91 +236,119 @@ public class HomeController
   @RequestMapping(value = "/statistics", method = RequestMethod.GET)
   public String statistics(Model model) {
     
-    List<Concentrator> concentrators = persistence.listConcentrators(); 
+    List<Concentrator> concentrators = persistence.listConcentrators();
     
     List<String> chartsUrls = new ArrayList<String>();
     
     for (Concentrator c : concentrators) {
-      ConcentratorConf coConf = persistence.getConcentratorConf(c.getIdConcentrator());
+      ConcentratorConf coConf = persistence.getConcentratorConf(c
+          .getIdConcentrator());
       Set<SensorConf> seConf = coConf.getSensorConf();
-    	
+      
       for (Sensor sensor : c.getSensors()) {
-          List<Double> y = new ArrayList<Double>();
-          List<Long> x = new ArrayList<Long>();
-          ArrayList<SensorData> records = new ArrayList<SensorData>(sensor.getSensorDatas());
+        List<Double> y = new ArrayList<Double>();
+        List<Long> x = new ArrayList<Long>();
+        ArrayList<SensorData> records = new ArrayList<SensorData>(
+            sensor.getSensorDatas());
+        if (records.size() > 0) {
+          
           Collections.sort(records, new SensorDataComparator());
-          
-    	  
+
           for (SensorData record : records) {
-        	  try {
-        		  SData data = convert(record.getType(), record.getDataStr());
-        		  char buf1 = (Character) data.getValue();
-        		  double val1 = buf1;
-        		  
-        		  y.add( new Double( val1 ) );
-        		  x.add( record.getTimeStamp().getTime() );
-        		  
-        	  } catch (NumberFormatException e) {
-        		  System.err.println("Wrong data record format");
-        	  }
+            try {
+              SData data = convert(record.getType(), record.getDataStr());
+              char buf1 = (Character) data.getValue();
+              double val1 = buf1;
+              
+              y.add(new Double(val1));
+              x.add(record.getTimeStamp().getTime() /  1000);
+              
+            }
+            catch (NumberFormatException e) {
+              System.err.println("Wrong data record format");
+            }
           }
           
-          for (int j = 0 ; j < x.size() - 50 ; j++) {
-        	  x.remove(0);
-        	  y.remove(0);
+          
+          for (int j = 0; j < x.size() - 50; j++) {
+            x.remove(0);
+            y.remove(0);
           }
 
-          long minX = -1;
-          for (long l : x) {
-        	  if (minX == -1 || minX > l) {
-    			  minX = l;
-    		  }
-          }		  
-          
-          for (int i = 0 ; i < x.size() ; i++ ) {
-        	  x.set(i, x.get(i) - minX);
-        	  x.set(i, x.get(i) / 1000);
+          SimpleDateFormat format = new SimpleDateFormat("dd.MM.''yy HH:mm:ss");
+          ArrayList<String> xLabels = new ArrayList<String>();
+          ArrayList<Integer> xLabelsPos = new ArrayList<Integer>();
+          int labelPeriod = x.size() / 5;
+         
+          for (int counter = 0; counter < x.size(); counter += labelPeriod) {
+            long buf = x.get(counter);
+            Date dateBuf = new Date(buf * 1000);
+            String txt = format.format(dateBuf);
+            xLabels.add(txt);
+            xLabelsPos.add((counter * 100) / x.size());
+          }
+          long minX = Collections.min(x);
+          long maxX = Collections.max(x);
+          long sizeX = maxX - minX;
+          for (int i = 0; i < x.size(); i++) {
+            long buf = x.get(i);
+            long norm = 100 * (buf - minX) / sizeX;
+            x.set(i, norm);
           }
           
-
-          XYLine line = Plots.newXYLine(Data.newData(x), Data.newData(y), Color.BLACK);
+          XYLine line = Plots.newXYLine(Data.newData(x), Data.newData(y),
+              Color.BLACK);
           XYLineChart lineChart = GCharts.newXYLineChart(line);
-
-          lineChart.setTitle(
-        		  c.getHall().getHallName() + " - Concentrator " + c.getIdConcentrator() + " - Sensor " + sensor.getIdSensor(),
-        		  Color.BLACK,
-        		  18);
+          
+          lineChart
+              .setTitle(
+                  c.getHall().getHallName() + " - Concentrator "
+                      + c.getIdConcentrator() + " - Sensor "
+                      + sensor.getIdSensor(), Color.BLACK, 18);
           lineChart.setSize(640, 320);
           
           Double begin = null;
           Double end = null;
           
           for (SensorConf conf : seConf) {
-        	  if (conf.getSensor().getIdSensor() == sensor.getIdSensor()) {
-        		  try {
-        			  SData data2 = convert(conf.getType(), conf.getDataStr());
-        			  int buf2 = (Integer) data2.getValue();
-        			  double val2 = buf2;
-        			  
-	                  if (conf.getConfigType() == EConfigurationType.DANGER_LEVEL) {
-	                	  begin = new Double( val2 );
-	                  } else if (conf.getConfigType() == EConfigurationType.ALARM_LEVEL) {
-	                	  end = new Double( val2 );
-	                  }
-        		  } catch (NumberFormatException e) {
-        			  System.err.println("Wrong data record format");
-        			  break;
-        		  }
-        	  }
+            if (conf.getSensor().getIdSensor() == sensor.getIdSensor()) {
+              try {
+                SData data2 = convert(conf.getType(), conf.getDataStr());
+                int buf2 = (Integer) data2.getValue();
+                double val2 = buf2;
+                
+                if (conf.getConfigType() == EConfigurationType.DANGER_LEVEL) {
+                  begin = new Double(val2);
+                }
+                else if (conf.getConfigType() == EConfigurationType.ALARM_LEVEL) {
+                  end = new Double(val2);
+                }
+              }
+              catch (NumberFormatException e) {
+                System.err.println("Wrong data record format");
+                break;
+              }
+            }
           }
           if (begin != null && end != null) {
-        	  lineChart.addHorizontalRangeMarker(begin.doubleValue(), end.doubleValue(), Color.ORANGE);
-        	  lineChart.addHorizontalRangeMarker(end.doubleValue(), Data.MAX_VALUE, Color.RED);
+            lineChart.addHorizontalRangeMarker(begin.doubleValue(),
+                end.doubleValue(), Color.ORANGE);
+            lineChart.addHorizontalRangeMarker(end.doubleValue(),
+                Data.MAX_VALUE, Color.RED);
+            
+            AxisLabels axeY = AxisLabelsFactory.newNumericRangeAxisLabels(
+                begin.doubleValue(), end.doubleValue());
+            lineChart.addYAxisLabels(axeY);
+            
+            AxisLabels axeX = AxisLabelsFactory.newAxisLabels(xLabels,
+                xLabelsPos);
+            lineChart.addXAxisLabels(axeX);
           }
           if (!x.isEmpty()) {
-              chartsUrls.add(lineChart.toURLString());
+            chartsUrls.add(lineChart.toURLString());
           }
-	  } 
+        }
+      }
       
     }
     
@@ -328,33 +358,32 @@ public class HomeController
   }
   
   private SData convert(EValueType type, String str) {
-	    switch (type)
-	    {
-	    case DOUBLE_64:
-	      return new SData(type, Double.valueOf(str));
-	    case FLOAT_32:
-	      return new SData(type, Float.valueOf(str));
-	    case INT_16:
-	      return new SData(type, Short.valueOf(str));
-	    case INT_32:
-	      return new SData(type, Integer.valueOf(str));
-	    case INT_64:
-	      return new SData(type, Long.valueOf(str));
-	    case INT_8:
-	      return new SData(type, str.charAt(0));
-	    case UINT_64:
-	      return new SData(type, Long.valueOf(str));
-	    case UINT_32:
-	      return new SData(type, Long.valueOf(str));
-	    case UINT_16:
-	      return new SData(type, Character.valueOf(str.charAt(0)));
-	    case UINT_8:
-	      return new SData(type, str.charAt(0));
-	    case VOID:
-	    default:
-	      return SData.VOID;
-	    }
-	  }
+    switch (type)
+    {
+    case DOUBLE_64:
+      return new SData(type, Double.valueOf(str));
+    case FLOAT_32:
+      return new SData(type, Float.valueOf(str));
+    case INT_16:
+      return new SData(type, Short.valueOf(str));
+    case INT_32:
+      return new SData(type, Integer.valueOf(str));
+    case INT_64:
+      return new SData(type, Long.valueOf(str));
+    case INT_8:
+      return new SData(type, str.charAt(0));
+    case UINT_64:
+      return new SData(type, Long.valueOf(str));
+    case UINT_32:
+      return new SData(type, Long.valueOf(str));
+    case UINT_16:
+      return new SData(type, Character.valueOf(str.charAt(0)));
+    case UINT_8:
+      return new SData(type, str.charAt(0));
+    case VOID:
+    default:
+      return SData.VOID;
+    }
+  }
   
 }
-
