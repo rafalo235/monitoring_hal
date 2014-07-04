@@ -1,0 +1,9 @@
+com.hall.monitor
+com.hall.monitor.database.core
+com.hall.monitor.database.core.data
+com.hall.monitor.database.interfaces
+com.hall.monitor.engine
+com.hall.monitor.engine.converter
+com.hall.monitor.engine.sms
+com.hall.monitor.protocol
+com.hall.monitor.rest
