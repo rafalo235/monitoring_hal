@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['read_5fwrapper',['READ_WRAPPER',['../HttpThread_8h.html#aeef8252bf01d76032a24b4c15c0d16bb',1,'HttpThread.h']]]
+  ['sensor_5fmock',['SENSOR_MOCK',['../db/d08/_c_sensors_manager_mock_8h.html#a5a12b6543fcfe1017fca27b41a9786cb',1,'CSensorsManagerMock.h']]]
 ];

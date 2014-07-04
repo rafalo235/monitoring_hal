@@ -7,6 +7,7 @@
 namespace NUtil {
 
   //! \brief The CQueueThread class jest c++owa wersja BlockingQueue z Javy
+  //! \author Marcin Serwach
   template <typename T>
   class CQueueThread
   {

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['void',['VOID',['../namespaceNProtocol.html#aa98c473b81ada5bbb825af86564d6e56a6d0c9fc747131795e6e5d0c5119f12cb',1,'NProtocol']]]
+  ['year',['YEAR',['../d9/df8/class_n_util_1_1_c_time.html#afaf5af863492abd6acc8df8672b1b02fad18101729d290479023d5eceeb29c9cf',1,'NUtil::CTime']]]
 ];

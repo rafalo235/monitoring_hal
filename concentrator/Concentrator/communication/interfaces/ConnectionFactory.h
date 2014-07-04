@@ -14,6 +14,7 @@ namespace NProtocol{
   //!
   //! \brief The CConnectionFactory class. Wzorzec projektowy fabryki, ktory tworzy NProtocol::DConnection.
   //! Gwarantuje, ze zostanie utworzon tylko wylacznie jeden obiekt NProtocol::DConnection.
+  //! \author Marcin Serwach
   class CConnectionFactory
   {
 

@@ -19,6 +19,7 @@ namespace NEngine{
 
   //! \brief The CConnectionFactory class. Wzorzec projektowy fabryki, ktory tworzy NEngine::DConfiguration.
   //! Gwarantuje, ze zostanie utworzon tylko wylacznie jeden obiekt NEngine::DConfiguration.
+  //! \author Marcin Serwach
   class CConfigurationFactory
   {
 

@@ -15,6 +15,7 @@ namespace NProtocol{
   //!
   //! \brief The IConnectionTask class Klasa abstrakcyjna
   //!  zadan wykonywanych przez watek komunikacji z serwerem.
+  //! \author Marcin Serwach
   class IConnectionTask
   {
   public:
@@ -53,6 +54,7 @@ namespace NProtocol{
   // ///////////////////////////////////////////////////////////////
 
   //! \brief The CSendingTask class Zadanie wysylania danych do serwera
+  //! \author Marcin Serwach
   class CSendingTask : public IConnectionTask
   {
   private:

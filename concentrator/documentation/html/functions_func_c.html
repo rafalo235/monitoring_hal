@@ -4,10 +4,17 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Monitoring hall: Class Members - Functions</title>
+<title>Monitoring hal - koncentrator: Class Members - Functions</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/search.js"></script>
 <script type="text/javascript">
@@ -22,8 +29,10 @@
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">Monitoring hall
+   <div id="projectname">Monitoring hal - koncentrator
+   &#160;<span id="projectnumber">0.5</span>
    </div>
+   <div id="projectbrief">Część projektu monitoringu hal - program obslugujący koncentrator</div>
   </td>
  </tr>
  </tbody>
@@ -75,12 +84,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_type.html"><span>Typedefs</span></a></li>
       <li><a href="functions_enum.html"><span>Enumerations</span></a></li>
       <li><a href="functions_eval.html"><span>Enumerator</span></a></li>
+      <li><a href="functions_rela.html"><span>Related&#160;Functions</span></a></li>
     </ul>
   </div>
   <div id="navrow4" class="tabs3">
     <ul class="tablist">
       <li><a href="functions_func.html#index_a"><span>a</span></a></li>
       <li class="current"><a href="functions_func_c.html#index_c"><span>c</span></a></li>
+      <li><a href="functions_func_d.html#index_d"><span>d</span></a></li>
       <li><a href="functions_func_e.html#index_e"><span>e</span></a></li>
       <li><a href="functions_func_f.html#index_f"><span>f</span></a></li>
       <li><a href="functions_func_g.html#index_g"><span>g</span></a></li>
@@ -93,16 +104,31 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_func_r.html#index_r"><span>r</span></a></li>
       <li><a href="functions_func_s.html#index_s"><span>s</span></a></li>
       <li><a href="functions_func_w.html#index_w"><span>w</span></a></li>
+      <li><a href="functions_func_x.html#index_x"><span>x</span></a></li>
       <li><a href="functions_func_~.html#index_~"><span>~</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('functions_func_c.html','');});
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Macros</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(11)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -116,139 +142,163 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 
 <h3><a class="anchor" id="index_c"></a>- c -</h3><ul>
 <li>CByteWrapper()
-: <a class="el" href="classNProtocol_1_1CByteWrapper.html#a7fa4f8466a75ec81a0572ff3196733d6">NProtocol::CByteWrapper</a>
+: <a class="el" href="df/dce/class_n_protocol_1_1_c_byte_wrapper.html#a7fa4f8466a75ec81a0572ff3196733d6">NProtocol::CByteWrapper</a>
 </li>
 <li>CConfiguration()
-: <a class="el" href="classNEngine_1_1CConfiguration.html#a1fd9ad1d25046acf48548af3eb3a596b">NEngine::CConfiguration</a>
-, <a class="el" href="classNProtocol_1_1CConfiguration.html#ab2128e1511c507dacdce0cdeb9a7ca8b">NProtocol::CConfiguration</a>
+: <a class="el" href="d4/d56/class_n_engine_1_1_c_configuration.html#a1fd9ad1d25046acf48548af3eb3a596b">NEngine::CConfiguration</a>
+, <a class="el" href="df/d34/class_n_protocol_1_1_c_configuration.html#ab2128e1511c507dacdce0cdeb9a7ca8b">NProtocol::CConfiguration</a>
 </li>
 <li>CConfigurationFactory()
-: <a class="el" href="classNEngine_1_1CConfigurationFactory.html#abb38d016ebd6037719e678639ebe53fe">NEngine::CConfigurationFactory</a>
+: <a class="el" href="d7/d8c/class_n_engine_1_1_c_configuration_factory.html#abb38d016ebd6037719e678639ebe53fe">NEngine::CConfigurationFactory</a>
 </li>
 <li>CConfigurationManager()
-: <a class="el" href="classNEngine_1_1CConfigurationManager.html#a9c06b42d6fc25dac008fda9438a34f6b">NEngine::CConfigurationManager</a>
+: <a class="el" href="d6/dff/class_n_engine_1_1_c_configuration_manager.html#a9c06b42d6fc25dac008fda9438a34f6b">NEngine::CConfigurationManager</a>
 </li>
 <li>CConfigurationMock()
-: <a class="el" href="classNEngine_1_1CConfigurationMock.html#af92968ea6640b21c8fea60613ceb0c5e">NEngine::CConfigurationMock</a>
+: <a class="el" href="dd/df4/class_n_engine_1_1_c_configuration_mock.html#af92968ea6640b21c8fea60613ceb0c5e">NEngine::CConfigurationMock</a>
 </li>
 <li>CConfigurationResponse()
-: <a class="el" href="classNProtocol_1_1CConfigurationResponse.html#aee0e16f215ef61b6c29ffecfb48372d6">NProtocol::CConfigurationResponse</a>
+: <a class="el" href="db/d0e/class_n_protocol_1_1_c_configuration_response.html#aee0e16f215ef61b6c29ffecfb48372d6">NProtocol::CConfigurationResponse</a>
 </li>
 <li>CConfigurationValue()
-: <a class="el" href="classNProtocol_1_1CConfigurationValue.html#a81f654566c5ee69d865b050528683159">NProtocol::CConfigurationValue</a>
+: <a class="el" href="dd/d10/class_n_protocol_1_1_c_configuration_value.html#a81f654566c5ee69d865b050528683159">NProtocol::CConfigurationValue</a>
 </li>
 <li>CConnection()
-: <a class="el" href="classNProtocol_1_1CConnection.html#accf53f090c78a95ed7226dde32ee6abc">NProtocol::CConnection</a>
+: <a class="el" href="d2/d7c/class_n_protocol_1_1_c_connection.html#accf53f090c78a95ed7226dde32ee6abc">NProtocol::CConnection</a>
 </li>
 <li>CConnectionFactory()
-: <a class="el" href="classNProtocol_1_1CConnectionFactory.html#a7e3564a9cfa9759ffc9fb769e95f1931">NProtocol::CConnectionFactory</a>
+: <a class="el" href="d5/d50/class_n_protocol_1_1_c_connection_factory.html#a7e3564a9cfa9759ffc9fb769e95f1931">NProtocol::CConnectionFactory</a>
 </li>
 <li>CConnectionResult()
-: <a class="el" href="classNProtocol_1_1CConnectionResult.html#ac3b91cba6fa46b8a610e1ed4ae4a2920">NProtocol::CConnectionResult</a>
+: <a class="el" href="d2/de4/class_n_protocol_1_1_c_connection_result.html#ac3b91cba6fa46b8a610e1ed4ae4a2920">NProtocol::CConnectionResult</a>
 </li>
 <li>CCryptography()
-: <a class="el" href="classNUtil_1_1CCryptography.html#a7e68c195ab335b007ad5433ce37f7a8c">NUtil::CCryptography</a>
+: <a class="el" href="da/dfa/class_n_util_1_1_c_cryptography.html#a7e68c195ab335b007ad5433ce37f7a8c">NUtil::CCryptography</a>
 </li>
 <li>CCycleMonitor()
-: <a class="el" href="classNEngine_1_1CCycleMonitor.html#ad3ede567e7fd40479f37ddb8778b136d">NEngine::CCycleMonitor</a>
+: <a class="el" href="d6/dc1/class_n_engine_1_1_c_cycle_monitor.html#ad3ede567e7fd40479f37ddb8778b136d">NEngine::CCycleMonitor</a>
 </li>
 <li>CData()
-: <a class="el" href="classNProtocol_1_1CData.html#a3709cd4c2c41a25bd2b9159507dc3aee">NProtocol::CData</a>
+: <a class="el" href="d7/dc0/class_n_protocol_1_1_c_data.html#a3709cd4c2c41a25bd2b9159507dc3aee">NProtocol::CData</a>
 </li>
 <li>CEngineFactory()
-: <a class="el" href="classNEngine_1_1CEngineFactory.html#aac4347503c959427ba04209ff282f49d">NEngine::CEngineFactory</a>
+: <a class="el" href="de/d9b/class_n_engine_1_1_c_engine_factory.html#aac4347503c959427ba04209ff282f49d">NEngine::CEngineFactory</a>
 </li>
 <li>CExitTask()
-: <a class="el" href="classNProtocol_1_1CExitTask.html#ad68293a4ec6e2ff14dcb9bed38237331">NProtocol::CExitTask</a>
+: <a class="el" href="d1/db3/class_n_protocol_1_1_c_exit_task.html#ad68293a4ec6e2ff14dcb9bed38237331">NProtocol::CExitTask</a>
+</li>
+<li>CFileHelper()
+: <a class="el" href="d0/dd3/class_n_util_1_1_c_file_helper.html#abc49f23f97c9501a516847ffdb0eb19a">NUtil::CFileHelper</a>
 </li>
 <li>changeConfiguration()
-: <a class="el" href="classNEngine_1_1CConfigurationManager.html#a1a53fde50f730311998d3c3fa71a5acf">NEngine::CConfigurationManager</a>
+: <a class="el" href="d6/dff/class_n_engine_1_1_c_configuration_manager.html#a1a53fde50f730311998d3c3fa71a5acf">NEngine::CConfigurationManager</a>
 </li>
 <li>changeSizeInFile()
-: <a class="el" href="classNEngine_1_1CSensorDataFileManager.html#a81aee174bfa9681f221fa472f6d187f8">NEngine::CSensorDataFileManager&lt; T, SeriesAround &gt;</a>
-</li>
-<li>changeTime()
-: <a class="el" href="classNUtil_1_1CTime.html#a1dc11dd67484f53bf441a822efa1a902">NUtil::CTime</a>
+: <a class="el" href="de/d53/class_n_engine_1_1_c_sensor_data_file_manager.html#a81aee174bfa9681f221fa472f6d187f8">NEngine::CSensorDataFileManager&lt; T, SeriesAround &gt;</a>
 </li>
 <li>changeValue()
-: <a class="el" href="classNEngine_1_1CConfiguration.html#a10ca295efc2d9a622512a3548dfe8f00">NEngine::CConfiguration</a>
+: <a class="el" href="d4/d56/class_n_engine_1_1_c_configuration.html#a10ca295efc2d9a622512a3548dfe8f00">NEngine::CConfiguration</a>
+</li>
+<li>checkCrc16()
+: <a class="el" href="da/dfa/class_n_util_1_1_c_cryptography.html#a5860336d648ab7893f92fad64fcc479c">NUtil::CCryptography</a>
 </li>
 <li>checkSensors()
-: <a class="el" href="classNEngine_1_1CCycleMonitor.html#ae42d964ca848dbc6210b4de5c56372ff">NEngine::CCycleMonitor</a>
+: <a class="el" href="d6/dc1/class_n_engine_1_1_c_cycle_monitor.html#ae42d964ca848dbc6210b4de5c56372ff">NEngine::CCycleMonitor</a>
 </li>
 <li>CHttpThread()
-: <a class="el" href="classNProtocol_1_1CHttpThread.html#a0f18ff377eaaaea0107ac5df90099264">NProtocol::CHttpThread</a>
+: <a class="el" href="de/d4a/class_n_protocol_1_1_c_http_thread.html#a0f18ff377eaaaea0107ac5df90099264">NProtocol::CHttpThread</a>
 </li>
 <li>cleanOldFiles()
-: <a class="el" href="classNEngine_1_1CSensorDataFileManager.html#a8b6d5cd0f347d4ed889d97c8336cc276">NEngine::CSensorDataFileManager&lt; T, SeriesAround &gt;</a>
+: <a class="el" href="de/d53/class_n_engine_1_1_c_sensor_data_file_manager.html#a8b6d5cd0f347d4ed889d97c8336cc276">NEngine::CSensorDataFileManager&lt; T, SeriesAround &gt;</a>
 </li>
 <li>CLogger()
-: <a class="el" href="classNUtil_1_1CLogger.html#a939dc32a637742cbecfdb717662e2dda">NUtil::CLogger</a>
+: <a class="el" href="df/d41/class_n_util_1_1_c_logger.html#a939dc32a637742cbecfdb717662e2dda">NUtil::CLogger</a>
+</li>
+<li>CMemory()
+: <a class="el" href="d0/d11/class_n_util_1_1_c_memory.html#a94bd79f970d6352ef23c0cdb1a6ea9a7">NUtil::CMemory</a>
 </li>
 <li>CMonitorData()
-: <a class="el" href="classNProtocol_1_1CMonitorData.html#aee47d2b9e45c8ce01e1460d58089794f">NProtocol::CMonitorData</a>
+: <a class="el" href="d2/db5/class_n_protocol_1_1_c_monitor_data.html#aee47d2b9e45c8ce01e1460d58089794f">NProtocol::CMonitorData</a>
 </li>
 <li>confirm()
-: <a class="el" href="classNEngine_1_1CSensorDataFileManager.html#a58e6b254241b6970cafe79d975300c23">NEngine::CSensorDataFileManager&lt; T, SeriesAround &gt;</a>
+: <a class="el" href="de/d53/class_n_engine_1_1_c_sensor_data_file_manager.html#a58e6b254241b6970cafe79d975300c23">NEngine::CSensorDataFileManager&lt; T, SeriesAround &gt;</a>
 </li>
 <li>convertDuration()
-: <a class="el" href="classNUtil_1_1STime.html#ac45771bbfeb5732a99c11f485d0a1e23">NUtil::STime</a>
+: <a class="el" href="d6/de7/class_n_util_1_1_s_time.html#ac45771bbfeb5732a99c11f485d0a1e23">NUtil::STime</a>
 </li>
 <li>convertToBinary()
-: <a class="el" href="classNProtocol_1_1CHttpThread.html#af9aa03543add7af80cacff0f72ff7d29">NProtocol::CHttpThread</a>
+: <a class="el" href="de/d4a/class_n_protocol_1_1_c_http_thread.html#a83072a9ec2a16838b6d0dce781a56de8">NProtocol::CHttpThread</a>
 </li>
 <li>convertToProtocol()
-: <a class="el" href="classNProtocol_1_1CHttpThread.html#a1da8ee3264dcfc7e0cf6d6d57b9508ba">NProtocol::CHttpThread</a>
+: <a class="el" href="de/d4a/class_n_protocol_1_1_c_http_thread.html#a0f33bf4e041f1c724abcfa0aa4dbd596">NProtocol::CHttpThread</a>
+</li>
+<li>convertToProtocolConfigurationResponse()
+: <a class="el" href="de/d4a/class_n_protocol_1_1_c_http_thread.html#a09b9cb9fe6b1ad5e3abedb02f2164c9b">NProtocol::CHttpThread</a>
+</li>
+<li>convertToProtocolDebug()
+: <a class="el" href="de/d4a/class_n_protocol_1_1_c_http_thread.html#aeea3f38675116514b2a9fabde4db1788">NProtocol::CHttpThread</a>
+</li>
+<li>convertToProtocolMonitorData()
+: <a class="el" href="de/d4a/class_n_protocol_1_1_c_http_thread.html#aa19b4dac9c7d60da80fe91889b26ff9d">NProtocol::CHttpThread</a>
+</li>
+<li>convertToProtocolServerReponse()
+: <a class="el" href="de/d4a/class_n_protocol_1_1_c_http_thread.html#aba7d9bc57686e829c6e2ce82f549b3f1">NProtocol::CHttpThread</a>
+</li>
+<li>convertToProtocolServerRequest()
+: <a class="el" href="de/d4a/class_n_protocol_1_1_c_http_thread.html#a4dbc0301d97f8e62ed51c5439a3ce3f0">NProtocol::CHttpThread</a>
 </li>
 <li>coutFiles()
-: <a class="el" href="classNEngine_1_1CSensorDataFileManager.html#a18d83f5793107294ad7687202a31aaba">NEngine::CSensorDataFileManager&lt; T, SeriesAround &gt;</a>
+: <a class="el" href="de/d53/class_n_engine_1_1_c_sensor_data_file_manager.html#a18d83f5793107294ad7687202a31aaba">NEngine::CSensorDataFileManager&lt; T, SeriesAround &gt;</a>
 </li>
 <li>CProtocol()
-: <a class="el" href="classNProtocol_1_1CProtocol.html#ab085b6fd3a4a49086a9cf7042a37025a">NProtocol::CProtocol</a>
+: <a class="el" href="d5/d37/class_n_protocol_1_1_c_protocol.html#ab085b6fd3a4a49086a9cf7042a37025a">NProtocol::CProtocol</a>
 </li>
 <li>crc16()
-: <a class="el" href="classNUtil_1_1CCryptography.html#ae8e1042ac06a48051aa859dc1d0bb8c9">NUtil::CCryptography</a>
+: <a class="el" href="da/dfa/class_n_util_1_1_c_cryptography.html#ae8e1042ac06a48051aa859dc1d0bb8c9">NUtil::CCryptography</a>
 </li>
 <li>CRequest()
-: <a class="el" href="classNProtocol_1_1CRequest.html#acb883a41302edde761cf470528451446">NProtocol::CRequest</a>
+: <a class="el" href="d2/dd6/class_n_protocol_1_1_c_request.html#acb883a41302edde761cf470528451446">NProtocol::CRequest</a>
 </li>
 <li>CSendingTask()
-: <a class="el" href="classNProtocol_1_1CSendingTask.html#aa2299d1affa00242f3deaafdac6f5d86">NProtocol::CSendingTask</a>
+: <a class="el" href="dd/df0/class_n_protocol_1_1_c_sending_task.html#aa2299d1affa00242f3deaafdac6f5d86">NProtocol::CSendingTask</a>
 </li>
 <li>CSensorConfiguration()
-: <a class="el" href="classNEngine_1_1CSensorConfiguration.html#ae4a2ec264801b0171c83065737f6d73a">NEngine::CSensorConfiguration</a>
+: <a class="el" href="d1/dd7/class_n_engine_1_1_c_sensor_configuration.html#a552f5f2d5af39614a15fc8cd005171a0">NEngine::CSensorConfiguration</a>
 </li>
 <li>CSensorConfigurationMock()
-: <a class="el" href="classNEngine_1_1CSensorConfigurationMock.html#a1d78cc219fa9f1fe67bba946511991d0">NEngine::CSensorConfigurationMock</a>
+: <a class="el" href="d5/d19/class_n_engine_1_1_c_sensor_configuration_mock.html#a1d78cc219fa9f1fe67bba946511991d0">NEngine::CSensorConfigurationMock</a>
 </li>
 <li>CSensorData()
-: <a class="el" href="classNProtocol_1_1CSensorData.html#a7188c815f6105fd37c92339d140103b5">NProtocol::CSensorData</a>
+: <a class="el" href="d7/d96/class_n_protocol_1_1_c_sensor_data.html#af8e35d639a0f586995e34f689d92054a">NProtocol::CSensorData</a>
 </li>
 <li>CSensorFactory()
-: <a class="el" href="classNSensors_1_1CSensorFactory.html#a3dc741911f903d85ae6f8f8d0ae8ff20">NSensors::CSensorFactory</a>
+: <a class="el" href="dd/d46/class_n_sensors_1_1_c_sensor_factory.html#a3dc741911f903d85ae6f8f8d0ae8ff20">NSensors::CSensorFactory</a>
 </li>
 <li>CSensorsManager()
-: <a class="el" href="classNSensors_1_1CSensorsManager.html#a4ae42e5c1756f39acb68d289b0881884">NSensors::CSensorsManager</a>
+: <a class="el" href="d4/d6a/class_n_sensors_1_1_c_sensors_manager.html#a4ae42e5c1756f39acb68d289b0881884">NSensors::CSensorsManager</a>
 </li>
 <li>CSensorsManagerMock()
-: <a class="el" href="classNSensors_1_1CSensorsManagerMock.html#af1eca563e064c7b0a533658d03f58832">NSensors::CSensorsManagerMock</a>
+: <a class="el" href="d8/d54/class_n_sensors_1_1_c_sensors_manager_mock.html#af1eca563e064c7b0a533658d03f58832">NSensors::CSensorsManagerMock</a>
 </li>
 <li>CServerRequest()
-: <a class="el" href="classNProtocol_1_1CServerRequest.html#ab513c1390709235431146df7e201f116">NProtocol::CServerRequest</a>
+: <a class="el" href="d1/df9/class_n_protocol_1_1_c_server_request.html#ab513c1390709235431146df7e201f116">NProtocol::CServerRequest</a>
 </li>
 <li>CServerResponse()
-: <a class="el" href="classNProtocol_1_1CServerResponse.html#a9330a6dfdac77aeac6c59957d2ba0553">NProtocol::CServerResponse</a>
+: <a class="el" href="df/de2/class_n_protocol_1_1_c_server_response.html#a9330a6dfdac77aeac6c59957d2ba0553">NProtocol::CServerResponse</a>
 </li>
 <li>CUnlogFile()
-: <a class="el" href="classNUtil_1_1CUnlogFile.html#a5a86f0c09e94b8a2fb21a210639b4499">NUtil::CUnlogFile</a>
+: <a class="el" href="d6/de0/class_n_util_1_1_c_unlog_file.html#a5a86f0c09e94b8a2fb21a210639b4499">NUtil::CUnlogFile</a>
 </li>
 </ul>
 </div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 26 2014 12:08:22 for Monitoring hall by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.6
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated on Fri Jul 4 2014 15:59:00 for Monitoring hal - koncentrator by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
+  </ul>
+</div>
 </body>
 </html>

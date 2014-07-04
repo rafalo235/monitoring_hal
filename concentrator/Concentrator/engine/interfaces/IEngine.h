@@ -4,6 +4,7 @@
 namespace NEngine {
   //!
   //! \brief The IEngine class klasa abstrakcyjna silnika
+  //! \author Marcin Serwach
   class IEngine
   {
   public:

@@ -19,6 +19,7 @@ namespace NEngine {
 
   //!
   //! \brief The CConfiguration class Klasa konfiguracji
+  //! \author Marcin Serwach
   class CConfiguration : public IConfiguration
   {
     friend class CConfigurationFactory;

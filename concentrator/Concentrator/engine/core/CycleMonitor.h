@@ -27,11 +27,18 @@ namespace NEngine{
   using namespace NProtocol;
   //! \brief Klasa odpowiedzialna za cykliczne sprawdzanie probek z czujnikow. Co ustalony czas wywolujaca metody odpowiedzialne za
   //! wysylanie danych do serwera.
+  //! \author Marcin Serwach
   class CCycleMonitor
   {
+    //! \brief menadzer czujnikow
     DSensorManager sensors;
+
+    //! \brief menadzer konfiguracji
     DConfiguration configuration;
+
+    //! \brief menadzer konfiguracji
     DConnection connection;
+
     typedef CSensorDataFileManager<CSensorData, 10> DSensorDataFileManager;
 
     //! \brief smart pointer do obiektu watku
@@ -40,6 +47,7 @@ namespace NEngine{
     //! \brief flaga zatrzymanai watku
     std::atomic<bool> threadExit;
 
+    //! \brief pierwa pomiedzy sprawdzaniem czujnikow (w sekundach)
     static const int secondInterval;
 
     int idSensorDataBase;
@@ -49,21 +57,28 @@ namespace NEngine{
     //! \brief czas ostatniego wyslania danych
     STime sendingDataTime;
 
+    //! \brief seria pomiarow, ktora jest wykorzystywana do zapamietywania wyslanych danych.
+    //! Dane te sa zapisane.
     struct SSavedSensorData{
-      int idSeries;
-      std::vector<CSensorData> sensorDatas;
-      STime time;
+      int idSeries;                         //!< id serii
+      std::vector<CSensorData> sensorDatas; //!< dane pomiarowe
+      STime time;                           //!< czas wyslania pomiarow
     };
 
+    //! \brief ostatnie odczytane dane z czujnikow
     SSavedSensorData savedSensorData;
 
+    //! \brief dane wyslane do serwera: klucz - id pakietu, wartosc d- dane
     std::map<uint32_t, SSavedSensorData> sensorSeries;
 
+    //! \brief struktura wykorzystywana do przesylanai danych historycznych
     struct SOldSensorData
     {
-      STime time;
-      std::vector<DSensorDataFileManager::SToConfirm> toConfirm;
+      STime time;                                               //!< data serii
+      std::vector<DSensorDataFileManager::SToConfirm> toConfirm;//!< wektor danych
     };
+
+    //! \brief Wyslane dane historyczne: klucz - id pakietu; wartosc dane historyczne
     std::map<uint32_t, SOldSensorData> oldSensorSeries;
 
   public:

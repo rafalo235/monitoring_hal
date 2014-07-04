@@ -11,14 +11,21 @@ namespace NTest
   using namespace NProtocol;
   using namespace NEngine;
 
+  //!
+  //! \brief The CConfigurationTest class testy konfiguracji
+  //! \author Marcin Serwach
   class CConfigurationTest : public CTest<CConfigurationTest>
   {
   public:
+    //!
+    //! \brief CConfigurationTest konstruktor z dodaniem funkcji testowych
     CConfigurationTest()
     {
       addTestCase("saveReadTest", &CConfigurationTest::saveReadTest);
     }
 
+    //!
+    //! \brief saveReadTest test zmiany konfiguracji
     void saveReadTest()
     {
       CConfigurationMock conf;

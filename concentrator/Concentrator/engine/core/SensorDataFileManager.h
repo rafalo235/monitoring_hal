@@ -67,6 +67,7 @@ namespace NEngine
   //! Struktura pliku:
   //! | size | data1 | data2 | ....
   //!
+  //! \author Marcin Serwach
   template<typename T, int SeriesAround>
   class CSensorDataFileManager
   {
@@ -820,6 +821,7 @@ namespace NEngine
     //! \param bufferConfirmedFile plik _confirmed.buffer
     //! \param bufferUnconfirmedFile plik _unconfirmed.buffer
     //! \param warning true gdy zapisywany bedzie pomiar niebezpieczny
+    //! \param moveSize ile serii przenies (zwraca ile zostalo przeniesione)
     //! \return id ostatniej serii
     static int moveDataToWarnings(SBufferInfo& bufferInfo,
         std::fstream& warningFile, std::fstream& warningConfirmedFile,

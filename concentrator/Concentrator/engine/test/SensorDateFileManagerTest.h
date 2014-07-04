@@ -19,6 +19,7 @@ namespace NTest
 
   //!
   //! \brief The CSensorDateFileManagerTest class testy jednostkowe CSensorDataFileManager
+  //! \author Marcin Serwach
   class CSensorDateFileManagerTest : public CTest<CSensorDateFileManagerTest>
   {
     //! \brief konfiguracja

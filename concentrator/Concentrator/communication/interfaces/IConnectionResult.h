@@ -17,7 +17,7 @@ namespace NProtocol{
 
   //!
   //! \brief The IConnectionResult class jest interfejsem danych otrzymanych z serwera lub danych niewyslanych.
-  //!
+  //! \author Marcin Serwach
   class IConnectionResult
   {
   public:

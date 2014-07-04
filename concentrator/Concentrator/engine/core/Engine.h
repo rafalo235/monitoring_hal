@@ -15,6 +15,7 @@ namespace NEngine{
   using namespace NProtocol;
 
   //! \brief Klasa odpowiedzialna za uruchomienie wszystkich uslug
+  //! \author Marcin Serwach
   class CEngine : public IEngine
   {
     friend class EngineFactory;

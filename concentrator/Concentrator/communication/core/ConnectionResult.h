@@ -10,6 +10,7 @@ namespace NProtocol{
 
   //!
   //! \brief The CConnectionResult class Dane otrzymane z serwera lub ewentualne bledy.
+  //! \author Marcin Serwach
   class CConnectionResult : public IConnectionResult
   {
   private:

@@ -16,6 +16,7 @@ namespace NProtocol {
 
   //!
   //! \brief The CHttpThread class Klasa, w ktorej dziala watek komunikacji z serwerem
+  //! \author Marcin Serwach
   class CHttpThread
   {
   private:
@@ -90,7 +91,9 @@ namespace NProtocol {
     template<typename T>
     static inline void convertToBinary(QByteArray& array, const T& data);
 
-
+    //! \brief Konwertuje bajty na obiekty/prymityw
+    //! \param[in] wrapper bajty
+    //! \return odczytany obiekt
     template<typename T>
     static inline T convertToProtocol(CByteWrapper& wrapper);
 
@@ -100,14 +103,28 @@ namespace NProtocol {
     //!         zalokowana pamiec
     static std::shared_ptr<CProtocol> convertToProtocol(CByteWrapper& wrapper);
 
-    //!
-    //! \brief convertToProtocol Konwertuj tablic bajtow do wiadomosci
+    //! \brief convertToProtocol Konwertuj tablic bajtow do wiadomosci typu CServerResponse
     //! \param message[out] odczytana odpowiedz z serwera
     //! \param wrapper tablica bajtow
     //! \return true jesli konwersja poprawna; false jesli nie
     static bool convertToProtocolServerReponse(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper);
+
+    //! \brief convertToProtocol Konwertuj tablic bajtow do wiadomosci typu CMonitorData
+    //! \param message[out] odczytana odpowiedz z serwera
+    //! \param wrapper tablica bajtow
+    //! \return true jesli konwersja poprawna; false jesli nie
     static bool convertToProtocolMonitorData(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper);
+
+    //! \brief convertToProtocol Konwertuj tablic bajtow do wiadomosci typu CConfigurationResponse
+    //! \param message[out] odczytana odpowiedz z serwera
+    //! \param wrapper tablica bajtow
+    //! \return true jesli konwersja poprawna; false jesli nie
     static bool convertToProtocolConfigurationResponse(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper);
+
+    //! \brief convertToProtocol Konwertuj tablic bajtow do wiadomosci typu CServerRequest
+    //! \param message[out] odczytana odpowiedz z serwera
+    //! \param wrapper tablica bajtow
+    //! \return true jesli konwersja poprawna; false jesli nie
     static bool convertToProtocolServerRequest(std::shared_ptr<IMessage>& message, CByteWrapper& wrapper);
     //!
     //! \brief convertToProtocol Konwertuje tablice bajtow na konfiguracje
@@ -124,6 +141,9 @@ namespace NProtocol {
     static bool convertToProtocol(CData& sdata, CByteWrapper& wrapper);
     // ////////////////////////////////////////////////////////////////////
 
+    //!
+    //! \brief convertToProtocolDebug wyswietla protokol
+    //! \param array bajty
     static void convertToProtocolDebug(const QByteArray& array);
   public:
     //!

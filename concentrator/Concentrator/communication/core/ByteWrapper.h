@@ -11,6 +11,7 @@
 namespace NProtocol{
 
   //! \brief Klasa pomocnicza w konwertowaniu tablicy bajtow na protokol
+  //! \author Marcin Serwach
   class CByteWrapper{
 
     //! \brief Tablica bajtow
@@ -19,7 +20,9 @@ namespace NProtocol{
     //! \brief Wskaznik w tablicy bajtow
     int pointer;
 
+    //! \brief rozmiar danych
     int size;
+
   public:
 
     //!
@@ -33,20 +36,29 @@ namespace NProtocol{
 
     }
 
+    //!
+    //! \brief display wyswietla bajty
     void display() const
     {
-      LOG_DEBUG("siz bytes: ", size);
+      LOG_DEBUG("size bytes: ", size);
       char* buf = &*src;
       for (int i = 0; i < size; ++i)
       {
         std::cout<<(int)*(buf + i)<<std::endl;
       }
     }
+
+    //!
+    //! \brief getSize zwraca rozmiar
+    //! \return rozmiar
     int getSize() const
     {
       return size;
     }
 
+    //!
+    //! \brief isCRCValid sprawdza crc, przyjmuj ze CRC zajmuje ostatnie bajty
+    //! \return true jesli CRC jest poprawny
     bool isCRCValid()
     {
       char* buf = &*src;

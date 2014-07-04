@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['reset',['RESET',['../namespaceNProtocol.html#a3fa62223fbbd1381527365b3348ee29dab5859d8721cfdc0312b2838b9c985bc1',1,'NProtocol']]]
+  ['turn_5foff',['TURN_OFF',['../de/dff/namespace_n_protocol.html#acbbbdd115c74c6897c0db8c47322bb4aaeed1ed0fef866752b8126ade8443a026',1,'NProtocol']]]
 ];

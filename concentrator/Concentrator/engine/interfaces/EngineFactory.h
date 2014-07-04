@@ -14,6 +14,7 @@ namespace NEngine{
 
 
   //! \brief The CEngineFactory class wzorzec fabryki tworzacy instacje silnika
+  //! \author Marcin Serwach
   class CEngineFactory
   {
 

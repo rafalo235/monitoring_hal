@@ -1,5 +1,3 @@
-
-
 #ifndef CTIME_H
 #define CTIME_H
 #include <chrono>
@@ -12,6 +10,7 @@ namespace NUtil
 {
 
   //! \brief Sktruktura czasu
+  //! \author Marcin Serwach
   class STime
   {
     //! \brief czas
@@ -226,6 +225,8 @@ namespace NUtil
       return time >= time1.time;
     }
 
+    //!
+    //! \brief display wyswielta czas
     void display()
     {
       std::cerr<<day<<"."<<month<<"."<<year<<":"<<time<<std::endl;
@@ -254,6 +255,7 @@ namespace NUtil
   //!
   //! \brief The CTime class klasa ze statycznymi metodami obslugi czasu.
   //!        Po zdefiniwaniu DEBUG_TIME umozliwia manipulowanie czasem
+  //! \author Marcin Serwach
   class CTime{
 
   public:

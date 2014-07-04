@@ -14,6 +14,7 @@ namespace NProtocol{
 
   //!
   //! \brief The IConnection class jest interfejsem komunikacji z serwerem.
+  //! \author Marcin Serwach
   class IConnection
   {
   public:

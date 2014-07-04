@@ -15,6 +15,7 @@ namespace NProtocol {
 
   //!
   //! \brief The CConnection class Klasa komunikacji implementujaca NProtocol::IConnection.
+  //! \author Marcin Serwach
   class CConnection : public IConnection
   {
     friend class CConnectionFactory;
