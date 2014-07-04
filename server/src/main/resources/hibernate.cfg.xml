@@ -23,17 +23,17 @@
 		<property name="hibernate.connection.useUnicode">true</property>
 		<property name="hibernate.current_session_context_class">thread</property>
 
-		<mapping class="com.hall.monitor.database.data.Company" />
-		<mapping class="com.hall.monitor.database.data.Concentrator" />
-		<mapping class="com.hall.monitor.database.data.ConcentratorConf" />
-		<mapping class="com.hall.monitor.database.data.Hall" />
-		<mapping class="com.hall.monitor.database.data.MonitorData" />
-		<mapping class="com.hall.monitor.database.data.Request" />
-		<mapping class="com.hall.monitor.database.data.RequestConf" />
-		<mapping class="com.hall.monitor.database.data.Sensor" />
-		<mapping class="com.hall.monitor.database.data.SensorConf" />
-		<mapping class="com.hall.monitor.database.data.SensorData" />
-		<mapping class="com.hall.monitor.database.data.User" />
+		<mapping class="com.hall.monitor.database.core.data.Company" />
+		<mapping class="com.hall.monitor.database.core.data.Concentrator" />
+		<mapping class="com.hall.monitor.database.core.data.ConcentratorConf" />
+		<mapping class="com.hall.monitor.database.core.data.Hall" />
+		<mapping class="com.hall.monitor.database.core.data.MonitorData" />
+		<mapping class="com.hall.monitor.database.core.data.Request" />
+		<mapping class="com.hall.monitor.database.core.data.RequestConf" />
+		<mapping class="com.hall.monitor.database.core.data.Sensor" />
+		<mapping class="com.hall.monitor.database.core.data.SensorConf" />
+		<mapping class="com.hall.monitor.database.core.data.SensorData" />
+		<mapping class="com.hall.monitor.database.core.data.User" />
 
 
 	</session-factory>

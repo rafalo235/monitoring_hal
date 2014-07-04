@@ -9,8 +9,8 @@ public class CRCHelper
 {
   /**
    * Zwraca CRC - wykorzystywane do pakietow wysylanych z serwera
-   * @param data
-   * @return
+   * @param data tablica bajtow do zakodowania
+   * @return tablica bajtow z obliczonego CRC16
    */
   public static byte[] countCrc16(byte data[]) {
     byte[] r = new byte[2];
@@ -29,8 +29,8 @@ public class CRCHelper
   
   /**
    * Sprawdza CRC - na koncu pakietu jest suma kontrolna, wiec idzie zgodnie z algorytmem z wiki
-   * @param data
-   * @return
+   * @param data tablica bajtow wraz z CRC na koncu
+   * @return true jesli poprawny
    */
   public static boolean isValid(byte data[]) {
     

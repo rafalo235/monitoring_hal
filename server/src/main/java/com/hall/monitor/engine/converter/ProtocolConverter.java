@@ -8,17 +8,22 @@ import com.hall.monitor.protocol.EMessageType;
 import com.hall.monitor.protocol.EReceiveStatus;
 import com.hall.monitor.protocol.ESensorState;
 import com.hall.monitor.protocol.EValueType;
-import com.hall.monitor.protocol.SConfiguration;
-import com.hall.monitor.protocol.SConfigurationResponse;
-import com.hall.monitor.protocol.SConfigurationValue;
-import com.hall.monitor.protocol.SData;
-import com.hall.monitor.protocol.SMonitorData;
-import com.hall.monitor.protocol.SProtocol;
-import com.hall.monitor.protocol.SSensorData;
-import com.hall.monitor.protocol.SServerRequest;
-import com.hall.monitor.protocol.SServerResponse;
-import com.hall.monitor.protocol.UMessage;
+import com.hall.monitor.protocol.CConfiguration;
+import com.hall.monitor.protocol.CConfigurationResponse;
+import com.hall.monitor.protocol.CConfigurationValue;
+import com.hall.monitor.protocol.CData;
+import com.hall.monitor.protocol.CMonitorData;
+import com.hall.monitor.protocol.CProtocol;
+import com.hall.monitor.protocol.CSensorData;
+import com.hall.monitor.protocol.CServerRequest;
+import com.hall.monitor.protocol.CServerResponse;
+import com.hall.monitor.protocol.IMessage;
 
+/**
+ * Konwertuje tablice bajtow na obiekt protokolu i odwrotnie
+ * @author Marcin Serwach
+ *
+ */
 public class ProtocolConverter
 {
   
@@ -29,9 +34,9 @@ public class ProtocolConverter
    * @param idSensor id czujnka
    * @param idData id pomiaru
    * @return obiekt SData
-   * @throws ParserException
+   * @throws ParserException niepoprawna struktura bajtow - typ nie odnaleziony
    */
-  private static SData converToSData(DataByteInputStream stream,
+  private static CData converToSData(DataByteInputStream stream,
       int idConcentrator, int idSensor, long idData) throws ParserException {
     
     byte valueTypeBuf = stream.readInt8();
@@ -72,11 +77,11 @@ public class ProtocolConverter
       value = stream.readDouble64();
       break;
     case VOID:
-      value = SData.VOID_VALUE;
+      value = CData.VOID_VALUE;
       break;
     }
     
-    return new SData(valueType, value);
+    return new CData(valueType, value);
     
   }
   
@@ -87,7 +92,7 @@ public class ProtocolConverter
    * @return objekt SSensorData
    * @throws ParserException gdy nieznany jest stan lub poziom niebezpieczenstwa (niepoprawne wartosci)
    */
-  private static SSensorData convertToSSensorData(DataByteInputStream stream,
+  private static CSensorData convertToSSensorData(DataByteInputStream stream,
       int idConcentrator) throws ParserException {
     
     long idData = stream.readUInt32();
@@ -108,9 +113,9 @@ public class ProtocolConverter
           idSensor, idData);
     }
     
-    SData data = converToSData(stream, idConcentrator, idSensor, idData);
+    CData data = converToSData(stream, idConcentrator, idSensor, idData);
     
-    return new SSensorData(idData, idSensor, timeStamp, sensorState,
+    return new CSensorData(idData, idSensor, timeStamp, sensorState,
         dangerLevel, data);
   }
   
@@ -121,21 +126,21 @@ public class ProtocolConverter
    * @return object SMonitorData
    * @throws ParserException gdy stan danych czujnikow jest niepoprawny
    */
-  private static SMonitorData convertToSMonitorData(DataByteInputStream stream,
+  private static CMonitorData convertToSMonitorData(DataByteInputStream stream,
       int idConcentrator) throws ParserException {
     
     long sendTime = stream.readInt64();
     char sensorsAmount = stream.readUInt8();
     long sensorsDataSize = stream.readUInt32();
-    ArrayList<SSensorData> sensorDates = new ArrayList<SSensorData>(
+    ArrayList<CSensorData> sensorDates = new ArrayList<CSensorData>(
         (int) sensorsDataSize);
     for (int i = 0; i < sensorsDataSize; ++i) {
       
-      SSensorData sensorData = convertToSSensorData(stream, idConcentrator);
+      CSensorData sensorData = convertToSSensorData(stream, idConcentrator);
       sensorDates.add(sensorData);
     }
     
-    return new SMonitorData(sendTime, sensorsAmount, sensorDates);
+    return new CMonitorData(sendTime, sensorsAmount, sensorDates);
   }
   
   /**
@@ -145,16 +150,16 @@ public class ProtocolConverter
    * @return object SConfigurationValue
    * @throws ParserException niepoprawny typ danych
    */
-  private static SConfigurationValue convertToSConfigurationValue(
+  private static CConfigurationValue convertToSConfigurationValue(
       DataByteInputStream stream, int idConcentrator) throws ParserException {
     
     char idSensor = stream.readUInt8();
     byte configurationTypeBuf = stream.readInt8();
     EConfigurationType configurationType = EConfigurationType
         .convert(configurationTypeBuf);
-    SData data = converToSData(stream, idConcentrator,
+    CData data = converToSData(stream, idConcentrator,
         ParserException.ID_UKNOWN, ParserException.ID_UKNOWN);
-    return new SConfigurationValue(idSensor, configurationType, data);
+    return new CConfigurationValue(idSensor, configurationType, data);
   }
   
   /**
@@ -164,28 +169,28 @@ public class ProtocolConverter
    * @return object SConfiguration
    * @throws ParserException gdy niepoprawne sa typy danych opcji
    */
-  private static SConfiguration convertToSConfiguration(
+  private static CConfiguration convertToSConfiguration(
       DataByteInputStream stream, int idConcentrator) throws ParserException {
     
     char configurationSize = stream.readUInt8();
-    ArrayList<SConfigurationValue> configurations = new ArrayList<SConfigurationValue>();
+    ArrayList<CConfigurationValue> configurations = new ArrayList<CConfigurationValue>();
     for (int i = 0; i < configurationSize; ++i) {
-      SConfigurationValue buf = convertToSConfigurationValue(stream,
+      CConfigurationValue buf = convertToSConfigurationValue(stream,
           idConcentrator);
       configurations.add(buf);
     }
     
-    return new SConfiguration(configurations);
+    return new CConfiguration(configurations);
   }
   
   /**
-   * 
-   * @param stream
-   * @param idConcentrator
-   * @return
-   * @throws ParserException
+   * Konwertuje bajty na obiekt opowiedzi konfiguracji SConfigurationResponse
+   * @param stream stream
+   * @param idConcentrator id koncentratora
+   * @return obiekt SConfgiruationResponse
+   * @throws ParserException blad struktury
    */
-  private static SConfigurationResponse convertoSConfigurationResponse(
+  private static CConfigurationResponse convertoSConfigurationResponse(
       DataByteInputStream stream, int idConcentrator) throws ParserException {
     
     byte receiveStatusBuf = stream.readInt8();
@@ -197,26 +202,27 @@ public class ProtocolConverter
     }
     
     long idRequestPackage = stream.readUInt32();
-    SConfiguration currentConfiguration = convertToSConfiguration(stream,
+    CConfiguration currentConfiguration = convertToSConfiguration(stream,
         idConcentrator);
-    return new SConfigurationResponse(receiveStatus, idRequestPackage,
+    return new CConfigurationResponse(receiveStatus, idRequestPackage,
         currentConfiguration);
   }
   
   /**
+   * @deprecated typ pakietu wysylany z koncentratora do serwera
    * Konwersja bajtow na zadnei koncentratora przeslania konfiguracji SServerRequest
    * @param stream stream 
    * @param idConcentrator id koncentratora
    * @return object SServerRequest
    * @throws ParserException niepoprawny typ konfiguracji
    */
-  private static SServerRequest convertToSServerRequest(
+  private static CServerRequest convertToSServerRequest(
       DataByteInputStream stream, int idConcentrator) throws ParserException {
     
     return null;
   }
   
-  private static SServerResponse convertTOSServerResponse(
+  private static CServerResponse convertTOSServerResponse(
       DataByteInputStream stream, int idConcentrator) throws ParserException {
     
     return null;
@@ -228,13 +234,13 @@ public class ProtocolConverter
    * @return obiekt protokolu
    * @throws ParserException bledy struktury lub blad CRC
    */
-  public static SProtocol convertToProtocol(byte bytes[])
+  public static CProtocol convertToProtocol(byte bytes[])
       throws ParserException {
     
     DataByteInputStream stream = new DataByteInputStream(bytes);
     
     char version = stream.readUInt8();
-    if (version != SProtocol.VERSION){
+    if (version != CProtocol.VERSION){
       throw new ParserException("Unsupported version of protocol", 0, 0, 0);
     }
     if (!stream.isValidCRC())
@@ -252,7 +258,7 @@ public class ProtocolConverter
       throw new ParserException("Unknown message type", idConcentrator,
           ParserException.ID_UKNOWN, ParserException.ID_UKNOWN);
     }
-    UMessage message = null;
+    IMessage message = null;
     switch (messageType)
     {
     case CONFIGURATION_RESPONSE:
@@ -270,24 +276,37 @@ public class ProtocolConverter
     }
     char crc = stream.readUInt16();
     
-    return new SProtocol(size, idConcentrator, crc, idPackage,
+    return new CProtocol(size, idConcentrator, crc, idPackage,
         messageType, message);
   }
   
   // //////////////////////////////////////////////////////////////////
-  
+  /**
+   * @deprecated SMonitorData wysylane z koncentratora - konwersja do bajtow nie jest potrzebna
+   * @param data stream na bajty
+   * @param monitor obiekt z pomiarami
+   */
   private static void convertToBytes(DataByteOutputStream data,
-      SMonitorData monitor) {
+      CMonitorData monitor) {
+    
+  }
+  /**
+   * @deprecated SServerRequest wysylane z koncentratora - konwersja do bajtow nie jest potrzebna
+   * @param data stream na bajty
+   * @param request zadanie do serwera
+   */
+  private static void convertToBytes(DataByteOutputStream data,
+      CServerRequest request) {
     
   }
   
+  /**
+   * Konwerrtuje odpowiedz serwera na bajty
+   * @param data stream na bajty
+   * @param response odpowiedz
+   */
   private static void convertToBytes(DataByteOutputStream data,
-      SServerRequest request) {
-    
-  }
-  
-  private static void convertToBytes(DataByteOutputStream data,
-      SServerResponse response) {
+      CServerResponse response) {
     
     data.writeInt8(response.getStatus().getCppValue());
     data.writeUInt32(response.getIdRequestPackage());
@@ -295,12 +314,12 @@ public class ProtocolConverter
   }
   
   /**
-   * Konwertuje 
-   * @param data
-   * @param confResponse
+   * Konwertuje konfiguracje na bajty
+   * @param data stream na bajty
+   * @param confResponse konfiguracja
    */
   private static void convertToBytes(DataByteOutputStream data,
-      SConfigurationResponse confResponse) {
+      CConfigurationResponse confResponse) {
     
     data.writeInt8(confResponse.getStatus().getCppValue());
     data.writeUInt32(confResponse.getIdRequestPackage());
@@ -313,11 +332,11 @@ public class ProtocolConverter
    * @param configuration konfiguracja do skonwerterowania
    */
   private static void convertToBytes(DataByteOutputStream data,
-      SConfiguration configuration) {
+      CConfiguration configuration) {
     
     data.writeUInt8(configuration.getConfigurationSize());
-    ArrayList<SConfigurationValue> values = configuration.getConfigurations();
-    for (SConfigurationValue value : values){
+    ArrayList<CConfigurationValue> values = configuration.getConfigurations();
+    for (CConfigurationValue value : values){
       convertToBytes(data, value);
     }
   }
@@ -328,7 +347,7 @@ public class ProtocolConverter
    * @param value objekt do skonwerterowania
    */
   private static void convertToBytes(DataByteOutputStream data,
-      SConfigurationValue value) {
+      CConfigurationValue value) {
     
     data.writeUInt8(value.getIdSensor());
     data.writeInt8(value.getConfigurationType().getCppValue());
@@ -341,7 +360,7 @@ public class ProtocolConverter
    * @param sdata obiekt do skonwerterowania
    */
   private static void convertToBytes(DataByteOutputStream data,
-      SData sdata) {
+      CData sdata) {
     
     data.writeInt8(sdata.getType().getCppValue());
     Object value = sdata.getValue();
@@ -389,7 +408,7 @@ public class ProtocolConverter
    * @param protocol obiekt protokolu
    * @return tablica bajtow
    */
-  public static byte[] convertToBytes(SProtocol protocol) {
+  public static byte[] convertToBytes(CProtocol protocol) {
     DataByteOutputStream data = new DataByteOutputStream(
         (int) protocol.getSize());
     
@@ -402,16 +421,16 @@ public class ProtocolConverter
     switch (protocol.getType())
     {
     case CONFIGURATION_RESPONSE:
-      convertToBytes(data, (SConfigurationResponse) protocol.getMessage());
+      convertToBytes(data, (CConfigurationResponse) protocol.getMessage());
       break;
     case MONITOR_DATA:
-      convertToBytes(data, (SMonitorData) protocol.getMessage());
+      convertToBytes(data, (CMonitorData) protocol.getMessage());
       break;
     case SERVER_MONITOR_RESPONSE:
-      convertToBytes(data, (SServerResponse) protocol.getMessage());
+      convertToBytes(data, (CServerResponse) protocol.getMessage());
       break;
     case SERVER_REQUEST:
-      convertToBytes(data, (SServerRequest) protocol.getMessage());
+      convertToBytes(data, (CServerRequest) protocol.getMessage());
       break;
     }
     
@@ -423,6 +442,11 @@ public class ProtocolConverter
     return data.getBytes();
   }
   
+  /**
+   * Wyjatek dla informowania o bledach struktury pakietu - bledy konwersji z tablicy bajtow na obiek pakietu
+   * @author Marcin Serwach
+   *
+   */
   public static class ParserException extends Exception
   {
     /**

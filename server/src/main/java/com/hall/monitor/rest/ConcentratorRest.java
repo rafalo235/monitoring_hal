@@ -17,28 +17,39 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
-import com.hall.monitor.database.DBManager;
-import com.hall.monitor.database.data.Company;
-import com.hall.monitor.database.data.Concentrator;
-import com.hall.monitor.database.data.ConcentratorConf;
-import com.hall.monitor.database.data.Hall;
-import com.hall.monitor.database.data.Sensor;
-import com.hall.monitor.database.data.SensorConf;
-import com.hall.monitor.database.data.User;
+import com.hall.monitor.database.core.DBManager;
+import com.hall.monitor.database.core.data.Company;
+import com.hall.monitor.database.core.data.Concentrator;
+import com.hall.monitor.database.core.data.ConcentratorConf;
+import com.hall.monitor.database.core.data.Hall;
+import com.hall.monitor.database.core.data.Sensor;
+import com.hall.monitor.database.core.data.SensorConf;
+import com.hall.monitor.database.core.data.User;
 import com.hall.monitor.engine.Engine;
 import com.hall.monitor.protocol.EConfigurationType;
 import com.hall.monitor.protocol.EValueType;
-import com.hall.monitor.protocol.SConfiguration;
-import com.hall.monitor.protocol.SConfigurationValue;
+import com.hall.monitor.protocol.CConfiguration;
+import com.hall.monitor.protocol.CConfigurationValue;
 
+/**
+ * Klasa webservice'u Jersey
+ * @author Marcin Serwach
+ *
+ */
 @Path("/concentrator")
 public class ConcentratorRest
 {
-  
+  /** logger */
   Logger         log    = Logger.getLogger(ConcentratorRest.class
                             .getSimpleName());
+  /** silnik przetwarzajacy pakiety */
   private Engine engine = new Engine();
   
+  /**
+   * Funkcja wywolywana przy laczeniu koncentratora
+   * @param bytes tablica bajtow z pakietem
+   * @return tablica bajtow z odpowiedzia
+   */
   @POST
   @Path("/post")
   @Consumes(MediaType.APPLICATION_OCTET_STREAM)
@@ -55,7 +66,7 @@ public class ConcentratorRest
     
   }
   
-  // ////////////////////////////////////////////////////////////////////////////////////////////////////
+  // ////////////////////////////////// ponizsze funkcje sa uzywane do testow //////
   private Response sendError() {
     ResponseBuilder builder = Response.status(201);
     builder.entity("Blad");
@@ -70,10 +81,10 @@ public class ConcentratorRest
   public Response testGetConfiguration()
   {
     DBManager db = new DBManager();
-    SConfiguration conf = db.loadConcentratorConfiguration(1);
+    CConfiguration conf = db.getConcentratorConfiguration(1);
     StringBuilder str = new StringBuilder();
     str.append("Configuration size: "+ (int)conf.getConfigurationSize());
-    for(SConfigurationValue value : conf.getConfigurations()){
+    for(CConfigurationValue value : conf.getConfigurations()){
       str.append("\nid Sensor: ");
       str.append((int)value.getIdSensor());
       str.append(" type: ");
@@ -286,6 +297,7 @@ public class ConcentratorRest
     }
   }
   
+  /////////////////////////////////////////////////////// Do prezentacji //////////////////
   @GET
   @Path("/test/add_test")
   @Produces(MediaType.TEXT_PLAIN)

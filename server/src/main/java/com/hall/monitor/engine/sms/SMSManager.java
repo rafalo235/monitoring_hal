@@ -12,8 +12,8 @@ import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 
-import com.hall.monitor.database.data.Concentrator;
-import com.hall.monitor.database.data.Hall;
+import com.hall.monitor.database.core.data.Concentrator;
+import com.hall.monitor.database.core.data.Hall;
 
 /**
  * Obsluguje smsy
@@ -66,8 +66,7 @@ public class SMSManager
    */
   public void sendSms(final Concentrator concentrator,
       final Set<Integer> warningSensorsIds, final Set<Integer> alarmSensorsIds) {
-    // TODO http://commons.apache.org/proper/commons-email/userguide.html
-    
+
     executorService.execute(new Runnable()
     {
       

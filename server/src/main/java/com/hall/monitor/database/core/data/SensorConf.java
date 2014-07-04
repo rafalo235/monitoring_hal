@@ -1,4 +1,4 @@
-package com.hall.monitor.database.data;
+package com.hall.monitor.database.core.data;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,14 +14,22 @@ import javax.persistence.Table;
 import com.hall.monitor.protocol.EConfigurationType;
 import com.hall.monitor.protocol.EValueType;
 
+/**
+ * Klasa wykorzystywana przy transformacji ORM z tabeli SensorConfs.
+ * Klasa reprezentuje konfiguracje pojedynczego czujnika lub samego koncentratora
+ * @author Marcin Serwach
+ *
+ */
 @Entity
 @Table(name = "SensorConfs")
 public class SensorConf
 {
+  /** id */
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "idSensorConf")
   private int                idSensorConf;
+  
   
   @ManyToOne
   @JoinColumn(name = "idSensor")
